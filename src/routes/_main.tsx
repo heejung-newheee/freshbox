@@ -1,11 +1,11 @@
+import type { FoodItem } from "@/@types";
+import { Header, Sidebar } from "@/components/layout";
+import { AddModal } from "@/components/modal";
+import * as api from "@/services/api";
+import { getDday } from "@/utils";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
-import { Sidebar, Header } from "@/components/layout";
-import { AddModal } from "@/components/modal";
-import type { FoodItem } from "@/@types";
-import { getDday } from "@/utils";
-import * as api from "@/services/api";
 
 const pageTitle = {
   "/": "대시보드",
@@ -62,8 +62,6 @@ export default function MainLayout() {
     >
       {/* Sidebar */}
       <Sidebar
-        tab={location.pathname}
-        setTab={() => {}}
         itemCount={active.length}
       />
 

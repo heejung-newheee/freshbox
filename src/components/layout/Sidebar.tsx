@@ -1,35 +1,36 @@
+import { useLocation, useNavigate } from "react-router-dom";
 import { MEMBERS } from "../../constants/constants";
-import { Avatar } from "../ui/ui-components";
-import {
-  IconDashboard,
-  IconBox,
-  IconFridge,
-  IconFork,
-  IconShare,
-  IconLeaf,
-} from "../ui/icons";
 import { cn } from "../../utils/utils";
+import {
+  IconBox,
+  IconDashboard,
+  IconFork,
+  IconFridge,
+  IconLeaf,
+  IconShare,
+} from "../ui/icons";
+import { Avatar } from "../ui/ui-components";
 
 const NAV: {
-  id: string;
+  path: string;
   Icon: React.FC<{ size?: number; className?: string }>;
   label: string;
 }[] = [
-  { id: "dashboard", Icon: IconDashboard, label: "대시보드" },
-  { id: "inventory", Icon: IconBox, label: "재고 목록" },
-  { id: "fridge", Icon: IconFridge, label: "냉장고 맵" },
-  { id: "meal", Icon: IconFork, label: "식단 플래너" },
-  { id: "share", Icon: IconShare, label: "공유 관리" },
+  { path: "/", Icon: IconDashboard, label: "대시보드" },
+  { path: "/inventory", Icon: IconBox, label: "재고 목록" },
+  { path: "/fridge", Icon: IconFridge, label: "냉장고 맵" },
+  { path: "/meal", Icon: IconFork, label: "식단 플래너" },
+  { path: "/share", Icon: IconShare, label: "공유 관리" },
 ];
 
 interface Props {
-  tab: string;
-  setTab: (t: string) => void;
   itemCount: number;
 }
 
-export function Sidebar({ tab, setTab, itemCount }: Props) {
+export function Sidebar({ itemCount }: Props) {
   const me = MEMBERS[0];
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
   return (
     <aside className="fixed top-0 left-0 bottom-0 w-[220px] bg-white border-r border-stone-100 flex flex-col z-40">
       {/* Logo */}
@@ -54,12 +55,12 @@ export function Sidebar({ tab, setTab, itemCount }: Props) {
         <p className="text-[10px] font-bold text-stone-300 tracking-widest px-2 mb-2 mt-1">
           MENU
         </p>
-        {NAV.map(({ id, Icon, label }) => {
-          const active = tab === id;
+        {NAV.map(({ path, Icon, label }) => {
+          const active = pathname === path;
           return (
             <button
-              key={id}
-              onClick={() => setTab(id)}
+              key={path}
+              onClick={() => navigate(path)}
               className={cn(
                 "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl mb-0.5 text-sm transition-all",
                 active
@@ -72,7 +73,7 @@ export function Sidebar({ tab, setTab, itemCount }: Props) {
                 className={active ? "text-emerald-500" : "text-stone-300"}
               />
               {label}
-              {id === "inventory" && (
+              {path === "/inventory" && (
                 <span className="ml-auto bg-stone-100 text-stone-400 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
                   {itemCount}
                 </span>
