@@ -57,7 +57,7 @@ export function Sidebar({ itemCount }: Props) {
           MENU
         </p>
         {NAV.map(({ id, path, Icon, label }) => {
-          const active = location.pathname === path;
+          const active = pathname === path;
           return (
             <button
               key={id}

@@ -110,6 +110,7 @@ export default function MainLayout() {
               items,
               urgentCount,
               markConsumed: handleMarkConsumed,
+              onAddItem: () => setShowAddModal(true),
             }}
           />
         </div>

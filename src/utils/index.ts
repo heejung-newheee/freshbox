@@ -1,1 +1,1 @@
-export { getDday, getDdayMeta } from "./utils";
+export { getDday, getDdayMeta, ddayMeta } from "./utils";

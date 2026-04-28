@@ -3,5 +3,5 @@ import { Dashboard } from "@/pages";
 
 export default function DashboardRoute() {
   const context = useOutletContext<any>();
-  return <Dashboard items={context?.items || []} />;
+  return <Dashboard items={context?.items || []} onConsume={context?.markConsumed} />;
 }
