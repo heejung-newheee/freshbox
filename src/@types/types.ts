@@ -1,10 +1,13 @@
-export type Location = "냉장칸" | "냉동칸" | "야채칸";
+export type Location = "냉장" | "냉동";
+export type Zone = "상단" | "중단" | "하단" | "야채" | "도어";
 export type Category =
   | "채소"
   | "육류"
   | "해산물"
   | "유제품"
-  | "가공식품"
+  | "양념"
+  | "가공"
+  | "두부"
   | "기타";
 export type Role = "owner" | "editor" | "viewer";
 
@@ -13,6 +16,7 @@ export interface FoodItem {
   name: string;
   category: Category;
   location: Location;
+  zone?: Zone;
   bought: string;
   expiry: string;
   quantity?: number;

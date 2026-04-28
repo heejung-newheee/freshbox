@@ -12,15 +12,16 @@ import {
 import { Avatar } from "../ui/ui-components";
 
 const NAV: {
+  id: string;
   path: string;
   Icon: React.FC<{ size?: number; className?: string }>;
   label: string;
 }[] = [
-  { path: "/", Icon: IconDashboard, label: "대시보드" },
-  { path: "/inventory", Icon: IconBox, label: "재고 목록" },
-  { path: "/fridge", Icon: IconFridge, label: "냉장고 맵" },
-  { path: "/meal", Icon: IconFork, label: "식단 플래너" },
-  { path: "/share", Icon: IconShare, label: "공유 관리" },
+  { id: "dashboard", path: "/", Icon: IconDashboard, label: "대시보드" },
+  { id: "inventory", path: "/inventory", Icon: IconBox, label: "재고 목록" },
+  { id: "fridge", path: "/fridge", Icon: IconFridge, label: "냉장고 맵" },
+  { id: "meal", path: "/meal", Icon: IconFork, label: "식단 플래너" },
+  { id: "share", path: "/share", Icon: IconShare, label: "공유 관리" },
 ];
 
 interface Props {
@@ -28,8 +29,8 @@ interface Props {
 }
 
 export function Sidebar({ itemCount }: Props) {
-  const me = MEMBERS[0];
   const navigate = useNavigate();
+  const me = MEMBERS[0];
   const { pathname } = useLocation();
   return (
     <aside className="fixed top-0 left-0 bottom-0 w-[220px] bg-white border-r border-stone-100 flex flex-col z-40">
@@ -44,7 +45,7 @@ export function Sidebar({ itemCount }: Props) {
               FreshBox
             </div>
             <div className="text-[10px] text-stone-400 tracking-wider font-medium">
-              SMART FRIDGE
+              SMART FRIDGE MANAGER
             </div>
           </div>
         </div>
@@ -55,11 +56,11 @@ export function Sidebar({ itemCount }: Props) {
         <p className="text-[10px] font-bold text-stone-300 tracking-widest px-2 mb-2 mt-1">
           MENU
         </p>
-        {NAV.map(({ path, Icon, label }) => {
-          const active = pathname === path;
+        {NAV.map(({ id, path, Icon, label }) => {
+          const active = location.pathname === path;
           return (
             <button
-              key={path}
+              key={id}
               onClick={() => navigate(path)}
               className={cn(
                 "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl mb-0.5 text-sm transition-all",

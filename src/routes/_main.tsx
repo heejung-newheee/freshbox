@@ -34,6 +34,14 @@ export default function MainLayout() {
     },
   });
 
+  // 식품 소비 mutation
+  const consumeMutation = useMutation({
+    mutationFn: api.markFoodItemConsumed,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["foodItems"] });
+    },
+  });
+
   const active = items.filter((i) => !i.consumed);
   const urgentCount = active.filter((i) => getDday(i.expiry) <= 3).length;
 
@@ -47,6 +55,14 @@ export default function MainLayout() {
     } catch (err) {
       console.error("Failed to add item:", err);
       alert("재료 추가에 실패했습니다. 다시 시도해주세요.");
+    }
+  };
+
+  const handleMarkConsumed = async (id: string) => {
+    try {
+      await consumeMutation.mutateAsync(id);
+    } catch (err) {
+      console.error("Failed to mark consumed:", err);
     }
   };
 
@@ -93,6 +109,7 @@ export default function MainLayout() {
             context={{
               items,
               urgentCount,
+              markConsumed: handleMarkConsumed,
             }}
           />
         </div>
