@@ -1,6 +1,7 @@
-import { useState } from "react";
 import type { Role } from "@/@types";
 import { MEMBERS, ROLE_META } from "@/constants/constants";
+import { cn } from "@/utils/utils";
+import { useState } from "react";
 
 const ROLES: { role: Role; desc: string }[] = [
   { role: "owner", desc: "모든 권한 + 멤버 관리, 냉장고 삭제" },
@@ -8,10 +9,10 @@ const ROLES: { role: Role; desc: string }[] = [
   { role: "viewer", desc: "재고 조회만 가능, 수정 불가" },
 ];
 
-const ROLE_BORDER: Record<Role, string> = {
-  owner: "#d1fae5",
-  editor: "#dbeafe",
-  viewer: "#fef3c7",
+const ROLE_STYLE: Record<Role, { card: string; badge: string; text: string }> = {
+  owner: { card: "border-emerald-100", badge: "bg-emerald-100 text-emerald-700", text: "text-emerald-700" },
+  editor: { card: "border-blue-100", badge: "bg-blue-100 text-blue-700", text: "text-blue-700" },
+  viewer: { card: "border-amber-100", badge: "bg-amber-100 text-amber-700", text: "text-amber-700" },
 };
 
 export function Share() {
@@ -19,94 +20,88 @@ export function Share() {
   const [selectedRole, setSelectedRole] = useState("편집자");
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+    <div className="flex flex-col gap-5">
       {/* Invite */}
-      <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 14, padding: "24px" }}>
-        <h3 style={{ fontSize: 15, fontWeight: 800, color: "#1c1917", marginBottom: 6 }}>멤버 초대</h3>
-        <p style={{ fontSize: 12, color: "#9ca3af", marginBottom: 16 }}>
+      <div className="bg-white border border-gray-200 rounded-2xl p-6">
+        <h3 className="text-[15px] font-extrabold text-stone-900 mb-1.5">멤버 초대</h3>
+        <p className="text-[12px] text-gray-400 mb-4">
           이메일로 초대 링크를 보내 냉장고를 함께 관리하세요
         </p>
-        <div style={{ display: "flex", gap: 10 }}>
+        <div className="flex gap-2.5">
           <input
             type="email"
             placeholder="이메일 주소 입력..."
             value={inviteEmail}
             onChange={(e) => setInviteEmail(e.target.value)}
-            style={{ flex: 1, padding: "10px 14px", border: "1px solid #e5e7eb", borderRadius: 10, fontSize: 13, outline: "none", color: "#374151" }}
+            className="flex-1 px-3.5 py-2.5 border border-gray-200 rounded-xl text-[13px] outline-none text-gray-700 focus:border-emerald-400 transition-colors"
           />
           <select
             value={selectedRole}
             onChange={(e) => setSelectedRole(e.target.value)}
-            style={{ padding: "10px 14px", border: "1px solid #e5e7eb", borderRadius: 10, fontSize: 13, background: "#fff", color: "#374151", cursor: "pointer" }}
+            className="px-3.5 py-2.5 border border-gray-200 rounded-xl text-[13px] bg-white text-gray-700 cursor-pointer outline-none"
           >
             <option>편집자</option>
             <option>열람자</option>
           </select>
-          <button
-            style={{ padding: "10px 20px", background: "#10b981", color: "#fff", border: "none", borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: "pointer" }}
-          >
+          <button className="px-5 py-2.5 bg-emerald-500 text-white border-none rounded-xl text-[13px] font-bold cursor-pointer hover:bg-emerald-600 transition-colors">
             초대 보내기
           </button>
         </div>
       </div>
 
       {/* Role guide */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
+      <div className="grid grid-cols-3 gap-3.5">
         {ROLES.map(({ role, desc }) => {
           const meta = ROLE_META[role];
+          const s = ROLE_STYLE[role];
           return (
-            <div
-              key={role}
-              style={{ background: "#fff", border: `1px solid ${ROLE_BORDER[role]}`, borderRadius: 14, padding: "18px 20px" }}
-            >
-              <span style={{
-                display: "inline-block", padding: "3px 10px", borderRadius: 20,
-                fontSize: 12, fontWeight: 700, marginBottom: 10,
-                background: role === "owner" ? "#d1fae5" : role === "editor" ? "#dbeafe" : "#fef3c7",
-                color: role === "owner" ? "#059669" : role === "editor" ? "#2563eb" : "#b45309",
-              }}>
+            <div key={role} className={`bg-white border ${s.card} rounded-2xl px-5 py-4`}>
+              <span className={`inline-block px-2.5 py-0.5 rounded-full text-[12px] font-bold mb-2.5 ${s.badge}`}>
                 {meta.label}
               </span>
-              <p style={{ fontSize: 12, color: "#6b7280", lineHeight: 1.6 }}>{desc}</p>
+              <p className="text-[12px] text-gray-500 leading-relaxed">{desc}</p>
             </div>
           );
         })}
       </div>
 
       {/* Current Members */}
-      <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 14, padding: "24px" }}>
-        <h3 style={{ fontSize: 15, fontWeight: 800, color: "#1c1917", marginBottom: 16 }}>
+      <div className="bg-white border border-gray-200 rounded-2xl p-6">
+        <h3 className="text-[15px] font-extrabold text-stone-900 mb-4">
           현재 멤버 ({MEMBERS.length}명)
         </h3>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div className="flex flex-col gap-2.5">
           {MEMBERS.map((member) => {
             const meta = ROLE_META[member.role];
+            const s = ROLE_STYLE[member.role];
             return (
               <div
                 key={member.id}
-                style={{ display: "flex", alignItems: "center", padding: "14px 16px", background: "#f9fafb", borderRadius: 12, border: "1px solid #f3f4f6" }}
+                className="flex items-center px-4 py-3.5 bg-gray-50 rounded-xl border border-gray-100"
               >
                 {/* Avatar */}
-                <div style={{ width: 40, height: 40, borderRadius: "50%", background: member.color + "20", border: `2px solid ${member.color}50`, color: member.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700, flexShrink: 0 }}>
+                <div
+                  className="w-10 h-10 rounded-full flex items-center justify-center text-[14px] font-bold shrink-0"
+                  style={{
+                    background: member.color + "20",
+                    border: `2px solid ${member.color}50`,
+                    color: member.color,
+                  }}
+                >
                   {member.name[0]}
                 </div>
                 {/* Info */}
-                <div style={{ flex: 1, marginLeft: 12 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: "#1c1917" }}>{member.name}</div>
-                  <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 1 }}>{member.email}</div>
+                <div className="flex-1 ml-3">
+                  <div className="text-[14px] font-bold text-stone-900">{member.name}</div>
+                  <div className="text-[12px] text-gray-400 mt-0.5">{member.email}</div>
                 </div>
                 {/* Role badge */}
-                <span style={{
-                  padding: "4px 12px", borderRadius: 20, fontSize: 12, fontWeight: 700,
-                  background: member.role === "owner" ? "#d1fae5" : member.role === "editor" ? "#dbeafe" : "#fef3c7",
-                  color: member.role === "owner" ? "#059669" : member.role === "editor" ? "#2563eb" : "#b45309",
-                  marginRight: member.role !== "owner" ? 8 : 0,
-                }}>
+                <span className={cn("px-3 py-1 rounded-full text-[12px] font-bold", s.badge, member.role !== "owner" && "mr-2")}>
                   {meta.label}
                 </span>
                 {/* Remove button */}
                 {member.role !== "owner" && (
-                  <button style={{ width: 28, height: 28, borderRadius: 8, border: "1px solid #e5e7eb", background: "#fff", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#9ca3af", fontSize: 14 }}>
+                  <button className="w-7 h-7 rounded-lg border border-gray-200 bg-white cursor-pointer flex items-center justify-center text-gray-400 text-sm hover:bg-gray-100 transition-colors">
                     ×
                   </button>
                 )}

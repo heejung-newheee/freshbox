@@ -1,50 +1,7 @@
+@import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
-
-@tailwind base;
 
 @custom-variant dark (&:is(.dark *));
-@tailwind components;
-@tailwind utilities;
-
-@layer base {
-  * {
-    -webkit-tap-highlight-color: transparent;
-    @apply border-border outline-ring/50;
-  }
-
-  html {
-    font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-  }
-
-  body {
-    @apply bg-stone-50 text-stone-800;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    @apply bg-background text-foreground;
-  }
-
-  /* smooth scroll */
-  html {
-    scroll-behavior: smooth;
-  }
-}
-
-@layer utilities {
-  /* hide scrollbar but keep scrollability */
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  /* safe area bottom padding */
-  .safe-pb {
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-}
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -154,4 +111,35 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .safe-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }

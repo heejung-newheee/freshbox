@@ -85,7 +85,7 @@ export default function MainLayout() {
       <main
         style={{
           flex: 1,
-          marginLeft: "228px",
+          marginLeft: "220px",
           display: "flex",
           flexDirection: "column",
         }}

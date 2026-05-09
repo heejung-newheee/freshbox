@@ -9,7 +9,6 @@ import {
   IconLeaf,
   IconShare,
 } from "../ui/icons";
-import { Avatar } from "../ui/ui-components";
 
 const NAV: {
   id: string;
@@ -32,19 +31,20 @@ export function Sidebar({ itemCount }: Props) {
   const navigate = useNavigate();
   const me = MEMBERS[0];
   const { pathname } = useLocation();
+
   return (
-    <aside className="fixed top-0 left-0 bottom-0 w-[220px] bg-white border-r border-stone-100 flex flex-col z-40">
+    <aside className="fixed top-0 left-0 bottom-0 w-[220px] bg-white border-r border-slate-100 flex flex-col z-40">
       {/* Logo */}
-      <div className="px-5 py-5 border-b border-stone-100">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white">
-            <IconLeaf size={18} />
+      <div className="px-5 pt-5 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-[14px] bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white shadow-md shadow-emerald-200 shrink-0">
+            <IconLeaf size={20} />
           </div>
           <div>
-            <div className="text-base font-black text-stone-800 tracking-tight">
+            <div className="text-[17px] font-black text-stone-900 tracking-tight leading-tight">
               FreshBox
             </div>
-            <div className="text-[10px] text-stone-400 tracking-wider font-medium">
+            <div className="text-[9px] text-slate-400 tracking-[0.12em] font-semibold mt-0.5">
               SMART FRIDGE MANAGER
             </div>
           </div>
@@ -52,47 +52,65 @@ export function Sidebar({ itemCount }: Props) {
       </div>
 
       {/* Nav */}
-      <nav className="p-3 flex-1">
-        <p className="text-[10px] font-bold text-stone-300 tracking-widest px-2 mb-2 mt-1">
+      <div className="flex-1 px-3 py-1 overflow-y-auto">
+        <div className="text-[10px] font-bold text-slate-300 tracking-[0.12em] px-2 mb-1.5">
           MENU
-        </p>
-        {NAV.map(({ id, path, Icon, label }) => {
-          const active = pathname === path;
-          return (
-            <button
-              key={id}
-              onClick={() => navigate(path)}
-              className={cn(
-                "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl mb-0.5 text-sm transition-all",
-                active
-                  ? "bg-emerald-50 text-emerald-600 font-bold"
-                  : "text-stone-400 hover:bg-stone-50 font-medium",
-              )}
-            >
-              <Icon
-                size={17}
-                className={active ? "text-emerald-500" : "text-stone-300"}
-              />
-              {label}
-              {path === "/inventory" && (
-                <span className="ml-auto bg-stone-100 text-stone-400 text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                  {itemCount}
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </nav>
+        </div>
+        <nav className="flex flex-col gap-0.5">
+          {NAV.map(({ id, path, Icon, label }) => {
+            const active = pathname === path;
+            return (
+              <button
+                key={id}
+                onClick={() => navigate(path)}
+                className={cn(
+                  "w-full flex items-center gap-3 px-2.5 py-2.5 rounded-xl border-none cursor-pointer text-sm text-left transition-all duration-150",
+                  active
+                    ? "bg-emerald-50 text-emerald-700 font-bold"
+                    : "bg-transparent text-slate-500 font-medium hover:bg-slate-50 hover:text-slate-700",
+                )}
+              >
+                <Icon
+                  size={18}
+                  className={active ? "text-emerald-500 shrink-0" : "text-slate-400 shrink-0"}
+                />
+                <span className="flex-1">{label}</span>
+                {path === "/inventory" && (
+                  <span
+                    className={cn(
+                      "text-[11px] font-bold px-2 py-0.5 rounded-full",
+                      active
+                        ? "bg-emerald-100 text-emerald-600"
+                        : "bg-slate-100 text-slate-400",
+                    )}
+                  >
+                    {itemCount}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
 
       {/* User */}
-      <div className="p-3 border-t border-stone-100">
-        <div className="flex items-center gap-2.5 px-2 py-2 bg-stone-50 rounded-xl">
-          <Avatar name={me.name} color={me.color} size="md" />
+      <div className="p-3 border-t border-slate-100">
+        <div className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl bg-slate-50">
+          <div
+            className="w-[34px] h-[34px] rounded-full flex items-center justify-center text-[13px] font-extrabold shrink-0"
+            style={{
+              backgroundColor: me.color + "20",
+              border: `2px solid ${me.color}60`,
+              color: me.color,
+            }}
+          >
+            {me.name[0]}
+          </div>
           <div className="flex-1 min-w-0">
-            <div className="text-xs font-bold text-stone-700 truncate">
+            <div className="text-[13px] font-bold text-slate-700 truncate">
               {me.name}
             </div>
-            <div className="text-[10px] text-stone-400">소유자</div>
+            <div className="text-[11px] text-slate-400 mt-0.5">소유자</div>
           </div>
         </div>
       </div>

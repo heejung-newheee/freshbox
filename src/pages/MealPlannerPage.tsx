@@ -1,7 +1,7 @@
-import { useState } from "react";
 import type { FoodItem } from "@/@types";
 import { MEAL_PLAN } from "@/constants/constants";
-import { getDday } from "@/utils/utils";
+import { cn, getDday } from "@/utils/utils";
+import { useState } from "react";
 
 interface MealPlannerProps {
   items?: FoodItem[];
@@ -17,30 +17,18 @@ const RECIPES = [
 ];
 
 const SHOPPING = [
-  { name: "쌀", qty: "1kg", color: "#ef4444" },
-  { name: "양파", qty: "3개", color: "#ef4444" },
-  { name: "마늘", qty: "1통", color: "#f59e0b" },
-  { name: "간장", qty: "1병", color: "#f59e0b" },
-  { name: "참기름", qty: "1병", color: "#10b981" },
-  { name: "고추장", qty: "1통", color: "#10b981" },
+  { name: "쌀", qty: "1kg", cls: "bg-red-500" },
+  { name: "양파", qty: "3개", cls: "bg-red-500" },
+  { name: "마늘", qty: "1통", cls: "bg-amber-400" },
+  { name: "간장", qty: "1병", cls: "bg-amber-400" },
+  { name: "참기름", qty: "1병", cls: "bg-emerald-500" },
+  { name: "고추장", qty: "1통", cls: "bg-emerald-500" },
 ];
 
-const MEAL_ICONS: Record<string, string> = {
-  아침: "🍳",
-  점심: "☀️",
-  저녁: "🌙",
-};
-
-const MEAL_BG: Record<string, string> = {
-  아침: "#fffbeb",
-  점심: "#f0fdf4",
-  저녁: "#f5f3ff",
-};
-
-const MEAL_BORDER: Record<string, string> = {
-  아침: "#fde68a",
-  점심: "#bbf7d0",
-  저녁: "#ddd6fe",
+const MEAL_STYLE: Record<string, { card: string; label: string; icon: string }> = {
+  아침: { card: "bg-amber-50 border-amber-200", label: "text-amber-700", icon: "🍳" },
+  점심: { card: "bg-green-50 border-green-200", label: "text-green-700", icon: "☀️" },
+  저녁: { card: "bg-violet-50 border-violet-200", label: "text-violet-700", icon: "🌙" },
 };
 
 export function MealPlanner({ items = [] }: MealPlannerProps) {
@@ -58,10 +46,10 @@ export function MealPlanner({ items = [] }: MealPlannerProps) {
   ];
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <div className="flex flex-col gap-5">
       {/* Day tabs */}
-      <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 14, padding: "16px 20px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 8 }}>
+      <div className="bg-white border border-gray-200 rounded-2xl px-5 py-4">
+        <div className="grid grid-cols-7 gap-2">
           {DAYS.map((day) => {
             const active = day === selectedDay;
             const m = MEAL_PLAN[day];
@@ -69,15 +57,13 @@ export function MealPlanner({ items = [] }: MealPlannerProps) {
               <button
                 key={day}
                 onClick={() => setSelectedDay(day)}
-                style={{
-                  padding: "10px 6px", borderRadius: 12, border: "none", cursor: "pointer",
-                  background: active ? "#10b981" : "#f9fafb",
-                  color: active ? "#fff" : "#6b7280",
-                  textAlign: "center", transition: "all 0.15s",
-                }}
+                className={cn(
+                  "py-2.5 px-1.5 rounded-xl border-none cursor-pointer text-center transition-all",
+                  active ? "bg-emerald-500 text-white" : "bg-gray-50 text-gray-500 hover:bg-gray-100",
+                )}
               >
-                <div style={{ fontSize: 15, fontWeight: 800 }}>{day}</div>
-                <div style={{ fontSize: 10, marginTop: 3, opacity: 0.8, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <div className="text-[15px] font-extrabold">{day}</div>
+                <div className="text-[10px] mt-0.5 opacity-80 overflow-hidden text-ellipsis whitespace-nowrap">
                   {m?.b?.slice(0, 4) ?? "미정"}~
                 </div>
               </button>
@@ -87,73 +73,66 @@ export function MealPlanner({ items = [] }: MealPlannerProps) {
       </div>
 
       {/* Meal cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
-        {meals.map(({ type, value }) => (
-          <div
-            key={type}
-            style={{
-              background: MEAL_BG[type], border: `1px solid ${MEAL_BORDER[type]}`,
-              borderRadius: 14, padding: "20px",
-            }}
-          >
-            <div style={{ fontSize: 12, fontWeight: 700, color: "#6b7280", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: 16 }}>{MEAL_ICONS[type]}</span> {type}
+      <div className="grid grid-cols-3 gap-3.5">
+        {meals.map(({ type, value }) => {
+          const s = MEAL_STYLE[type];
+          return (
+            <div key={type} className={`${s.card} border rounded-2xl p-5`}>
+              <div className={`text-[12px] font-bold ${s.label} mb-2 flex items-center gap-1.5`}>
+                <span className="text-base">{s.icon}</span> {type}
+              </div>
+              <div className="text-base font-extrabold text-stone-900">{value}</div>
             </div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: "#1c1917" }}>{value}</div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Bottom: recommendations + shopping */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="grid grid-cols-2 gap-4">
         {/* Recipe Recommendations */}
-        <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 14, padding: "20px" }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 14 }}>🔥 임박 재료 활용 추천</h3>
-          {/* Ingredient tags */}
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
+        <div className="bg-white border border-gray-200 rounded-2xl p-5">
+          <h3 className="text-[14px] font-bold mb-3.5">🔥 임박 재료 활용 추천</h3>
+          <div className="flex gap-1.5 flex-wrap mb-3.5">
             {(urgentItems.length > 0 ? urgentItems : items.slice(0, 4)).slice(0, 5).map((i) => (
               <span
                 key={i.id}
-                style={{ padding: "4px 10px", borderRadius: 20, background: "#f0fdf4", border: "1px solid #bbf7d0", fontSize: 12, fontWeight: 600, color: "#15803d" }}
+                className="px-2.5 py-1 rounded-full bg-green-50 border border-green-200 text-[12px] font-semibold text-green-800"
               >
                 {i.name}
               </span>
             ))}
           </div>
-          {/* Recipe list */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <div className="flex flex-col gap-0.5">
             {RECIPES.map((r) => (
               <div
                 key={r.name}
-                style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: 10, cursor: "pointer" }}
-                onMouseEnter={(e) => ((e.currentTarget as HTMLDivElement).style.background = "#f9fafb")}
-                onMouseLeave={(e) => ((e.currentTarget as HTMLDivElement).style.background = "transparent")}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors"
               >
-                <span style={{ fontSize: 18 }}>🔍</span>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#1c1917" }}>{r.name}</div>
-                  <div style={{ fontSize: 11, color: "#9ca3af", marginTop: 1 }}>
+                <span className="text-lg">🔍</span>
+                <div className="flex-1">
+                  <div className="text-[13px] font-bold text-stone-900">{r.name}</div>
+                  <div className="text-[11px] text-gray-400 mt-0.5">
                     {r.ingredients} · ⏱{r.time} · {r.kcal}
                   </div>
                 </div>
-                <span style={{ fontSize: 14, color: "#d1d5db" }}>›</span>
+                <span className="text-sm text-gray-300">›</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Shopping List */}
-        <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 14, padding: "20px" }}>
-          <h3 style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>🛒 장보기 목록</h3>
-          <p style={{ fontSize: 12, color: "#9ca3af", marginBottom: 14 }}>이번 주 식단 기반 부족 재료</p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div className="bg-white border border-gray-200 rounded-2xl p-5">
+          <h3 className="text-[14px] font-bold mb-1">🛒 장보기 목록</h3>
+          <p className="text-[12px] text-gray-400 mb-3.5">이번 주 식단 기반 부족 재료</p>
+          <div className="flex flex-col gap-2.5">
             {SHOPPING.map((s) => (
-              <div key={s.name} style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: s.color, display: "inline-block" }} />
-                  <span style={{ fontSize: 13, color: "#374151" }}>{s.name}</span>
+              <div key={s.name} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full inline-block ${s.cls}`} />
+                  <span className="text-[13px] text-gray-700">{s.name}</span>
                 </div>
-                <span style={{ fontSize: 12, color: "#9ca3af", fontWeight: 600 }}>{s.qty}</span>
+                <span className="text-[12px] text-gray-400 font-semibold">{s.qty}</span>
               </div>
             ))}
           </div>

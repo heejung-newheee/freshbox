@@ -14,20 +14,18 @@ const TIPS = [
 
 export function FridgeMapPage({ items, onConsume }: FridgeMapPageProps) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+    <div className="flex flex-col gap-5">
       <FridgeMap items={items} onConsume={onConsume} />
 
       {/* TIP Section */}
-      <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 14, padding: "20px" }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: "#15803d", marginBottom: 14 }}>
-          💡 냉장고 보관 TIP
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+      <div className="bg-green-50 border border-green-200 rounded-2xl p-5">
+        <div className="text-[14px] font-bold text-green-800 mb-3.5">💡 냉장고 보관 TIP</div>
+        <div className="grid grid-cols-3 gap-3">
           {TIPS.map((tip) => (
-            <div key={tip.title} style={{ background: "#fff", borderRadius: 10, padding: "14px 16px", border: "1px solid #dcfce7" }}>
-              <div style={{ fontSize: 22, marginBottom: 8 }}>{tip.icon}</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#15803d", marginBottom: 4 }}>{tip.title}</div>
-              <div style={{ fontSize: 12, color: "#6b7280", lineHeight: 1.6 }}>{tip.desc}</div>
+            <div key={tip.title} className="bg-white rounded-xl p-3.5 border border-green-100">
+              <div className="text-[22px] mb-2">{tip.icon}</div>
+              <div className="text-[13px] font-bold text-green-800 mb-1">{tip.title}</div>
+              <div className="text-[12px] text-gray-500 leading-relaxed">{tip.desc}</div>
             </div>
           ))}
         </div>
