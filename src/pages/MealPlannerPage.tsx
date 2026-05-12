@@ -70,7 +70,7 @@ export function MealPlanner() {
       </div>
 
       {/* Meal cards */}
-      <div className="grid grid-cols-3 gap-3.5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
         {meals.map(({ type, value }) => {
           const s = MEAL_STYLE[type];
           return (
@@ -85,7 +85,7 @@ export function MealPlanner() {
       </div>
 
       {/* Bottom: recommendations + shopping */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Recipe Recommendations */}
         <div className="bg-white border border-gray-200 rounded-2xl p-5">
           <h3 className="text-[14px] font-bold mb-3.5">🔥 임박 재료 활용 추천</h3>

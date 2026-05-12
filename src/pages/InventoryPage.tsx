@@ -23,141 +23,320 @@ export function Inventory() {
   let filtered = active;
   if (search) filtered = filtered.filter((i) => i.name.includes(search));
   if (location) filtered = filtered.filter((i) => i.location === location);
-  if (category !== "전체") filtered = filtered.filter((i) => i.category === category);
+  if (category !== "전체")
+    filtered = filtered.filter((i) => i.category === category);
 
   return (
     <>
-    <div className="flex flex-col gap-4">
-      {/* Search + Location filter row */}
-      <div className="flex items-center gap-2.5 bg-white border border-gray-200 rounded-xl px-4 py-3">
-        <div className="flex-1 flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
-          <span className="text-gray-400 text-sm">🔍</span>
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="식품 검색..."
-            className="flex-1 border-none bg-transparent text-[13px] text-gray-700 outline-none"
-          />
+      <div className="flex flex-col gap-4">
+        {/* Search + Location filter row */}
+        <div className="flex flex-wrap items-center gap-2.5 bg-white border border-gray-200 rounded-xl px-4 py-3">
+          <div className="flex-1 flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+            <span className="text-gray-400 text-sm">🔍</span>
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="식품 검색..."
+              className="flex-1 border-none bg-transparent text-[13px] text-gray-700 outline-none"
+            />
+          </div>
+          {(["", "냉장", "냉동"] as const).map((loc) => {
+            const label =
+              loc === "" ? "전체" : loc === "냉장" ? "❄️ 냉장" : "🧊 냉동";
+            return (
+              <button
+                key={loc}
+                onClick={() => setLocation(loc)}
+                className={cn(
+                  "px-3.5 py-2 rounded-lg border text-[13px] font-semibold cursor-pointer whitespace-nowrap transition-colors",
+                  location === loc
+                    ? "border-emerald-500 bg-emerald-50 text-emerald-600"
+                    : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50",
+                )}
+              >
+                {label}
+              </button>
+            );
+          })}
+          <button
+            onClick={onAddItem}
+            className="px-4 py-2 rounded-lg border-none bg-emerald-500 text-white text-[13px] font-bold cursor-pointer whitespace-nowrap flex items-center gap-1 hover:bg-emerald-600 transition-colors"
+          >
+            + 재료추가
+          </button>
         </div>
-        {(["", "냉장", "냉동"] as const).map((loc) => {
-          const label = loc === "" ? "전체" : loc === "냉장" ? "❄️ 냉장" : "🧊 냉동";
-          return (
+
+        {/* Category tabs */}
+        <div className="flex gap-2 flex-wrap">
+          {["전체", ...CATEGORIES].map((cat) => (
             <button
-              key={loc}
-              onClick={() => setLocation(loc)}
+              key={cat}
+              onClick={() => setCategory(cat)}
               className={cn(
-                "px-3.5 py-2 rounded-lg border text-[13px] font-semibold cursor-pointer whitespace-nowrap transition-colors",
-                location === loc
-                  ? "border-emerald-500 bg-emerald-50 text-emerald-600"
+                "px-3.5 py-1.5 rounded-full border text-[12px] font-semibold cursor-pointer transition-colors",
+                category === cat
+                  ? "border-emerald-500 bg-emerald-500 text-white"
                   : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50",
               )}
             >
-              {label}
+              {cat}
             </button>
-          );
-        })}
-        <button
-          onClick={onAddItem}
-          className="px-4 py-2 rounded-lg border-none bg-emerald-500 text-white text-[13px] font-bold cursor-pointer whitespace-nowrap flex items-center gap-1 hover:bg-emerald-600 transition-colors"
-        >
-          + 재료추가
-        </button>
-      </div>
-
-      {/* Category tabs */}
-      <div className="flex gap-2 flex-wrap">
-        {["전체", ...CATEGORIES].map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setCategory(cat)}
-            className={cn(
-              "px-3.5 py-1.5 rounded-full border text-[12px] font-semibold cursor-pointer transition-colors",
-              category === cat
-                ? "border-emerald-500 bg-emerald-500 text-white"
-                : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50",
-            )}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
-      {/* Table */}
-      <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
-        {/* Header */}
-        <div className={`grid ${COLS} px-5 py-2.5 bg-gray-50 border-b border-gray-200`}>
-          {["D-DAY", "식품명", "위치", "구역", "구매일", "유통기한", "수량", ""].map((h) => (
-            <div key={h} className="text-[11px] font-bold text-gray-400 tracking-wide">{h}</div>
           ))}
         </div>
 
-        {/* Rows */}
-        {filtered.length === 0 ? (
-          <div className="py-10 text-center text-gray-400 text-[13px]">
-            해당하는 식품이 없습니다
-          </div>
-        ) : (
-          filtered.map((item) => {
-            const d = getDday(item.expiry);
-            const m = ddayMeta(d);
-            const catCls = CAT_COLORS[item.category] ?? "bg-stone-100 text-stone-500";
-            const [catBg, catText] = catCls.split(" ");
-            const catBgHex = catBg.includes("red") ? "#fee2e2" : catBg.includes("green") ? "#dcfce7" : catBg.includes("blue") ? "#dbeafe" : catBg.includes("yellow") ? "#fef9c3" : catBg.includes("purple") ? "#f3e8ff" : catBg.includes("orange") ? "#ffedd5" : catBg.includes("cyan") ? "#cffafe" : "#f3f4f6";
-            const catTextHex = catText.includes("red") ? "#ef4444" : catText.includes("green") ? "#16a34a" : catText.includes("blue") ? "#3b82f6" : catText.includes("yellow") ? "#ca8a04" : catText.includes("purple") ? "#9333ea" : catText.includes("orange") ? "#ea580c" : catText.includes("cyan") ? "#0891b2" : "#6b7280";
-
-            return (
-              <div key={item.id} className={`grid ${COLS} px-5 py-3 border-b border-gray-100 items-center last:border-0`}>
-                {/* D-DAY */}
-                <div>
-                  <span
-                    className="text-[12px] font-bold rounded-full px-2.5 py-0.5 border"
-                    style={{ color: m.color, background: m.bg, borderColor: m.border }}
-                  >
-                    {m.label}
-                  </span>
-                </div>
-                {/* 식품명 */}
-                <div>
-                  <div className="text-[13px] font-bold text-stone-900">{item.name}</div>
-                  <span
-                    className="text-[11px] font-semibold rounded px-1.5 py-0.5 mt-0.5 inline-block"
-                    style={{ color: catTextHex, background: catBgHex }}
-                  >
-                    {item.category}
-                  </span>
-                </div>
-                {/* 위치 */}
-                <div className="text-[13px] font-semibold text-emerald-500">{item.location}</div>
-                {/* 구역 */}
-                <div className="text-[12px] text-gray-500">{item.zone ?? "-"}</div>
-                {/* 구매일 */}
-                <div className="text-[12px] text-gray-500">{item.bought}</div>
-                {/* 유통기한 */}
-                <div className="text-[12px] text-gray-500">{item.expiry}</div>
-                {/* 수량 */}
-                <div className="text-[13px] font-semibold text-gray-700">{item.quantity}{item.unit}</div>
-                {/* 소비 버튼 */}
-                <div>
-                  <button
-                    onClick={() => onConsume?.(item.id)}
-                    className="px-3 py-1 rounded-lg border border-emerald-100 bg-emerald-50 text-emerald-500 text-[12px] font-bold cursor-pointer flex items-center gap-1 hover:bg-emerald-100 transition-colors"
-                  >
-                    ✓ 소비
-                  </button>
-                </div>
+        {/* Table */}
+        <div className="bg-white border border-gray-200 rounded-xl overflow-hidden">
+          {/* Desktop Header */}
+          <div
+            className={`hidden md:grid ${COLS} px-5 py-2.5 bg-gray-50 border-b border-gray-200`}
+          >
+            {[
+              "D-DAY",
+              "식품명",
+              "위치",
+              "구역",
+              "구매일",
+              "유통기한",
+              "수량",
+              "",
+            ].map((h) => (
+              <div
+                key={h}
+                className="text-[11px] font-bold text-gray-400 tracking-wide"
+              >
+                {h}
               </div>
-            );
-          })
-        )}
-      </div>
-    </div>
+            ))}
+          </div>
 
-    {showModal && (
-      <AddModal
-        onClose={() => setShowModal(false)}
-        onAdd={(formData: Omit<FoodItem, "id" | "consumed">) => addMutation.mutate(formData)}
-      />
-    )}
-  </>
+          {/* Rows */}
+          {filtered.length === 0 ? (
+            <div className="py-10 text-center text-gray-400 text-[13px]">
+              해당하는 식품이 없습니다
+            </div>
+          ) : (
+            filtered.map((item) => {
+              const d = getDday(item.expiry);
+              const m = ddayMeta(d);
+
+              const catCls =
+                CAT_COLORS[item.category] ?? "bg-stone-100 text-stone-500";
+
+              const [catBg, catText] = catCls.split(" ");
+
+              const catBgHex = catBg.includes("red")
+                ? "#fee2e2"
+                : catBg.includes("green")
+                  ? "#dcfce7"
+                  : catBg.includes("blue")
+                    ? "#dbeafe"
+                    : catBg.includes("yellow")
+                      ? "#fef9c3"
+                      : catBg.includes("purple")
+                        ? "#f3e8ff"
+                        : catBg.includes("orange")
+                          ? "#ffedd5"
+                          : catBg.includes("cyan")
+                            ? "#cffafe"
+                            : "#f3f4f6";
+
+              const catTextHex = catText.includes("red")
+                ? "#ef4444"
+                : catText.includes("green")
+                  ? "#16a34a"
+                  : catText.includes("blue")
+                    ? "#3b82f6"
+                    : catText.includes("yellow")
+                      ? "#ca8a04"
+                      : catText.includes("purple")
+                        ? "#9333ea"
+                        : catText.includes("orange")
+                          ? "#ea580c"
+                          : catText.includes("cyan")
+                            ? "#0891b2"
+                            : "#6b7280";
+
+              return (
+                <div
+                  key={item.id}
+                  className="
+            border-b border-gray-100 last:border-0
+            p-4
+            md:grid md:grid-cols-[120px_1.4fr_1fr_1fr_1fr_1fr_0.7fr_100px]
+            md:px-5 md:py-3 md:items-center
+          "
+                >
+                  {/* 모바일 / 태블릿 */}
+                  <div className="flex flex-col gap-3 md:hidden">
+                    {/* 상단 */}
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <div className="text-[14px] font-bold text-stone-900">
+                          {item.name}
+                        </div>
+
+                        <span
+                          className="text-[11px] font-semibold rounded px-1.5 py-0.5 mt-1 inline-block"
+                          style={{
+                            color: catTextHex,
+                            background: catBgHex,
+                          }}
+                        >
+                          {item.category}
+                        </span>
+                      </div>
+
+                      <span
+                        className="text-[12px] font-bold rounded-full px-2.5 py-0.5 border whitespace-nowrap"
+                        style={{
+                          color: m.color,
+                          background: m.bg,
+                          borderColor: m.border,
+                        }}
+                      >
+                        {m.label}
+                      </span>
+                    </div>
+
+                    {/* 정보 */}
+                    <div className="grid grid-cols-[1fr_2fr] gap-y-2 gap-x-3 text-[12px]">
+                      <div className="text-gray-400">위치</div>
+                      <div className="font-medium text-emerald-500">
+                        {item.location}
+                      </div>
+
+                      <div className="text-gray-400">구역</div>
+                      <div className="text-gray-700">{item.zone ?? "-"}</div>
+
+                      <div className="text-gray-400">구매일</div>
+                      <div className="text-gray-700">{item.bought}</div>
+
+                      <div className="text-gray-400">유통기한</div>
+                      <div className="text-gray-700">{item.expiry}</div>
+
+                      <div className="text-gray-400">수량</div>
+                      <div className="font-semibold text-gray-700">
+                        {item.quantity}
+                        {item.unit}
+                      </div>
+                    </div>
+
+                    {/* 버튼 */}
+                    <button
+                      onClick={() => onConsume?.(item.id)}
+                      className="
+                w-full
+                px-3 py-2 rounded-lg
+                border border-emerald-100
+                bg-emerald-50
+                text-emerald-500
+                text-[12px]
+                font-bold
+                cursor-pointer
+                flex items-center justify-center gap-1
+                hover:bg-emerald-100
+                transition-colors
+              "
+                    >
+                      ✓ 소비
+                    </button>
+                  </div>
+
+                  {/* Desktop */}
+                  <>
+                    {/* D-DAY */}
+                    <div className="hidden md:block">
+                      <span
+                        className="text-[12px] font-bold rounded-full px-2.5 py-0.5 border"
+                        style={{
+                          color: m.color,
+                          background: m.bg,
+                          borderColor: m.border,
+                        }}
+                      >
+                        {m.label}
+                      </span>
+                    </div>
+
+                    {/* 식품명 */}
+                    <div className="hidden md:block">
+                      <div className="text-[13px] font-bold text-stone-900">
+                        {item.name}
+                      </div>
+
+                      <span
+                        className="text-[11px] font-semibold rounded px-1.5 py-0.5 mt-0.5 inline-block"
+                        style={{
+                          color: catTextHex,
+                          background: catBgHex,
+                        }}
+                      >
+                        {item.category}
+                      </span>
+                    </div>
+
+                    {/* 위치 */}
+                    <div className="hidden md:block text-[13px] font-semibold text-emerald-500">
+                      {item.location}
+                    </div>
+
+                    {/* 구역 */}
+                    <div className="hidden md:block text-[12px] text-gray-500">
+                      {item.zone ?? "-"}
+                    </div>
+
+                    {/* 구매일 */}
+                    <div className="hidden md:block text-[12px] text-gray-500">
+                      {item.bought}
+                    </div>
+
+                    {/* 유통기한 */}
+                    <div className="hidden md:block text-[12px] text-gray-500">
+                      {item.expiry}
+                    </div>
+
+                    {/* 수량 */}
+                    <div className="hidden md:block text-[13px] font-semibold text-gray-700">
+                      {item.quantity}
+                      {item.unit}
+                    </div>
+
+                    {/* 버튼 */}
+                    <div className="hidden md:block">
+                      <button
+                        onClick={() => onConsume?.(item.id)}
+                        className="
+                  px-3 py-1 rounded-lg
+                  border border-emerald-100
+                  bg-emerald-50
+                  text-emerald-500
+                  text-[12px]
+                  font-bold
+                  cursor-pointer
+                  flex items-center gap-1
+                  hover:bg-emerald-100
+                  transition-colors
+                "
+                      >
+                        ✓ 소비
+                      </button>
+                    </div>
+                  </>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+
+      {showModal && (
+        <AddModal
+          onClose={() => setShowModal(false)}
+          onAdd={(formData: Omit<FoodItem, "id" | "consumed">) =>
+            addMutation.mutate(formData)
+          }
+        />
+      )}
+    </>
   );
 }

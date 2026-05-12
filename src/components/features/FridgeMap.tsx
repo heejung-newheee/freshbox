@@ -23,7 +23,6 @@ function FridgeSection({
   const unzoned = items.filter(
     (i) => !i.zone || !zones.includes(i.zone as string),
   );
-  console.log("FridgeSection", title, items, unzoned);
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-5">
@@ -135,7 +134,7 @@ export function FridgeMap({ items }: FridgeMapProps) {
   const freezerItems = active.filter((i) => i.location === "냉동");
 
   return (
-    <div className="grid grid-cols-2 gap-5">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
       <FridgeSection
         title="냉장칸"
         icon="❄️"

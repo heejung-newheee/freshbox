@@ -1,13 +1,15 @@
 import type { FoodItem } from "@/@types";
-import { Header, Sidebar } from "@/components/layout";
+import { Header, Sidebar, BottomTabBar } from "@/components/layout";
 import { AddModal } from "@/components/modal";
 import * as api from "@/services/api";
 import { getDday } from "@/utils";
+import { cn } from "@/utils/utils";
+import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 
-const pageTitle = {
+const pageTitle: Record<string, string> = {
   "/": "대시보드",
   "/inventory": "재고 목록",
   "/fridge": "냉장고 맵",
@@ -18,129 +20,69 @@ const pageTitle = {
 export default function MainLayout() {
   const queryClient = useQueryClient();
   const location = useLocation();
+  const { isMobile, isTablet } = useBreakpoint();
   const [showAddModal, setShowAddModal] = useState(false);
 
-  // 식품 목록 조회
   const { data: items = [] } = useQuery({
     queryKey: ["foodItems"],
     queryFn: api.getFoodItems,
   });
 
-  // 식품 추가 mutation
   const addItemMutation = useMutation({
     mutationFn: api.addFoodItem,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["foodItems"] });
-    },
-  });
-
-  // 식품 소비 mutation
-  const consumeMutation = useMutation({
-    mutationFn: api.markFoodItemConsumed,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["foodItems"] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["foodItems"] }),
   });
 
   const active = items.filter((i) => !i.consumed);
   const urgentCount = active.filter((i) => getDday(i.expiry) <= 3).length;
-
-  const title =
-    pageTitle[location.pathname as keyof typeof pageTitle] || "FreshBox";
+  const title = pageTitle[location.pathname] ?? "FreshBox";
 
   const handleAddItem = async (formData: Omit<FoodItem, "id" | "consumed">) => {
     try {
       await addItemMutation.mutateAsync(formData);
       setShowAddModal(false);
-    } catch (err) {
-      console.error("Failed to add item:", err);
+    } catch {
       alert("재료 추가에 실패했습니다. 다시 시도해주세요.");
     }
   };
 
-  const handleMarkConsumed = async (id: string) => {
-    try {
-      await consumeMutation.mutateAsync(id);
-    } catch (err) {
-      console.error("Failed to mark consumed:", err);
-    }
-  };
-
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        backgroundColor: "#f9fafb",
-        fontFamily:
-          "'Apple SD Gothic Neo','Noto Sans KR','Segoe UI', sans-serif",
-      }}
-    >
-      {/* Sidebar */}
-      <Sidebar
-        itemCount={active.length}
-      />
+    <div className="flex min-h-screen bg-gray-50">
+      {/* Sidebar: tablet 이상만 표시 */}
+      {!isMobile && (
+        <Sidebar itemCount={active.length} compact={isTablet} />
+      )}
 
       {/* Main Content */}
       <main
-        style={{
-          flex: 1,
-          marginLeft: "220px",
-          display: "flex",
-          flexDirection: "column",
-        }}
+        className={cn(
+          "flex-1 flex flex-col min-w-0 transition-all",
+          !isMobile && (isTablet ? "ml-15" : "ml-55"),
+        )}
       >
-        {/* Header */}
         <Header
           title={title}
           urgentCount={urgentCount}
           onAddItem={() => setShowAddModal(true)}
         />
 
-        {/* Page Content */}
-        <div
-          style={{
-            flex: 1,
-            padding: "24px",
-            overflowY: "auto",
-          }}
-        >
-          <Outlet
-            context={{
-              items,
-              urgentCount,
-              markConsumed: handleMarkConsumed,
-              onAddItem: () => setShowAddModal(true),
-            }}
-          />
+        <div className={cn("flex-1 p-4 md:p-5 lg:p-6 overflow-y-auto", isMobile && "pb-20")}>
+          <Outlet context={{ items, urgentCount, onAddItem: () => setShowAddModal(true) }} />
         </div>
       </main>
 
-      {/* Status Bar */}
-      <div
-        style={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          padding: "8px 16px",
-          backgroundColor: "#fef3c7",
-          borderTop: "1px solid #fcd34d",
-          fontSize: "12px",
-          color: "#92400e",
-          textAlign: "center",
-          display: addItemMutation.isPending ? "block" : "none",
-        }}
-      >
-        {addItemMutation.isPending ? "재료를 추가 중입니다..." : ""}
-      </div>
+      {/* Bottom Tab Bar: 모바일만 */}
+      {isMobile && <BottomTabBar urgentCount={urgentCount} />}
 
-      {/* Add Modal */}
+      {/* 추가 중 상태바 */}
+      {addItemMutation.isPending && (
+        <div className="fixed bottom-0 left-0 right-0 py-2 px-4 bg-amber-50 border-t border-amber-300 text-xs text-amber-800 text-center z-50">
+          재료를 추가 중입니다...
+        </div>
+      )}
+
       {showAddModal && (
-        <AddModal
-          onClose={() => setShowAddModal(false)}
-          onAdd={handleAddItem}
-        />
+        <AddModal onClose={() => setShowAddModal(false)} onAdd={handleAddItem} />
       )}
     </div>
   );
