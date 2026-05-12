@@ -1,13 +1,13 @@
 export type Location = "냉장" | "냉동";
 export type Zone = "상단" | "중단" | "하단" | "야채" | "도어";
 export type Category =
-  | "채소"
-  | "육류"
+  | "채소/과일"
+  | "육류/달걀"
   | "해산물"
   | "유제품"
+  | "두부/콩류"
   | "양념"
-  | "가공"
-  | "두부"
+  | "가공식품"
   | "기타";
 export type Role = "owner" | "editor" | "viewer";
 

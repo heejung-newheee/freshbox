@@ -7,7 +7,7 @@ interface AddModalProps {
   onAdd: (item: Omit<FoodItem, "id" | "consumed">) => void;
 }
 
-const CATEGORIES = ["채소", "육류", "해산물", "유제품", "양념", "가공", "두부", "기타"];
+const CATEGORIES = ["채소/과일", "육류/계란", "해산물", "유제품", "두부/콩류", "양념", "가공식품", "기타"];
 const LOCATIONS = ["냉장", "냉동"] as const;
 const ZONES: Record<string, string[]> = {
   냉장: ["상단", "중단", "하단", "야채", "도어"],

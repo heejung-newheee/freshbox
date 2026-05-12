@@ -40,10 +40,21 @@ export const addFoodItem = async (item: Omit<FoodItem, "id" | "consumed">) => {
 const normalizeItem = (item: any): FoodItem => ({
   ...item,
   location:
-    item.location === "냉장칸" ? "냉장"
-    : item.location === "냉동칸" ? "냉동"
-    : item.location,
-  category: item.category === "가공식품" ? "가공" : item.category,
+    item.location === "냉장칸"
+      ? "냉장"
+      : item.location === "냉동칸"
+        ? "냉동"
+        : item.location,
+  category:
+    (
+      {
+        채소: "채소/과일",
+        육류: "육류/달걀",
+        두부: "두부/콩류",
+        가공: "가공식품",
+        가공식품: "가공식품",
+      } as Record<string, string>
+    )[item.category] ?? item.category,
   zone: item.zone ? item.zone.replace(/칸$/, "") : item.zone,
 });
 

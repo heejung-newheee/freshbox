@@ -1,10 +1,11 @@
 import type { FoodItem, MealPlan, Member, Category } from "../@types/types";
 
+// 미사용 더미 데이터
 export const ITEMS_INIT: FoodItem[] = [
   {
     id: "1",
     name: "닭가슴살",
-    category: "육류",
+    category: "육류/달걀",
     location: "냉동",
     zone: "상단",
     bought: "2026-02-20",
@@ -40,7 +41,7 @@ export const ITEMS_INIT: FoodItem[] = [
   {
     id: "4",
     name: "시금치",
-    category: "채소",
+    category: "채소/과일",
     location: "냉장",
     zone: "야채",
     bought: "2026-03-02",
@@ -64,7 +65,7 @@ export const ITEMS_INIT: FoodItem[] = [
   {
     id: "6",
     name: "냉동만두",
-    category: "가공",
+    category: "가공식품",
     location: "냉동",
     zone: "하단",
     bought: "2026-02-15",
@@ -76,7 +77,7 @@ export const ITEMS_INIT: FoodItem[] = [
   {
     id: "7",
     name: "두부",
-    category: "두부",
+    category: "두부/콩류",
     location: "냉장",
     zone: "중단",
     bought: "2026-03-01",
@@ -88,7 +89,7 @@ export const ITEMS_INIT: FoodItem[] = [
   {
     id: "8",
     name: "삼겹살",
-    category: "육류",
+    category: "육류/달걀",
     location: "냉동",
     zone: "중단",
     bought: "2026-02-28",
@@ -100,7 +101,7 @@ export const ITEMS_INIT: FoodItem[] = [
   {
     id: "9",
     name: "당근",
-    category: "채소",
+    category: "채소/과일",
     location: "냉장",
     zone: "야채",
     bought: "2026-03-01",
@@ -158,48 +159,48 @@ export const MEMBERS: Member[] = [
 ];
 
 export const CAT_COLORS: Record<Category, string> = {
-  육류: "bg-red-100 text-red-500",
-  채소: "bg-green-100 text-green-600",
-  유제품: "bg-blue-100 text-blue-500",
-  양념: "bg-yellow-100 text-yellow-600",
-  가공: "bg-purple-100 text-purple-500",
-  두부: "bg-orange-100 text-orange-500",
+  "채소/과일": "bg-green-100 text-green-600",
+  "육류/달걀": "bg-red-100 text-red-500",
   해산물: "bg-cyan-100 text-cyan-500",
+  유제품: "bg-blue-100 text-blue-500",
+  "두부/콩류": "bg-orange-100 text-orange-500",
+  양념: "bg-yellow-100 text-yellow-600",
+  가공식품: "bg-purple-100 text-purple-500",
   기타: "bg-stone-100 text-stone-500",
 };
 
 export const CAT_DOT: Record<Category, string> = {
-  육류: "bg-red-400",
-  채소: "bg-green-400",
-  유제품: "bg-blue-400",
-  양념: "bg-yellow-400",
-  가공: "bg-purple-400",
-  두부: "bg-orange-400",
+  "채소/과일": "bg-green-400",
+  "육류/달걀": "bg-red-400",
   해산물: "bg-cyan-400",
+  유제품: "bg-blue-400",
+  "두부/콩류": "bg-orange-400",
+  양념: "bg-yellow-400",
+  가공식품: "bg-purple-400",
   기타: "bg-stone-400",
 };
 
 export const CAT_HEX: Record<Category, string> = {
-  육류: "#f87171",
-  채소: "#4ade80",
-  유제품: "#60a5fa",
-  양념: "#fbbf24",
-  가공: "#c084fc",
-  두부: "#fb923c",
+  "채소/과일": "#4ade80",
+  "육류/달걀": "#f87171",
   해산물: "#22d3ee",
+  유제품: "#60a5fa",
+  "두부/콩류": "#fb923c",
+  양념: "#fbbf24",
+  가공식품: "#c084fc",
   기타: "#94a3b8",
 };
 
 export const ZONES_냉장 = ["상단", "중단", "하단", "야채", "도어"] as const;
 export const ZONES_냉동 = ["상단", "중단", "하단"] as const;
 export const CATEGORIES: Category[] = [
-  "채소",
-  "육류",
-  "유제품",
-  "양념",
-  "가공",
-  "두부",
+  "채소/과일",
+  "육류/달걀",
   "해산물",
+  "유제품",
+  "두부/콩류",
+  "양념",
+  "가공식품",
   "기타",
 ];
 export const ROLE_META = {
