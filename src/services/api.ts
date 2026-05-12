@@ -37,6 +37,17 @@ export const addFoodItem = async (item: Omit<FoodItem, "id" | "consumed">) => {
   return (data?.[0] || null) as FoodItem | null;
 };
 
+const normalizeItem = (item: any): FoodItem => ({
+  ...item,
+  location:
+    item.location === "냉장칸"
+      ? "냉장"
+      : item.location === "냉동칸"
+        ? "냉동"
+        : item.location,
+  category: item.category === "가공식품" ? "가공" : item.category,
+});
+
 export const getFoodItems = async () => {
   const { data, error } = await supabase
     .from("food_items")
@@ -45,7 +56,7 @@ export const getFoodItems = async () => {
     .order("expiry", { ascending: true });
 
   if (error) throw error;
-  return (data || []) as FoodItem[];
+  return (data || []).map(normalizeItem) as FoodItem[];
 };
 
 export const deleteFoodItem = async (id: string) => {
