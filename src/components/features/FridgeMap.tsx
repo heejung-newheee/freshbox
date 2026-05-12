@@ -23,6 +23,7 @@ function FridgeSection({
   const unzoned = items.filter(
     (i) => !i.zone || !zones.includes(i.zone as string),
   );
+  console.log("FridgeSection", title, items, unzoned);
 
   return (
     <div className="bg-white border border-gray-200 rounded-2xl p-5">

@@ -28,10 +28,7 @@ interface Props {
 
 export function BottomTabBar({ tab, setTab, urgentCount }: Props) {
   return (
-    <nav
-      className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-stone-100 flex safe-pb"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
-    >
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-stone-100 flex pb-[env(safe-area-inset-bottom)]">
       {TABS.map(({ id, Icon, label }) => {
         const active = tab === id;
         return (

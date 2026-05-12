@@ -14,10 +14,7 @@ export function Header({ title, urgentCount = 0, onAddItem }: HeaderProps) {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        notifRef.current &&
-        !notifRef.current.contains(event.target as Node)
-      ) {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
         setNotifOpen(false);
       }
     }
@@ -26,117 +23,44 @@ export function Header({ title, urgentCount = 0, onAddItem }: HeaderProps) {
   }, []);
 
   return (
-    <header
-      style={{
-        position: "sticky",
-        top: 0,
-        backgroundColor: "#fff",
-        borderBottom: "1px solid #e5e7eb",
-        padding: "12px 24px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        zIndex: 40,
-      }}
-    >
-      <h1 style={{ fontSize: "18px", fontWeight: 700 }}>{title}</h1>
+    <header className="sticky top-0 bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between z-40">
+      <h1 className="text-lg font-bold">{title}</h1>
 
-      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+      <div className="flex items-center gap-4">
         {/* Search */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            backgroundColor: "#f3f4f6",
-            paddingLeft: "12px",
-            borderRadius: "6px",
-            flex: "0 1 200px",
-          }}
-        >
+        <div className="flex items-center gap-2 bg-gray-100 pl-3 rounded-md flex-[0_1_200px]">
           <SearchIcon s={16} c="#9ca3af" />
           <input
             type="text"
             placeholder="검색..."
-            style={{
-              flex: 1,
-              border: "none",
-              backgroundColor: "transparent",
-              padding: "8px 12px",
-              fontSize: "13px",
-              outline: "none",
-            }}
+            className="flex-1 border-none bg-transparent py-2 px-3 text-[13px] outline-none"
           />
         </div>
 
         {/* Notification */}
-        <div style={{ position: "relative" }}>
+        <div className="relative" ref={notifRef}>
           <button
             onClick={() => setNotifOpen(!notifOpen)}
-            style={{
-              position: "relative",
-              backgroundColor: "transparent",
-              border: "none",
-              cursor: "pointer",
-              padding: "8px",
-            }}
+            className="relative bg-transparent border-none cursor-pointer p-2"
           >
             <BellIcon s={18} c="#6b7280" />
             {urgentCount > 0 && (
-              <span
-                style={{
-                  position: "absolute",
-                  top: "-2px",
-                  right: "-2px",
-                  width: "18px",
-                  height: "18px",
-                  backgroundColor: "#ef4444",
-                  color: "#fff",
-                  borderRadius: "50%",
-                  fontSize: "10px",
-                  fontWeight: 700,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
+              <span className="absolute -top-0.5 -right-0.5 w-4.5 h-4.5 bg-red-500 text-white rounded-full text-[10px] font-bold flex items-center justify-center">
                 {urgentCount}
               </span>
             )}
           </button>
 
           {notifOpen && (
-            <div
-              ref={notifRef}
-              style={{
-                position: "absolute",
-                top: "100%",
-                right: 0,
-                backgroundColor: "#fff",
-                border: "1px solid #e5e7eb",
-                borderRadius: "8px",
-                minWidth: "250px",
-                marginTop: "8px",
-                boxShadow: "0 4px 6px rgba(0,0,0,0.07)",
-              }}
-            >
-              <div
-                style={{
-                  padding: "12px",
-                  borderBottom: "1px solid #e5e7eb",
-                  fontSize: "12px",
-                  fontWeight: 600,
-                }}
-              >
+            <div className="absolute top-full right-0 bg-white border border-gray-200 rounded-lg min-w-62.5 mt-2 shadow-md">
+              <div className="px-3 py-3 border-b border-gray-200 text-xs font-semibold">
                 알림
               </div>
-              <div style={{ padding: "12px", fontSize: "12px" }}>
+              <div className="p-3 text-xs">
                 {urgentCount > 0 ? (
-                  <div style={{ color: "#6b7280" }}>
-                    곧 만료될 식품이 {urgentCount}개 있습니다.
-                  </div>
+                  <div className="text-gray-500">곧 만료될 식품이 {urgentCount}개 있습니다.</div>
                 ) : (
-                  <div style={{ color: "#9ca3af" }}>알림이 없습니다.</div>
+                  <div className="text-gray-400">알림이 없습니다.</div>
                 )}
               </div>
             </div>
@@ -146,35 +70,14 @@ export function Header({ title, urgentCount = 0, onAddItem }: HeaderProps) {
         {/* Add Button */}
         <button
           onClick={onAddItem}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "6px",
-            backgroundColor: "#10b981",
-            color: "#fff",
-            border: "none",
-            padding: "8px 16px",
-            borderRadius: "6px",
-            fontSize: "13px",
-            fontWeight: 600,
-            cursor: "pointer",
-            transition: "background-color 0.2s",
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-              "#059669";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLButtonElement).style.backgroundColor =
-              "#10b981";
-          }}
+          className="flex items-center gap-1.5 bg-emerald-500 text-white border-none px-4 py-2 rounded-md text-[13px] font-semibold cursor-pointer hover:bg-emerald-600 transition-colors"
         >
           <PlusIcon s={16} c="#fff" />
           재료 추가
         </button>
 
         {/* Avatar */}
-        <Avatar name="H" color="#10b981" size={32} />
+        <Avatar name="H" color="#10b981" size="md" />
       </div>
     </header>
   );

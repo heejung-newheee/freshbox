@@ -40,12 +40,11 @@ export const addFoodItem = async (item: Omit<FoodItem, "id" | "consumed">) => {
 const normalizeItem = (item: any): FoodItem => ({
   ...item,
   location:
-    item.location === "냉장칸"
-      ? "냉장"
-      : item.location === "냉동칸"
-        ? "냉동"
-        : item.location,
+    item.location === "냉장칸" ? "냉장"
+    : item.location === "냉동칸" ? "냉동"
+    : item.location,
   category: item.category === "가공식품" ? "가공" : item.category,
+  zone: item.zone ? item.zone.replace(/칸$/, "") : item.zone,
 });
 
 export const getFoodItems = async () => {

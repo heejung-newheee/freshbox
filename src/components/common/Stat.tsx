@@ -7,31 +7,12 @@ interface StatProps {
 
 export function Stat({ icon, value, label, sublabel }: StatProps) {
   return (
-    <div
-      style={{
-        flex: 1,
-        padding: "20px",
-        borderRadius: "12px",
-        backgroundColor: "#f9fafb",
-        border: "1px solid #e5e7eb",
-        textAlign: "center",
-      }}
-    >
-      <div style={{ fontSize: "32px", marginBottom: "8px" }}>{icon}</div>
-      <div
-        style={{
-          fontSize: "28px",
-          fontWeight: 700,
-          marginBottom: "4px",
-        }}
-      >
-        {value}
-      </div>
-      <div style={{ fontSize: "12px", color: "#6b7280" }}>{label}</div>
+    <div className="flex-1 p-5 rounded-xl bg-gray-50 border border-gray-200 text-center">
+      <div className="text-[32px] mb-2">{icon}</div>
+      <div className="text-[28px] font-bold mb-1">{value}</div>
+      <div className="text-xs text-gray-500">{label}</div>
       {sublabel && (
-        <div style={{ fontSize: "11px", color: "#9ca3af", marginTop: "2px" }}>
-          {sublabel}
-        </div>
+        <div className="text-[11px] text-gray-400 mt-0.5">{sublabel}</div>
       )}
     </div>
   );

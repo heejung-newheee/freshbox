@@ -1,25 +1,20 @@
 interface AvatarProps {
   name: string;
   color?: string;
-  size?: number;
+  size?: "sm" | "md" | "lg";
 }
 
-export function Avatar({ name, color = "#10b981", size = 30 }: AvatarProps) {
+const sizes = {
+  sm: "w-7 h-7 text-xs",
+  md: "w-8 h-8 text-sm",
+  lg: "w-10 h-10 text-base",
+};
+
+export function Avatar({ name, color = "#10b981", size = "md" }: AvatarProps) {
   return (
     <div
-      style={{
-        width: size,
-        height: size,
-        borderRadius: "50%",
-        background: color,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        fontSize: size / 2,
-        fontWeight: 700,
-        color: "#fff",
-        flexShrink: 0,
-      }}
+      className={`${sizes[size]} rounded-full flex items-center justify-center font-bold text-white shrink-0`}
+      style={{ background: color }}
     >
       {name?.[0]}
     </div>

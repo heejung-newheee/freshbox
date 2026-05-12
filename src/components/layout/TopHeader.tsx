@@ -94,7 +94,7 @@ export function TopHeader({ tab, items, onAddClick, isMobile }: Props) {
 
       {/* Add button (hidden on mobile) */}
       {!isMobile && (
-        <PrimaryButton onClick={onAddClick} className="flex-shrink-0">
+        <PrimaryButton onClick={onAddClick} className="shrink-0">
           <IconPlus size={16} />
           재료 추가
         </PrimaryButton>
@@ -104,7 +104,7 @@ export function TopHeader({ tab, items, onAddClick, isMobile }: Props) {
       {!isMobile && (
         <div className="flex items-center -space-x-1.5 ml-2">
           {MEMBERS.slice(0, 3).map((m, i) => (
-            <div key={m.id} style={{ zIndex: 3 - i }}>
+            <div key={m.id} className={i === 0 ? "z-3" : i === 1 ? "z-2" : "z-1"}>
               <Avatar name={m.name} color={m.color} size="sm" />
             </div>
           ))}
