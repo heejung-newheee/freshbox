@@ -1,11 +1,7 @@
-import type { FoodItem } from "@/@types";
 import { MEAL_PLAN } from "@/constants/constants";
 import { cn, getDday } from "@/utils/utils";
 import { useState } from "react";
-
-interface MealPlannerProps {
-  items?: FoodItem[];
-}
+import { useFoodItems } from "@/hooks/useFoodItems";
 
 const DAYS = ["월", "화", "수", "목", "금", "토", "일"] as const;
 type Day = (typeof DAYS)[number];
@@ -31,8 +27,9 @@ const MEAL_STYLE: Record<string, { card: string; label: string; icon: string }> 
   저녁: { card: "bg-violet-50 border-violet-200", label: "text-violet-700", icon: "🌙" },
 };
 
-export function MealPlanner({ items = [] }: MealPlannerProps) {
+export function MealPlanner() {
   const [selectedDay, setSelectedDay] = useState<Day>("화");
+  const { items } = useFoodItems();
 
   const urgentItems = items.filter(
     (i) => !i.consumed && getDday(i.expiry) <= 5 && getDday(i.expiry) >= 0,

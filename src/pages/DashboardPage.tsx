@@ -1,13 +1,11 @@
-import type { FoodItem } from "@/@types";
 import { CATEGORIES, CAT_HEX, MEMBERS } from "@/constants/constants";
 import { ddayMeta, getDday } from "@/utils/utils";
+import { useFoodItems, useConsumeItem } from "@/hooks/useFoodItems";
 
-interface DashboardProps {
-  items: FoodItem[];
-  onConsume?: (id: string) => void;
-}
-
-export function Dashboard({ items, onConsume }: DashboardProps) {
+export function Dashboard() {
+  const { items } = useFoodItems();
+  const consumeMutation = useConsumeItem();
+  const onConsume = (id: string) => consumeMutation.mutate(id);
   const active = items.filter((i) => !i.consumed);
   const urgentItems = active.filter(
     (i) => getDday(i.expiry) <= 3 && getDday(i.expiry) >= 0,

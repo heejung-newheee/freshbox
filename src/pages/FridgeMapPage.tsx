@@ -1,10 +1,5 @@
-import type { FoodItem } from "@/@types";
 import { FridgeMap } from "@/components/features";
-
-interface FridgeMapPageProps {
-  items: FoodItem[];
-  onConsume?: (id: string) => void;
-}
+import { useFoodItems } from "@/hooks/useFoodItems";
 
 const TIPS = [
   { icon: "🧊", title: "냉동칸", desc: "육류·해산물은 소분 후 냉동 보관하면 신선도가 오래 유지됩니다." },
@@ -12,12 +7,13 @@ const TIPS = [
   { icon: "🚪", title: "도어칸", desc: "온도 변화가 잦은 도어칸은 소스류·조미료 보관에 적합합니다." },
 ];
 
-export function FridgeMapPage({ items, onConsume }: FridgeMapPageProps) {
+export function FridgeMapPage() {
+  const { items } = useFoodItems();
+
   return (
     <div className="flex flex-col gap-5">
-      <FridgeMap items={items} onConsume={onConsume} />
+      <FridgeMap items={items} />
 
-      {/* TIP Section */}
       <div className="bg-green-50 border border-green-200 rounded-2xl p-5">
         <div className="text-[14px] font-bold text-green-800 mb-3.5">💡 냉장고 보관 TIP</div>
         <div className="grid grid-cols-3 gap-3">

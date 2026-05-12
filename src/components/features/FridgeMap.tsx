@@ -10,43 +10,53 @@ interface FridgeMapProps {
 function FridgeSection({
   title,
   icon,
+  iconBg,
   items,
   zones,
 }: {
   title: string;
   icon: string;
+  iconBg: string;
   items: FoodItem[];
   zones: readonly string[];
 }) {
+  const unzoned = items.filter(
+    (i) => !i.zone || !zones.includes(i.zone as string),
+  );
+
   return (
-    <div style={{ background: "#fff", border: "1px solid #e5e7eb", borderRadius: 16, padding: 20 }}>
-      {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-        <div style={{ width: 44, height: 44, borderRadius: 12, background: "#eff6ff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>
+    <div className="bg-white border border-gray-200 rounded-2xl p-5">
+      <div className="flex items-center gap-3 mb-5">
+        <div
+          className={`w-11 h-11 rounded-xl ${iconBg} flex items-center justify-center text-[22px]`}
+        >
           {icon}
         </div>
         <div>
-          <div style={{ fontSize: 16, fontWeight: 800, color: "#1c1917" }}>{title}</div>
-          <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 1 }}>{items.length}개 보관 중</div>
+          <div className="text-base font-black text-stone-900">{title}</div>
+          <div className="text-xs text-gray-400 mt-0.5">
+            {items.length}개 보관 중
+          </div>
         </div>
       </div>
 
-      {/* Zones */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div className="flex flex-col gap-3.5">
         {zones.map((zone) => {
           const zoneItems = items.filter((i) => i.zone === zone);
           return (
             <div key={zone}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-                <div style={{ width: 3, height: 14, background: "#10b981", borderRadius: 2 }} />
-                <span style={{ fontSize: 12, fontWeight: 700, color: "#374151" }}>
+              <div className="flex items-center gap-1.5 mb-2">
+                <div className="w-0.5 h-3.5 bg-emerald-500 rounded-sm" />
+                <span className="text-xs font-bold text-gray-700">
                   {zone}칸
                 </span>
-                <span style={{ fontSize: 11, color: "#9ca3af" }}>({zoneItems.length})</span>
+                <span className="text-[11px] text-gray-400">
+                  ({zoneItems.length})
+                </span>
               </div>
-              <div style={{ background: "#f9fafb", borderRadius: 10, padding: "10px 12px", minHeight: 44, display: "flex", flexWrap: "wrap", gap: 6, alignItems: "center" }}>
+              <div className="bg-gray-50 rounded-xl px-3 py-2.5 min-h-11 flex flex-wrap gap-1.5 items-center">
                 {zoneItems.length === 0 ? (
-                  <span style={{ fontSize: 12, color: "#d1d5db" }}>비어있음</span>
+                  <span className="text-xs text-gray-300">비어있음</span>
                 ) : (
                   zoneItems.map((item) => {
                     const d = getDday(item.expiry);
@@ -54,16 +64,19 @@ function FridgeSection({
                     return (
                       <div
                         key={item.id}
-                        style={{
-                          display: "flex", alignItems: "center", gap: 5,
-                          padding: "4px 10px", borderRadius: 20,
-                          border: `1px solid ${m.border}`, background: "#fff",
-                          fontSize: 12, cursor: "default",
-                        }}
+                        className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white text-xs border"
+                        style={{ borderColor: m.border }}
                       >
-                        <span style={{ width: 6, height: 6, borderRadius: "50%", background: m.color, flexShrink: 0, display: "inline-block" }} />
-                        <span style={{ fontWeight: 600, color: "#374151" }}>{item.name}</span>
-                        <span style={{ fontWeight: 700, color: m.color }}>D-{d}</span>
+                        <span
+                          className="w-1.5 h-1.5 rounded-full shrink-0"
+                          style={{ background: m.color }}
+                        />
+                        <span className="font-semibold text-gray-700">
+                          {item.name}
+                        </span>
+                        <span className="font-bold" style={{ color: m.color }}>
+                          D-{d}
+                        </span>
                       </div>
                     );
                   })
@@ -72,6 +85,44 @@ function FridgeSection({
             </div>
           );
         })}
+
+        {unzoned.length > 0 && (
+          <div>
+            <div className="flex items-center gap-1.5 mb-2">
+              <div className="w-0.5 h-3.5 bg-gray-300 rounded-sm" />
+              <span className="text-xs font-bold text-gray-400">
+                구역 미지정
+              </span>
+              <span className="text-[11px] text-gray-400">
+                ({unzoned.length})
+              </span>
+            </div>
+            <div className="bg-gray-50 rounded-xl px-3 py-2.5 min-h-11 flex flex-wrap gap-1.5 items-center">
+              {unzoned.map((item) => {
+                const d = getDday(item.expiry);
+                const m = ddayMeta(d);
+                return (
+                  <div
+                    key={item.id}
+                    className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white text-xs border"
+                    style={{ borderColor: m.border }}
+                  >
+                    <span
+                      className="w-1.5 h-1.5 rounded-full shrink-0"
+                      style={{ background: m.color }}
+                    />
+                    <span className="font-semibold text-gray-700">
+                      {item.name}
+                    </span>
+                    <span className="font-bold" style={{ color: m.color }}>
+                      D-{d}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -83,9 +134,21 @@ export function FridgeMap({ items }: FridgeMapProps) {
   const freezerItems = active.filter((i) => i.location === "냉동");
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20 }}>
-      <FridgeSection title="냉장칸" icon="❄️" items={fridgeItems} zones={ZONES_냉장} />
-      <FridgeSection title="냉동칸" icon="🧊" items={freezerItems} zones={ZONES_냉동} />
+    <div className="grid grid-cols-2 gap-5">
+      <FridgeSection
+        title="냉장칸"
+        icon="❄️"
+        iconBg="bg-blue-50"
+        items={fridgeItems}
+        zones={ZONES_냉장}
+      />
+      <FridgeSection
+        title="냉동칸"
+        icon="🧊"
+        iconBg="bg-cyan-50"
+        items={freezerItems}
+        zones={ZONES_냉동}
+      />
     </div>
   );
 }

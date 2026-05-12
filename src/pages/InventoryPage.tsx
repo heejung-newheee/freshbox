@@ -2,16 +2,18 @@ import type { FoodItem } from "@/@types";
 import { CATEGORIES, CAT_COLORS } from "@/constants/constants";
 import { cn, ddayMeta, getDday } from "@/utils/utils";
 import { useState } from "react";
-
-interface InventoryProps {
-  items: FoodItem[];
-  onConsume?: (id: string) => void;
-  onAddItem?: () => void;
-}
+import { AddModal } from "@/components/modal";
+import { useFoodItems, useConsumeItem, useAddItem } from "@/hooks/useFoodItems";
 
 const COLS = "grid-cols-[90px_1fr_70px_70px_110px_110px_80px_80px]";
 
-export function Inventory({ items, onConsume, onAddItem }: InventoryProps) {
+export function Inventory() {
+  const [showModal, setShowModal] = useState(false);
+  const { items } = useFoodItems();
+  const consumeMutation = useConsumeItem();
+  const addMutation = useAddItem(() => setShowModal(false));
+  const onConsume = (id: string) => consumeMutation.mutate(id);
+  const onAddItem = () => setShowModal(true);
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState<"" | "냉장" | "냉동">("");
   const [category, setCategory] = useState("전체");
@@ -24,6 +26,7 @@ export function Inventory({ items, onConsume, onAddItem }: InventoryProps) {
   if (category !== "전체") filtered = filtered.filter((i) => i.category === category);
 
   return (
+    <>
     <div className="flex flex-col gap-4">
       {/* Search + Location filter row */}
       <div className="flex items-center gap-2.5 bg-white border border-gray-200 rounded-xl px-4 py-3">
@@ -148,5 +151,13 @@ export function Inventory({ items, onConsume, onAddItem }: InventoryProps) {
         )}
       </div>
     </div>
+
+    {showModal && (
+      <AddModal
+        onClose={() => setShowModal(false)}
+        onAdd={(formData: Omit<FoodItem, "id" | "consumed">) => addMutation.mutate(formData)}
+      />
+    )}
+  </>
   );
 }
