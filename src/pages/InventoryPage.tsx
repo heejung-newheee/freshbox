@@ -5,7 +5,7 @@ import { useState } from "react";
 import { AddModal } from "@/components/modal";
 import { useFoodItems, useConsumeItem, useAddItem } from "@/hooks/useFoodItems";
 
-const COLS = "grid-cols-[90px_1fr_70px_70px_110px_110px_80px_80px]";
+const COLS = "grid-cols-[80px_1fr_80px_60px_100px_100px_70px_80px]";
 
 export function Inventory() {
   const [showModal, setShowModal] = useState(false);
@@ -13,9 +13,10 @@ export function Inventory() {
   const consumeMutation = useConsumeItem();
   const addMutation = useAddItem(() => setShowModal(false));
   const onConsume = (id: string) => consumeMutation.mutate(id);
-  const onAddItem = () => setShowModal(true);
   const [search, setSearch] = useState("");
-  const [location, setLocation] = useState<"" | "냉장" | "냉동">("");
+  const [location, setLocation] = useState<"" | "냉장" | "냉동" | "김치냉장고">(
+    "",
+  );
   const [category, setCategory] = useState("전체");
 
   const active = items.filter((i) => !i.consumed);
@@ -40,9 +41,15 @@ export function Inventory() {
               className="flex-1 border-none bg-transparent text-[13px] text-gray-700 outline-none"
             />
           </div>
-          {(["", "냉장", "냉동"] as const).map((loc) => {
+          {(["", "냉장", "냉동", "김치냉장고"] as const).map((loc) => {
             const label =
-              loc === "" ? "전체" : loc === "냉장" ? "❄️ 냉장" : "🧊 냉동";
+              loc === ""
+                ? "전체"
+                : loc === "냉장"
+                  ? "❄️ 냉장"
+                  : loc === "냉동"
+                    ? "🧊 냉동"
+                    : "🥬 김치냉장고";
             return (
               <button
                 key={loc}
@@ -58,12 +65,6 @@ export function Inventory() {
               </button>
             );
           })}
-          <button
-            onClick={onAddItem}
-            className="px-4 py-2 rounded-lg border-none bg-emerald-500 text-white text-[13px] font-bold cursor-pointer whitespace-nowrap flex items-center gap-1 hover:bg-emerald-600 transition-colors"
-          >
-            + 재료추가
-          </button>
         </div>
 
         {/* Category tabs */}
@@ -159,12 +160,7 @@ export function Inventory() {
               return (
                 <div
                   key={item.id}
-                  className="
-            border-b border-gray-100 last:border-0
-            p-4
-            md:grid md:grid-cols-[120px_1.4fr_1fr_1fr_1fr_1fr_0.7fr_100px]
-            md:px-5 md:py-3 md:items-center
-          "
+                  className={`border-b border-gray-100 last:border-0 p-4 md:grid ${COLS} md:px-5 md:py-3 md:items-center`}
                 >
                   {/* 모바일 / 태블릿 */}
                   <div className="flex flex-col gap-3 md:hidden">
@@ -184,7 +180,11 @@ export function Inventory() {
 
                       <span
                         className="text-[12px] font-bold rounded-full px-2.5 py-0.5 border whitespace-nowrap shrink-0"
-                        style={{ color: m.color, background: m.bg, borderColor: m.border }}
+                        style={{
+                          color: m.color,
+                          background: m.bg,
+                          borderColor: m.border,
+                        }}
                       >
                         {m.label}
                       </span>
@@ -194,11 +194,15 @@ export function Inventory() {
                     <div className="grid grid-cols-2 gap-y-2.5 gap-x-2 text-[12px]">
                       <div className="flex items-center gap-1.5">
                         <span className="text-gray-400 shrink-0">위치</span>
-                        <span className="font-semibold text-emerald-500">{item.location}</span>
+                        <span className="font-semibold text-emerald-500">
+                          {item.location}
+                        </span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <span className="text-gray-400 shrink-0">구역</span>
-                        <span className="text-gray-700">{item.zone ?? "-"}</span>
+                        <span className="text-gray-700">
+                          {item.zone ?? "-"}
+                        </span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <span className="text-gray-400 shrink-0">구매일</span>
@@ -210,7 +214,10 @@ export function Inventory() {
                       </div>
                       <div className="flex items-center gap-1.5">
                         <span className="text-gray-400 shrink-0">수량</span>
-                        <span className="font-semibold text-gray-700">{item.quantity}{item.unit}</span>
+                        <span className="font-semibold text-gray-700">
+                          {item.quantity}
+                          {item.unit}
+                        </span>
                       </div>
                     </div>
 

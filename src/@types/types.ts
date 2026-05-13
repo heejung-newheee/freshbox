@@ -1,4 +1,4 @@
-export type Location = "냉장" | "냉동";
+export type Location = "냉장" | "냉동" | "김치냉장고";
 export type Zone = "상단" | "중단" | "하단" | "야채" | "도어";
 export type Category =
   | "채소/과일"

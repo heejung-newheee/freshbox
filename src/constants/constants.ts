@@ -193,6 +193,7 @@ export const CAT_HEX: Record<Category, string> = {
 
 export const ZONES_냉장 = ["상단", "중단", "하단", "야채", "도어"] as const;
 export const ZONES_냉동 = ["상단", "중단", "하단"] as const;
+export const ZONES_김치냉장고 = ["상단", "하단"] as const;
 export const CATEGORIES: Category[] = [
   "채소/과일",
   "육류/달걀",

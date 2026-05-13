@@ -1,5 +1,5 @@
 import type { FoodItem } from "@/@types";
-import { ZONES_냉장, ZONES_냉동 } from "@/constants/constants";
+import { ZONES_냉장, ZONES_냉동, ZONES_김치냉장고 } from "@/constants/constants";
 import { ddayMeta, getDday } from "@/utils/utils";
 
 interface FridgeMapProps {
@@ -132,9 +132,10 @@ export function FridgeMap({ items }: FridgeMapProps) {
   const active = items.filter((i) => !i.consumed);
   const fridgeItems = active.filter((i) => i.location === "냉장");
   const freezerItems = active.filter((i) => i.location === "냉동");
+  const kimchiItems = active.filter((i) => i.location === "김치냉장고");
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
       <FridgeSection
         title="냉장칸"
         icon="❄️"
@@ -148,6 +149,13 @@ export function FridgeMap({ items }: FridgeMapProps) {
         iconBg="bg-cyan-50"
         items={freezerItems}
         zones={ZONES_냉동}
+      />
+      <FridgeSection
+        title="김치냉장고"
+        icon="🥬"
+        iconBg="bg-emerald-50"
+        items={kimchiItems}
+        zones={ZONES_김치냉장고}
       />
     </div>
   );

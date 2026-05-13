@@ -19,10 +19,11 @@ interface FormState {
   unit: string;
 }
 
-const LOCATIONS: Location[] = ["냉장", "냉동"];
+const LOCATIONS: Location[] = ["냉장", "냉동", "김치냉장고"];
 const ZONES: Record<Location, Zone[]> = {
   냉장: ["상단", "중단", "하단", "야채", "도어"],
   냉동: ["상단", "중단", "하단"],
+  김치냉장고: ["상단", "하단"],
 };
 
 export function AddModal({ onClose, onAdd }: AddModalProps) {
