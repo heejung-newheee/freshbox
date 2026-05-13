@@ -9,15 +9,15 @@ async function getCurrentUserId(): Promise<string> {
   return data.user.id;
 }
 
-// 멤버로 초대된 경우 오너의 user_id를 반환, 아니면 본인 id 반환
-async function getEffectiveOwnerId(): Promise<string> {
+// profiles.fridge_id 읽기 — 멤버는 오너 id, 오너는 본인 id
+async function getCurrentFridgeId(): Promise<string> {
   const userId = await getCurrentUserId();
-  const { data: membership } = await supabase
-    .from("fridge_members")
-    .select("fridge_owner_id")
-    .eq("member_id", userId)
-    .maybeSingle();
-  return membership?.fridge_owner_id ?? userId;
+  const { data } = await supabase
+    .from("profiles")
+    .select("fridge_id")
+    .eq("id", userId)
+    .single();
+  return data?.fridge_id ?? userId;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,11 +44,11 @@ const normalizeItem = (item: any): FoodItem => ({
 // ─── Food Items ───────────────────────────────────────────────────────────────
 
 export const getFoodItems = async (): Promise<FoodItem[]> => {
-  const ownerId = await getEffectiveOwnerId();
+  const fridgeId = await getCurrentFridgeId();
   const { data, error } = await supabase
     .from("food_items")
     .select("*")
-    .eq("user_id", ownerId)
+    .eq("fridge_id", fridgeId)
     .eq("consumed", false)
     .order("expiry", { ascending: true });
 
@@ -59,19 +59,19 @@ export const getFoodItems = async (): Promise<FoodItem[]> => {
 export const addFoodItem = async (
   item: Omit<FoodItem, "id" | "consumed">,
 ): Promise<FoodItem | null> => {
-  const ownerId = await getEffectiveOwnerId();
+  const fridgeId = await getCurrentFridgeId();
   const { data, error } = await supabase
     .from("food_items")
-    .insert([{ ...item, consumed: false, user_id: ownerId, created_at: new Date().toISOString() }])
+    .insert([{
+      ...item,
+      consumed: false,
+      fridge_id: fridgeId,
+      created_at: new Date().toISOString(),
+    }])
     .select();
 
   if (error) throw error;
   return data?.[0] ? normalizeItem(data[0]) : null;
-};
-
-export const deleteFoodItem = async (id: string): Promise<void> => {
-  const { error } = await supabase.from("food_items").delete().eq("id", id);
-  if (error) throw error;
 };
 
 export const markFoodItemConsumed = async (id: string): Promise<void> => {
@@ -79,6 +79,11 @@ export const markFoodItemConsumed = async (id: string): Promise<void> => {
     .from("food_items")
     .update({ consumed: true })
     .eq("id", id);
+  if (error) throw error;
+};
+
+export const deleteFoodItem = async (id: string): Promise<void> => {
+  const { error } = await supabase.from("food_items").delete().eq("id", id);
   if (error) throw error;
 };
 
@@ -111,7 +116,6 @@ export const inviteFridgeMember = async (
 ): Promise<FridgeMember> => {
   const userId = await getCurrentUserId();
 
-  // 가입된 계정인지 확인
   const { data: profile } = await supabase
     .from("profiles")
     .select("id")
@@ -120,7 +124,6 @@ export const inviteFridgeMember = async (
 
   if (!profile) throw new Error("FreshBox에 가입되지 않은 이메일입니다");
 
-  // 이미 초대된 멤버인지 확인
   const { data: existing } = await supabase
     .from("fridge_members")
     .select("id")
@@ -137,10 +140,31 @@ export const inviteFridgeMember = async (
     .single();
 
   if (error) throw error;
+
+  // 멤버의 profiles.fridge_id = 오너 id
+  await supabase.rpc("set_member_fridge", {
+    p_member_id: profile.id,
+    p_fridge_id: userId,
+  });
+
   return data as FridgeMember;
 };
 
 export const removeFridgeMember = async (id: string): Promise<void> => {
+  const { data: row } = await supabase
+    .from("fridge_members")
+    .select("member_id")
+    .eq("id", id)
+    .single();
+
   const { error } = await supabase.from("fridge_members").delete().eq("id", id);
   if (error) throw error;
+
+  // 멤버의 profiles.fridge_id 본인 id로 리셋
+  if (row?.member_id) {
+    await supabase.rpc("set_member_fridge", {
+      p_member_id: row.member_id,
+      p_fridge_id: row.member_id,
+    });
+  }
 };
