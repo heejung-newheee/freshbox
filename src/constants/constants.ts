@@ -208,4 +208,4 @@ export const ROLE_META = {
   editor: { label: "편집자", cls: "bg-blue-100 text-blue-700" },
   viewer: { label: "열람자", cls: "bg-amber-100 text-amber-700" },
 };
-export const TODAY = new Date("2026-03-03");
+export const TODAY = new Date();

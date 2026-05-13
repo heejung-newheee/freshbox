@@ -27,25 +27,27 @@ export function Share() {
         <p className="text-[12px] text-gray-400 mb-4">
           이메일로 초대 링크를 보내 냉장고를 함께 관리하세요
         </p>
-        <div className="flex gap-2.5">
+        <div className="flex flex-col gap-2.5">
           <input
             type="email"
             placeholder="이메일 주소 입력..."
             value={inviteEmail}
             onChange={(e) => setInviteEmail(e.target.value)}
-            className="flex-1 px-3.5 py-2.5 border border-gray-200 rounded-xl text-[13px] outline-none text-gray-700 focus:border-emerald-400 transition-colors"
+            className="w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-[13px] outline-none text-gray-700 focus:border-emerald-400 transition-colors"
           />
-          <select
-            value={selectedRole}
-            onChange={(e) => setSelectedRole(e.target.value)}
-            className="px-3.5 py-2.5 border border-gray-200 rounded-xl text-[13px] bg-white text-gray-700 cursor-pointer outline-none"
-          >
-            <option>편집자</option>
-            <option>열람자</option>
-          </select>
-          <button className="px-5 py-2.5 bg-emerald-500 text-white border-none rounded-xl text-[13px] font-bold cursor-pointer hover:bg-emerald-600 transition-colors">
-            초대 보내기
-          </button>
+          <div className="flex gap-2.5">
+            <select
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+              className="px-3.5 py-2.5 border border-gray-200 rounded-xl text-[13px] bg-white text-gray-700 cursor-pointer outline-none"
+            >
+              <option>편집자</option>
+              <option>열람자</option>
+            </select>
+            <button className="flex-1 py-2.5 bg-emerald-500 text-white border-none rounded-xl text-[13px] font-bold cursor-pointer hover:bg-emerald-600 transition-colors">
+              초대 보내기
+            </button>
+          </div>
         </div>
       </div>
 
@@ -55,7 +57,7 @@ export function Share() {
           const meta = ROLE_META[role];
           const s = ROLE_STYLE[role];
           return (
-            <div key={role} className={`bg-white border ${s.card} rounded-2xl px-5 py-4`}>
+            <div key={role} className={`bg-white border ${s.card} rounded-2xl px-3 py-3.5 md:px-5 md:py-4`}>
               <span className={`inline-block px-2.5 py-0.5 rounded-full text-[12px] font-bold mb-2.5 ${s.badge}`}>
                 {meta.label}
               </span>

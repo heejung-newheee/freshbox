@@ -10,11 +10,7 @@ const TABS = [
   { path: "/share", Icon: IconShare, label: "공유" },
 ] as const;
 
-interface Props {
-  urgentCount: number;
-}
-
-export function BottomTabBar({ urgentCount }: Props) {
+export function BottomTabBar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
@@ -28,11 +24,6 @@ export function BottomTabBar({ urgentCount }: Props) {
             onClick={() => navigate(path)}
             className="flex-1 flex flex-col items-center justify-center py-2.5 gap-1 relative transition-all active:scale-95"
           >
-            {path === "/inventory" && urgentCount > 0 && (
-              <span className="absolute top-1.5 right-[calc(50%-14px)] w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                {urgentCount}
-              </span>
-            )}
             <Icon
               size={22}
               className={cn("transition-colors", active ? "text-emerald-500" : "text-stone-300")}

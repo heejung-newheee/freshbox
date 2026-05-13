@@ -41,15 +41,17 @@ export function Dashboard() {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 md:gap-3.5">
         {stats.map((s) => (
-          <div key={s.label} className="bg-white border border-gray-200 rounded-2xl p-5">
-            <div className={`w-[38px] h-[38px] rounded-xl ${s.bg} flex items-center justify-center text-lg mb-3`}>
+          <div key={s.label} className="bg-white border border-gray-200 rounded-2xl p-3.5 md:p-5 flex md:block items-center gap-3">
+            <div className={`w-9 h-9 md:w-[38px] md:h-[38px] rounded-xl ${s.bg} flex items-center justify-center text-base md:text-lg md:mb-3 shrink-0`}>
               {s.icon}
             </div>
-            <div className="text-[30px] font-black text-stone-900 leading-none">{s.value}</div>
-            <div className="text-[12px] text-gray-700 mt-1.5 font-semibold">{s.label}</div>
-            <div className="text-[11px] text-gray-400 mt-0.5">{s.sub}</div>
+            <div className="min-w-0">
+              <div className="text-[22px] md:text-[30px] font-black text-stone-900 leading-none">{s.value}</div>
+              <div className="text-[11px] md:text-[12px] text-gray-700 mt-1 font-semibold truncate">{s.label}</div>
+              <div className="text-[10px] md:text-[11px] text-gray-400 mt-0.5 hidden md:block">{s.sub}</div>
+            </div>
           </div>
         ))}
       </div>

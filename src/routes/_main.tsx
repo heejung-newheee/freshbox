@@ -5,6 +5,7 @@ import * as api from "@/services/api";
 import { getDday } from "@/utils";
 import { cn } from "@/utils/utils";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { IconPlus } from "@/components/ui/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
@@ -72,7 +73,17 @@ export default function MainLayout() {
       </main>
 
       {/* Bottom Tab Bar: 모바일만 */}
-      {isMobile && <BottomTabBar urgentCount={urgentCount} />}
+      {isMobile && <BottomTabBar />}
+
+      {/* FAB: 모바일 전용 플로팅 추가 버튼 */}
+      {isMobile && (
+        <button
+          onClick={() => setShowAddModal(true)}
+          className="fixed bottom-[calc(env(safe-area-inset-bottom)+68px)] right-4 z-50 w-13 h-13 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-200 hover:bg-emerald-600 active:scale-95 transition-all"
+        >
+          <IconPlus size={22} className="text-white" />
+        </button>
+      )}
 
       {/* 추가 중 상태바 */}
       {addItemMutation.isPending && (

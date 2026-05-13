@@ -169,55 +169,48 @@ export function Inventory() {
                   {/* 모바일 / 태블릿 */}
                   <div className="flex flex-col gap-3 md:hidden">
                     {/* 상단 */}
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <div className="text-[14px] font-bold text-stone-900">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="text-[14px] font-bold text-stone-900 truncate">
                           {item.name}
                         </div>
-
                         <span
-                          className="text-[11px] font-semibold rounded px-1.5 py-0.5 mt-1 inline-block"
-                          style={{
-                            color: catTextHex,
-                            background: catBgHex,
-                          }}
+                          className="text-[11px] font-semibold rounded px-1.5 py-0.5 shrink-0"
+                          style={{ color: catTextHex, background: catBgHex }}
                         >
                           {item.category}
                         </span>
                       </div>
 
                       <span
-                        className="text-[12px] font-bold rounded-full px-2.5 py-0.5 border whitespace-nowrap"
-                        style={{
-                          color: m.color,
-                          background: m.bg,
-                          borderColor: m.border,
-                        }}
+                        className="text-[12px] font-bold rounded-full px-2.5 py-0.5 border whitespace-nowrap shrink-0"
+                        style={{ color: m.color, background: m.bg, borderColor: m.border }}
                       >
                         {m.label}
                       </span>
                     </div>
 
-                    {/* 정보 */}
-                    <div className="grid grid-cols-[1fr_2fr] gap-y-2 gap-x-3 text-[12px]">
-                      <div className="text-gray-400">위치</div>
-                      <div className="font-medium text-emerald-500">
-                        {item.location}
+                    {/* 정보 — 2열 */}
+                    <div className="grid grid-cols-2 gap-y-2.5 gap-x-2 text-[12px]">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-gray-400 shrink-0">위치</span>
+                        <span className="font-semibold text-emerald-500">{item.location}</span>
                       </div>
-
-                      <div className="text-gray-400">구역</div>
-                      <div className="text-gray-700">{item.zone ?? "-"}</div>
-
-                      <div className="text-gray-400">구매일</div>
-                      <div className="text-gray-700">{item.bought}</div>
-
-                      <div className="text-gray-400">유통기한</div>
-                      <div className="text-gray-700">{item.expiry}</div>
-
-                      <div className="text-gray-400">수량</div>
-                      <div className="font-semibold text-gray-700">
-                        {item.quantity}
-                        {item.unit}
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-gray-400 shrink-0">구역</span>
+                        <span className="text-gray-700">{item.zone ?? "-"}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-gray-400 shrink-0">구매일</span>
+                        <span className="text-gray-700">{item.bought}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-gray-400 shrink-0">유통기한</span>
+                        <span className="text-gray-700">{item.expiry}</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-gray-400 shrink-0">수량</span>
+                        <span className="font-semibold text-gray-700">{item.quantity}{item.unit}</span>
                       </div>
                     </div>
 
@@ -259,17 +252,13 @@ export function Inventory() {
                     </div>
 
                     {/* 식품명 */}
-                    <div className="hidden md:block">
+                    <div className="hidden md:flex items-center gap-2">
                       <div className="text-[13px] font-bold text-stone-900">
                         {item.name}
                       </div>
-
                       <span
-                        className="text-[11px] font-semibold rounded px-1.5 py-0.5 mt-0.5 inline-block"
-                        style={{
-                          color: catTextHex,
-                          background: catBgHex,
-                        }}
+                        className="text-[11px] font-semibold rounded px-1.5 py-0.5 shrink-0"
+                        style={{ color: catTextHex, background: catBgHex }}
                       >
                         {item.category}
                       </span>

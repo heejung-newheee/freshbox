@@ -1,4 +1,5 @@
-import type { FoodItem } from "@/@types";
+import type { FoodItem, Category, Location, Zone } from "@/@types";
+import { CATEGORIES } from "@/constants/constants";
 import { XIcon } from "@/assets/icons";
 import { useState } from "react";
 
@@ -7,22 +8,37 @@ interface AddModalProps {
   onAdd: (item: Omit<FoodItem, "id" | "consumed">) => void;
 }
 
-const CATEGORIES = ["채소/과일", "육류/계란", "해산물", "유제품", "두부/콩류", "양념", "가공식품", "기타"];
-const LOCATIONS = ["냉장", "냉동"] as const;
-const ZONES: Record<string, string[]> = {
+interface FormState {
+  name: string;
+  category: Category;
+  location: Location;
+  zone: Zone;
+  bought: string;
+  expiry: string;
+  quantity: number;
+  unit: string;
+}
+
+const LOCATIONS: Location[] = ["냉장", "냉동"];
+const ZONES: Record<Location, Zone[]> = {
   냉장: ["상단", "중단", "하단", "야채", "도어"],
   냉동: ["상단", "중단", "하단"],
 };
 
 export function AddModal({ onClose, onAdd }: AddModalProps) {
   const today = new Date();
-  const defaultExpiry = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate())
-    .toISOString().split("T")[0];
+  const defaultExpiry = new Date(
+    today.getFullYear(),
+    today.getMonth() + 1,
+    today.getDate(),
+  )
+    .toISOString()
+    .split("T")[0];
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<FormState>({
     name: "",
-    category: "채소",
-    location: "냉장" as "냉장" | "냉동",
+    category: "채소/과일",
+    location: "냉장",
     zone: "상단",
     bought: today.toISOString().split("T")[0],
     expiry: defaultExpiry,
@@ -30,9 +46,10 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
     unit: "개",
   });
 
-  const set = (k: string, v: any) => setForm((p) => ({ ...p, [k]: v }));
+  const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
+    setForm((p) => ({ ...p, [k]: v }));
 
-  const handleLocationChange = (loc: "냉장" | "냉동") => {
+  const handleLocationChange = (loc: Location) => {
     setForm((p) => ({ ...p, location: loc, zone: ZONES[loc][0] }));
   };
 
@@ -43,9 +60,9 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
     }
     onAdd({
       name: form.name,
-      category: form.category as any,
+      category: form.category,
       location: form.location,
-      zone: form.zone as any,
+      zone: form.zone,
       bought: form.bought,
       expiry: form.expiry,
       quantity: form.quantity,
@@ -53,19 +70,25 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
     });
     setForm({
       name: "",
-      category: "채소",
+      category: "채소/과일",
       location: "냉장",
       zone: "상단",
       bought: new Date().toISOString().split("T")[0],
-      expiry: new Date(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate())
-        .toISOString().split("T")[0],
+      expiry: new Date(
+        new Date().getFullYear(),
+        new Date().getMonth() + 1,
+        new Date().getDate(),
+      )
+        .toISOString()
+        .split("T")[0],
       quantity: 1,
       unit: "개",
     });
     onClose();
   };
 
-  const inputCls = "w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[13px] text-gray-800 bg-gray-50 outline-none font-[inherit] box-border";
+  const inputCls =
+    "w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[13px] text-gray-800 bg-gray-50 outline-none font-[inherit] box-border";
   const labelCls = "block text-[12px] font-semibold text-gray-600 mb-1.5";
 
   return (
@@ -80,8 +103,12 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div>
-            <div className="text-base font-bold text-gray-800">새 재료 추가</div>
-            <div className="text-[12px] text-gray-400 mt-1">냉장고에 보관할 식품을 등록하세요</div>
+            <div className="text-base font-bold text-gray-800">
+              새 재료 추가
+            </div>
+            <div className="text-[12px] text-gray-400 mt-1">
+              냉장고에 보관할 식품을 등록하세요
+            </div>
           </div>
           <button
             onClick={onClose}
@@ -108,8 +135,16 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
           {/* 카테고리 */}
           <div>
             <label className={labelCls}>카테고리</label>
-            <select className={inputCls} value={form.category} onChange={(e) => set("category", e.target.value)}>
-              {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            <select
+              className={inputCls}
+              value={form.category}
+              onChange={(e) => set("category", e.target.value as Category)}
+            >
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -117,20 +152,41 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelCls}>보관 위치</label>
-              <select className={inputCls} value={form.location} onChange={(e) => handleLocationChange(e.target.value as "냉장" | "냉동")}>
-                {LOCATIONS.map((l) => <option key={l} value={l}>{l}</option>)}
+              <select
+                className={inputCls}
+                value={form.location}
+                onChange={(e) =>
+                  handleLocationChange(e.target.value as "냉장" | "냉동")
+                }
+              >
+                {LOCATIONS.map((l) => (
+                  <option key={l} value={l}>
+                    {l}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
               <label className={labelCls}>구역</label>
-              <select className={inputCls} value={form.zone} onChange={(e) => set("zone", e.target.value)}>
-                {ZONES[form.location].map((z) => <option key={z} value={z}>{z}칸</option>)}
+              <select
+                className={inputCls}
+                value={form.zone}
+                onChange={(e) => set("zone", e.target.value as Zone)}
+              >
+                {ZONES[form.location].map((z) => (
+                  <option key={z} value={z}>
+                    {z}칸
+                  </option>
+                ))}
               </select>
             </div>
           </div>
 
           {/* 수량 & 단위 */}
-          <div className="grid gap-3" style={{ gridTemplateColumns: "80px 1fr" }}>
+          <div
+            className="grid gap-3"
+            style={{ gridTemplateColumns: "80px 1fr" }}
+          >
             <div>
               <label className={labelCls}>수량</label>
               <input
