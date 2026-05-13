@@ -1,11 +1,26 @@
-import { CATEGORIES, CAT_HEX, MEMBERS } from "@/constants/constants";
+import { CATEGORIES, CAT_HEX } from "@/constants/constants";
 import { ddayMeta, getDday } from "@/utils/utils";
 import { useFoodItems, useConsumeItem } from "@/hooks/useFoodItems";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import * as api from "@/services/api";
+import { useAuthStore } from "@/stores/authStore";
+
+const AVATAR_COLORS = [
+  "#10b981", "#3b82f6", "#f59e0b", "#ef4444",
+  "#8b5cf6", "#ec4899", "#06b6d4", "#f97316",
+];
 
 export function Dashboard() {
   const { items } = useFoodItems();
   const consumeMutation = useConsumeItem();
   const onConsume = (id: string) => consumeMutation.mutate(id);
+  const navigate = useNavigate();
+  const user = useAuthStore((s) => s.user);
+  const { data: members = [] } = useQuery({
+    queryKey: ["fridgeMembers"],
+    queryFn: api.getFridgeMembers,
+  });
   const active = items.filter((i) => !i.consumed);
   const urgentItems = active.filter(
     (i) => getDday(i.expiry) <= 3 && getDday(i.expiry) >= 0,
@@ -141,26 +156,48 @@ export function Dashboard() {
       {/* Shared Members */}
       <div className="bg-white rounded-2xl border border-gray-200 p-5">
         <h3 className="text-[14px] font-bold mb-3.5">공유 멤버</h3>
-        <div className="flex gap-2.5 flex-wrap">
-          {MEMBERS.map((m) => (
-            <div key={m.id} className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2">
+        <div className="flex gap-2.5 flex-wrap items-center">
+          {/* 소유자 (본인) */}
+          {user && (
+            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2">
               <div
-                className="w-[30px] h-[30px] rounded-full flex items-center justify-center text-[12px] font-bold"
-                style={{ background: m.color + "20", border: `2px solid ${m.color}50`, color: m.color }}
+                className="w-7.5 h-7.5 rounded-full flex items-center justify-center text-[12px] font-bold"
+                style={{ background: "#10b98120", border: "2px solid #10b98150", color: "#10b981" }}
               >
-                {m.name[0]}
+                {user.email?.[0]?.toUpperCase()}
               </div>
               <div>
-                <div className="text-[12px] font-bold text-gray-700">{m.name}</div>
-                <div className="text-[10px] text-gray-400">
-                  {m.role === "owner" ? "소유자" : m.role === "editor" ? "편집자" : "열람자"}
-                </div>
+                <div className="text-[12px] font-bold text-gray-700 max-w-28 truncate">{user.email}</div>
+                <div className="text-[10px] text-gray-400">소유자</div>
               </div>
             </div>
-          ))}
-          <div className="w-[46px] h-[46px] rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-lg cursor-pointer self-center hover:border-gray-400 transition-colors">
+          )}
+          {/* 초대된 멤버 */}
+          {members.map((m, idx) => {
+            const color = AVATAR_COLORS[(idx + 1) % AVATAR_COLORS.length];
+            const roleLabel = m.role === "editor" ? "편집자" : "열람자";
+            return (
+              <div key={m.id} className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2">
+                <div
+                  className="w-7.5 h-7.5 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0"
+                  style={{ background: color + "20", border: `2px solid ${color}50`, color }}
+                >
+                  {m.member_email[0]?.toUpperCase()}
+                </div>
+                <div>
+                  <div className="text-[12px] font-bold text-gray-700 max-w-28 truncate">{m.member_email}</div>
+                  <div className="text-[10px] text-gray-400">{roleLabel}</div>
+                </div>
+              </div>
+            );
+          })}
+          {/* 멤버 추가 버튼 */}
+          <button
+            onClick={() => navigate("/share")}
+            className="w-11.5 h-11.5 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-lg cursor-pointer hover:border-emerald-400 hover:text-emerald-400 transition-colors bg-transparent"
+          >
             +
-          </div>
+          </button>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { MEMBERS } from "../../constants/constants";
+import { useAuthStore } from "@/stores/authStore";
 import { cn } from "../../utils/utils";
 import {
   IconBox,
@@ -30,8 +30,9 @@ interface Props {
 
 export function Sidebar({ itemCount, compact = false }: Props) {
   const navigate = useNavigate();
-  const me = MEMBERS[0];
+  const user = useAuthStore((s) => s.user);
   const { pathname } = useLocation();
+  const initial = user?.email?.[0]?.toUpperCase() ?? "?";
 
   return (
     <aside
@@ -127,16 +128,16 @@ export function Sidebar({ itemCount, compact = false }: Props) {
             <div
               className="w-8.5 h-8.5 rounded-full flex items-center justify-center text-[13px] font-extrabold shrink-0"
               style={{
-                backgroundColor: me.color + "20",
-                border: `2px solid ${me.color}60`,
-                color: me.color,
+                backgroundColor: "#10b98120",
+                border: "2px solid #10b98160",
+                color: "#10b981",
               }}
             >
-              {me.name[0]}
+              {initial}
             </div>
             <div className="flex-1 min-w-0">
               <div className="text-[13px] font-bold text-slate-700 truncate">
-                {me.name}
+                {user?.email ?? ""}
               </div>
               <div className="text-[11px] text-slate-400 mt-0.5">소유자</div>
             </div>

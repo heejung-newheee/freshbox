@@ -9,6 +9,17 @@ async function getCurrentUserId(): Promise<string> {
   return data.user.id;
 }
 
+// 멤버로 초대된 경우 오너의 user_id를 반환, 아니면 본인 id 반환
+async function getEffectiveOwnerId(): Promise<string> {
+  const userId = await getCurrentUserId();
+  const { data: membership } = await supabase
+    .from("fridge_members")
+    .select("fridge_owner_id")
+    .eq("member_id", userId)
+    .maybeSingle();
+  return membership?.fridge_owner_id ?? userId;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const normalizeItem = (item: any): FoodItem => ({
   ...item,
@@ -33,11 +44,11 @@ const normalizeItem = (item: any): FoodItem => ({
 // ─── Food Items ───────────────────────────────────────────────────────────────
 
 export const getFoodItems = async (): Promise<FoodItem[]> => {
-  const userId = await getCurrentUserId();
+  const ownerId = await getEffectiveOwnerId();
   const { data, error } = await supabase
     .from("food_items")
     .select("*")
-    .eq("user_id", userId)
+    .eq("user_id", ownerId)
     .eq("consumed", false)
     .order("expiry", { ascending: true });
 
@@ -48,10 +59,10 @@ export const getFoodItems = async (): Promise<FoodItem[]> => {
 export const addFoodItem = async (
   item: Omit<FoodItem, "id" | "consumed">,
 ): Promise<FoodItem | null> => {
-  const userId = await getCurrentUserId();
+  const ownerId = await getEffectiveOwnerId();
   const { data, error } = await supabase
     .from("food_items")
-    .insert([{ ...item, consumed: false, user_id: userId, created_at: new Date().toISOString() }])
+    .insert([{ ...item, consumed: false, user_id: ownerId, created_at: new Date().toISOString() }])
     .select();
 
   if (error) throw error;
@@ -100,7 +111,16 @@ export const inviteFridgeMember = async (
 ): Promise<FridgeMember> => {
   const userId = await getCurrentUserId();
 
-  // Check if already invited
+  // 가입된 계정인지 확인
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("email", email)
+    .maybeSingle();
+
+  if (!profile) throw new Error("FreshBox에 가입되지 않은 이메일입니다");
+
+  // 이미 초대된 멤버인지 확인
   const { data: existing } = await supabase
     .from("fridge_members")
     .select("id")
@@ -108,11 +128,11 @@ export const inviteFridgeMember = async (
     .eq("member_email", email)
     .maybeSingle();
 
-  if (existing) throw new Error("이미 초대된 이메일입니다");
+  if (existing) throw new Error("이미 초대된 멤버입니다");
 
   const { data, error } = await supabase
     .from("fridge_members")
-    .insert([{ fridge_owner_id: userId, member_email: email, role }])
+    .insert([{ fridge_owner_id: userId, member_email: email, member_id: profile.id, role }])
     .select()
     .single();
 
@@ -123,13 +143,4 @@ export const inviteFridgeMember = async (
 export const removeFridgeMember = async (id: string): Promise<void> => {
   const { error } = await supabase.from("fridge_members").delete().eq("id", id);
   if (error) throw error;
-};
-
-// 로그인한 사용자의 이메일과 일치하는 fridge_members 행에 member_id를 연결
-export const linkMemberAccount = async (userId: string, email: string): Promise<void> => {
-  await supabase
-    .from("fridge_members")
-    .update({ member_id: userId })
-    .eq("member_email", email)
-    .is("member_id", null);
 };

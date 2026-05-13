@@ -38,12 +38,17 @@ export function Share() {
   const inviteMutation = useMutation({
     mutationFn: ({ email, role }: { email: string; role: Extract<Role, "editor" | "viewer"> }) =>
       api.inviteFridgeMember(email, role),
-    onSuccess: () => {
+    onSuccess: (_data, { email }) => {
       queryClient.invalidateQueries({ queryKey: ["fridgeMembers"] });
       setInviteEmail("");
       setInviteError(null);
+      setInviteSuccess(`${email} 님을 멤버로 추가했습니다`);
+      setTimeout(() => setInviteSuccess(null), 4000);
     },
-    onError: (err: Error) => setInviteError(err.message),
+    onError: (err: Error) => {
+      setInviteSuccess(null);
+      setInviteError(err.message);
+    },
   });
 
   const removeMutation = useMutation({
@@ -95,6 +100,12 @@ export function Share() {
               {inviteMutation.isPending ? "초대 중..." : "초대 보내기"}
             </button>
           </div>
+          {inviteSuccess && (
+            <div className="flex items-center gap-2 px-3.5 py-2.5 bg-emerald-50 border border-emerald-100 rounded-lg text-[12px] text-emerald-700 font-semibold">
+              <span>✓</span>
+              {inviteSuccess}
+            </div>
+          )}
           {inviteError && (
             <p className="text-[12px] text-red-500 px-1">{inviteError}</p>
           )}
@@ -174,9 +185,6 @@ export function Share() {
                   <div className="flex-1 ml-3 min-w-0">
                     <div className="text-[14px] font-bold text-stone-900 truncate">
                       {member.member_email}
-                    </div>
-                    <div className="text-[12px] text-gray-400 mt-0.5">
-                      {member.member_id ? "가입됨" : "초대 대기 중"}
                     </div>
                   </div>
                   <span className={cn("px-3 py-1 rounded-full text-[12px] font-bold mr-2 shrink-0", s.badge)}>
