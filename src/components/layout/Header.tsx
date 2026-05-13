@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { BellIcon, SearchIcon, PlusIcon } from "@/assets/icons";
+import { useNavigate } from "react-router-dom";
+import { BellIcon, PlusIcon } from "@/assets/icons";
 import { IconLeaf } from "@/components/ui/icons";
 import { Avatar } from "@/components/common";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
@@ -13,18 +14,16 @@ interface HeaderProps {
 export function Header({ title, urgentCount = 0, onAddItem }: HeaderProps) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [readCount, setReadCount] = useState(0);
-  const [searchOpen, setSearchOpen] = useState(false);
   const hasUnread = urgentCount > readCount;
+  const navigate = useNavigate();
+  const notifRef = useRef<HTMLDivElement>(null);
+  const { isMobile } = useBreakpoint();
 
   const handleBellClick = () => {
     const opening = !notifOpen;
     setNotifOpen(opening);
     if (opening) setReadCount(urgentCount);
   };
-  const notifRef = useRef<HTMLDivElement>(null);
-  const searchRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const { isMobile } = useBreakpoint();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -34,59 +33,32 @@ export function Header({ title, urgentCount = 0, onAddItem }: HeaderProps) {
       ) {
         setNotifOpen(false);
       }
-      if (
-        searchRef.current &&
-        !searchRef.current.contains(event.target as Node)
-      ) {
-        setSearchOpen(false);
-      }
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    if (searchOpen) searchInputRef.current?.focus();
-  }, [searchOpen]);
-
   return (
     <header className="sticky top-0 bg-white border-b border-gray-200 z-40">
-      {/* Main row */}
       <div className="px-4 md:px-6 py-3 flex items-center justify-between">
-        {/* Left: logo on mobile, page title on desktop */}
+        {/* Left: 모바일은 로고(홈 이동), 데스크톱은 페이지 타이틀 */}
         {isMobile ? (
-          <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2 bg-transparent border-none cursor-pointer p-0"
+          >
             <div className="w-8 h-8 rounded-xl bg-linear-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-sm shadow-emerald-200 shrink-0">
               <IconLeaf size={16} className="text-white" />
             </div>
             <span className="text-[17px] font-black text-stone-900 tracking-tight">
               FreshBox
             </span>
-          </div>
+          </button>
         ) : (
           <h1 className="text-lg font-bold">{title}</h1>
         )}
 
         <div className="flex items-center gap-2 md:gap-4">
-          {/* Search icon (mobile toggle) / input (desktop) */}
-          {/* {isMobile ? (
-            <button
-              onClick={() => setSearchOpen((v) => !v)}
-              className="bg-transparent border-none cursor-pointer p-2"
-            >
-              <SearchIcon s={18} c={searchOpen ? "#10b981" : "#6b7280"} />
-            </button>
-          ) : (
-            <div className="flex items-center gap-2 bg-gray-100 pl-3 rounded-md flex-[0_1_200px]">
-              <SearchIcon s={16} c="#9ca3af" />
-              <input
-                type="text"
-                placeholder="검색..."
-                className="flex-1 border-none bg-transparent py-2 px-3 text-[13px] outline-none"
-              />
-            </div>
-          )} */}
-
           {/* Notification */}
           <div className="relative" ref={notifRef}>
             <button
@@ -119,7 +91,7 @@ export function Header({ title, urgentCount = 0, onAddItem }: HeaderProps) {
             )}
           </div>
 
-          {/* Add Button — desktop only (mobile uses FAB) */}
+          {/* 재료 추가 — 데스크톱 전용 (모바일은 FAB) */}
           {!isMobile && (
             <button
               onClick={onAddItem}
@@ -134,21 +106,6 @@ export function Header({ title, urgentCount = 0, onAddItem }: HeaderProps) {
           <Avatar name="H" color="#10b981" size="md" />
         </div>
       </div>
-
-      {/* Search expansion row — mobile only */}
-      {isMobile && searchOpen && (
-        <div className="px-4 pb-3" ref={searchRef}>
-          <div className="flex items-center gap-2 bg-gray-100 px-3 py-2.5 rounded-xl">
-            <SearchIcon s={14} c="#9ca3af" />
-            <input
-              ref={searchInputRef}
-              type="text"
-              placeholder="식품 검색..."
-              className="flex-1 border-none bg-transparent text-[13px] text-gray-700 outline-none"
-            />
-          </div>
-        </div>
-      )}
     </header>
   );
 }

@@ -41,8 +41,16 @@ export function Sidebar({ itemCount, compact = false }: Props) {
       )}
     >
       {/* Logo */}
-      <div className={cn("pt-5 pb-4", compact ? "px-3" : "px-5")}>
-        <div className={cn("flex items-center", compact ? "justify-center" : "gap-3")}>
+      <div
+        className={cn("pt-5 pb-4", compact ? "px-3" : "px-5")}
+        onClick={() => navigate("/")}
+      >
+        <div
+          className={cn(
+            "flex items-center",
+            compact ? "justify-center" : "gap-3",
+          )}
+        >
           <div className="w-10 h-10 rounded-[14px] bg-linear-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white shadow-md shadow-emerald-200 shrink-0">
             <IconLeaf size={20} />
           </div>
@@ -58,7 +66,6 @@ export function Sidebar({ itemCount, compact = false }: Props) {
           )}
         </div>
       </div>
-
       {/* Nav */}
       <div className="flex-1 px-2 py-1 overflow-y-auto">
         {!compact && (
@@ -84,7 +91,11 @@ export function Sidebar({ itemCount, compact = false }: Props) {
               >
                 <Icon
                   size={18}
-                  className={active ? "text-emerald-500 shrink-0" : "text-slate-400 shrink-0"}
+                  className={
+                    active
+                      ? "text-emerald-500 shrink-0"
+                      : "text-slate-400 shrink-0"
+                  }
                 />
                 {!compact && (
                   <>
@@ -124,7 +135,9 @@ export function Sidebar({ itemCount, compact = false }: Props) {
               {me.name[0]}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[13px] font-bold text-slate-700 truncate">{me.name}</div>
+              <div className="text-[13px] font-bold text-slate-700 truncate">
+                {me.name}
+              </div>
               <div className="text-[11px] text-slate-400 mt-0.5">소유자</div>
             </div>
           </div>
