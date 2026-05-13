@@ -4,6 +4,7 @@ import { BellIcon, PlusIcon } from "@/assets/icons";
 import { IconLeaf } from "@/components/ui/icons";
 import { Avatar } from "@/components/common";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
+import { useAuthStore } from "@/stores/authStore";
 
 interface HeaderProps {
   title: string;
@@ -13,11 +14,21 @@ interface HeaderProps {
 
 export function Header({ title, urgentCount = 0, onAddItem }: HeaderProps) {
   const [notifOpen, setNotifOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [readCount, setReadCount] = useState(0);
   const hasUnread = urgentCount > readCount;
   const navigate = useNavigate();
   const notifRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const { isMobile } = useBreakpoint();
+  const { user, signOut } = useAuthStore();
+
+  const userInitial = user?.email?.[0]?.toUpperCase() ?? "?";
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/login", { replace: true });
+  };
 
   const handleBellClick = () => {
     const opening = !notifOpen;
@@ -27,11 +38,11 @@ export function Header({ title, urgentCount = 0, onAddItem }: HeaderProps) {
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (
-        notifRef.current &&
-        !notifRef.current.contains(event.target as Node)
-      ) {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
         setNotifOpen(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setUserMenuOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -102,8 +113,31 @@ export function Header({ title, urgentCount = 0, onAddItem }: HeaderProps) {
             </button>
           )}
 
-          {/* Avatar */}
-          <Avatar name="H" color="#10b981" size="md" />
+          {/* User menu */}
+          <div className="relative" ref={userMenuRef}>
+            <button
+              onClick={() => setUserMenuOpen((o) => !o)}
+              className="bg-transparent border-none cursor-pointer p-0"
+            >
+              <Avatar name={userInitial} color="#10b981" size="md" />
+            </button>
+            {userMenuOpen && (
+              <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-md min-w-48 z-50">
+                <div className="px-4 py-3 border-b border-gray-100">
+                  <p className="text-[12px] text-gray-400">로그인 계정</p>
+                  <p className="text-[13px] font-semibold text-gray-700 truncate mt-0.5">
+                    {user?.email}
+                  </p>
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  className="w-full text-left px-4 py-3 text-[13px] text-red-500 font-semibold hover:bg-red-50 transition-colors rounded-b-xl cursor-pointer bg-transparent border-none"
+                >
+                  로그아웃
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>
