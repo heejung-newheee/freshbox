@@ -1,23 +1,13 @@
 import { supabase } from "@/utils/supabase";
 import type { FoodItem, Role } from "@/@types";
+import { useAuthStore } from "@/stores/authStore";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
-async function getCurrentUserId(): Promise<string> {
-  const { data } = await supabase.auth.getUser();
-  if (!data.user) throw new Error("로그인이 필요합니다");
-  return data.user.id;
-}
-
-// profiles.fridge_id 읽기 — 멤버는 오너 id, 오너는 본인 id
-async function getCurrentFridgeId(): Promise<string> {
-  const userId = await getCurrentUserId();
-  const { data } = await supabase
-    .from("profiles")
-    .select("fridge_id")
-    .eq("id", userId)
-    .single();
-  return data?.fridge_id ?? userId;
+function getStoreIds(): { userId: string; fridgeId: string } {
+  const { user, fridgeId } = useAuthStore.getState();
+  if (!user || !fridgeId) throw new Error("로그인이 필요합니다");
+  return { userId: user.id, fridgeId };
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -44,7 +34,7 @@ const normalizeItem = (item: any): FoodItem => ({
 // ─── Food Items ───────────────────────────────────────────────────────────────
 
 export const getFoodItems = async (): Promise<FoodItem[]> => {
-  const fridgeId = await getCurrentFridgeId();
+  const { fridgeId } = getStoreIds();
   const { data, error } = await supabase
     .from("food_items")
     .select("*")
@@ -59,7 +49,7 @@ export const getFoodItems = async (): Promise<FoodItem[]> => {
 export const addFoodItem = async (
   item: Omit<FoodItem, "id" | "consumed">,
 ): Promise<FoodItem | null> => {
-  const fridgeId = await getCurrentFridgeId();
+  const { fridgeId } = getStoreIds();
   const { data, error } = await supabase
     .from("food_items")
     .insert([{
@@ -99,7 +89,7 @@ export interface FridgeMember {
 }
 
 export const getFridgeMembers = async (): Promise<FridgeMember[]> => {
-  const userId = await getCurrentUserId();
+  const { userId } = getStoreIds();
   const { data, error } = await supabase
     .from("fridge_members")
     .select("*")
@@ -114,7 +104,7 @@ export const inviteFridgeMember = async (
   email: string,
   role: Extract<Role, "editor" | "viewer">,
 ): Promise<FridgeMember> => {
-  const userId = await getCurrentUserId();
+  const { userId } = getStoreIds();
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -141,7 +131,6 @@ export const inviteFridgeMember = async (
 
   if (error) throw error;
 
-  // 멤버의 profiles.fridge_id = 오너 id
   await supabase.rpc("set_member_fridge", {
     p_member_id: profile.id,
     p_fridge_id: userId,
@@ -160,7 +149,6 @@ export const removeFridgeMember = async (id: string): Promise<void> => {
   const { error } = await supabase.from("fridge_members").delete().eq("id", id);
   if (error) throw error;
 
-  // 멤버의 profiles.fridge_id 본인 id로 리셋
   if (row?.member_id) {
     await supabase.rpc("set_member_fridge", {
       p_member_id: row.member_id,

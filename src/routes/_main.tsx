@@ -24,7 +24,7 @@ export default function MainLayout() {
   const { isMobile, isTablet } = useBreakpoint();
   const [showAddModal, setShowAddModal] = useState(false);
 
-  const { data: items = [] } = useQuery({
+  const { data: items = [], isLoading: itemsLoading } = useQuery({
     queryKey: ["foodItems"],
     queryFn: api.getFoodItems,
   });
@@ -46,6 +46,17 @@ export default function MainLayout() {
       alert("재료 추가에 실패했습니다. 다시 시도해주세요.");
     }
   };
+
+  if (itemsLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-10 h-10 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+          <span className="text-[13px] text-gray-400">로딩 중...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen bg-gray-50">
