@@ -274,6 +274,9 @@ export interface RecipeRecommendation {
   ingredients: string;
   area: string;
   thumbnail: string;
+  instructions: string;
+  youtube: string;
+  fullIngredients: { ingredient: string; measure: string }[];
 }
 
 async function translate(text: string, from: string, to: string): Promise<string> {
@@ -286,6 +289,21 @@ async function translate(text: string, from: string, to: string): Promise<string
   } catch {
     return text;
   }
+}
+
+async function translateLong(text: string): Promise<string> {
+  const paragraphs = text.split(/\r?\n+/).filter(Boolean);
+  const chunks: string[] = [];
+  for (const para of paragraphs) {
+    if (para.length <= 450) {
+      chunks.push(para);
+    } else {
+      const sub = para.match(/.{1,450}(?:\s|$)/g) ?? [para];
+      chunks.push(...sub.map((s) => s.trim()));
+    }
+  }
+  const translated = await Promise.all(chunks.map((c) => translate(c, "en", "ko")));
+  return translated.join("\n");
 }
 
 export const getRecipeRecommendations = async (
@@ -316,22 +334,36 @@ export const getRecipeRecommendations = async (
 
   return Promise.all(
     details.filter(Boolean).map(async (d) => {
-      const ings: string[] = [];
-      for (let i = 1; i <= 5; i++) {
+      const fullIngredients: { ingredient: string; measure: string }[] = [];
+      for (let i = 1; i <= 20; i++) {
         const ing = d[`strIngredient${i}`]?.trim();
-        if (ing) ings.push(ing);
+        const mea = d[`strMeasure${i}`]?.trim();
+        if (ing) fullIngredients.push({ ingredient: ing, measure: mea ?? "" });
       }
-      const [koreanName, koreanIngredients, koreanArea] = await Promise.all([
-        translate(d.strMeal, "en", "ko"),
-        translate(ings.join(", "), "en", "ko"),
-        d.strArea ? translate(d.strArea, "en", "ko") : Promise.resolve(""),
-      ]);
+      const top5 = fullIngredients.slice(0, 5).map((x) => x.ingredient);
+      const allIngNames = fullIngredients.map((x) => x.ingredient).join(", ");
+      const [koreanName, koreanIngredients, koreanArea, koreanInstructions, translatedIngNames] =
+        await Promise.all([
+          translate(d.strMeal, "en", "ko"),
+          translate(top5.join(", "), "en", "ko"),
+          d.strArea ? translate(d.strArea, "en", "ko") : Promise.resolve(""),
+          d.strInstructions ? translateLong(d.strInstructions) : Promise.resolve(""),
+          allIngNames ? translate(allIngNames, "en", "ko") : Promise.resolve(""),
+        ]);
+      const koreanIngNames = translatedIngNames.split(/,\s*/);
+      const koreanFullIngredients = fullIngredients.map((item, i) => ({
+        ingredient: koreanIngNames[i]?.trim() || item.ingredient,
+        measure: item.measure,
+      }));
       return {
         name: d.strMeal,
         koreanName,
         ingredients: koreanIngredients,
         area: koreanArea,
         thumbnail: d.strMealThumb ?? "",
+        instructions: koreanInstructions,
+        youtube: d.strYoutube ?? "",
+        fullIngredients: koreanFullIngredients,
       };
     }),
   );
