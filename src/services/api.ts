@@ -156,3 +156,105 @@ export const removeFridgeMember = async (id: string): Promise<void> => {
     });
   }
 };
+
+// ─── Shopping Items ───────────────────────────────────────────────────────────
+
+export interface ShoppingItem {
+  id: string;
+  name: string;
+  qty: string;
+  checked: boolean;
+}
+
+export const getShoppingItems = async (): Promise<ShoppingItem[]> => {
+  const { fridgeId } = getStoreIds();
+  const { data, error } = await supabase
+    .from("shopping_items")
+    .select("id, name, qty, checked")
+    .eq("fridge_id", fridgeId)
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return (data || []) as ShoppingItem[];
+};
+
+export const addShoppingItem = async (name: string, qty: string): Promise<ShoppingItem> => {
+  const { fridgeId } = getStoreIds();
+  const { data, error } = await supabase
+    .from("shopping_items")
+    .insert([{ fridge_id: fridgeId, name, qty, checked: false }])
+    .select("id, name, qty, checked")
+    .single();
+  if (error) throw error;
+  return data as ShoppingItem;
+};
+
+export const toggleShoppingItem = async (id: string, checked: boolean): Promise<void> => {
+  const { error } = await supabase.from("shopping_items").update({ checked }).eq("id", id);
+  if (error) throw error;
+};
+
+export const deleteShoppingItem = async (id: string): Promise<void> => {
+  const { error } = await supabase.from("shopping_items").delete().eq("id", id);
+  if (error) throw error;
+};
+
+export const clearCheckedShoppingItems = async (): Promise<void> => {
+  const { fridgeId } = getStoreIds();
+  const { error } = await supabase
+    .from("shopping_items")
+    .delete()
+    .eq("fridge_id", fridgeId)
+    .eq("checked", true);
+  if (error) throw error;
+};
+
+// ─── Meal Plans ───────────────────────────────────────────────────────────────
+
+export type MealType = "b" | "l" | "d";
+
+export interface MealPlanRow {
+  day: number;       // 0=Mon … 6=Sun
+  meal_type: MealType;
+  meal_name: string;
+}
+
+export const getMealPlans = async (weekStart: string): Promise<MealPlanRow[]> => {
+  const { fridgeId } = getStoreIds();
+  const { data, error } = await supabase
+    .from("meal_plans")
+    .select("day, meal_type, meal_name")
+    .eq("fridge_id", fridgeId)
+    .eq("week_start", weekStart);
+  if (error) throw error;
+  return (data || []) as MealPlanRow[];
+};
+
+export const upsertMealPlan = async (
+  weekStart: string,
+  day: number,
+  mealType: MealType,
+  mealName: string,
+): Promise<void> => {
+  const { fridgeId } = getStoreIds();
+  const { error } = await supabase.from("meal_plans").upsert(
+    { fridge_id: fridgeId, week_start: weekStart, day, meal_type: mealType, meal_name: mealName },
+    { onConflict: "fridge_id,week_start,day,meal_type" },
+  );
+  if (error) throw error;
+};
+
+export const deleteMealPlan = async (
+  weekStart: string,
+  day: number,
+  mealType: MealType,
+): Promise<void> => {
+  const { fridgeId } = getStoreIds();
+  const { error } = await supabase
+    .from("meal_plans")
+    .delete()
+    .eq("fridge_id", fridgeId)
+    .eq("week_start", weekStart)
+    .eq("day", day)
+    .eq("meal_type", mealType);
+  if (error) throw error;
+};
