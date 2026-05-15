@@ -2,6 +2,7 @@ import { cn, getDday } from "@/utils/utils";
 import { useState, useRef } from "react";
 import { useFoodItems } from "@/hooks/useFoodItems";
 import { useMealPlan, useUpsertMeal, useDeleteMeal } from "@/hooks/useMealPlan";
+import { useAuthStore } from "@/stores/authStore";
 import {
   useShoppingItems,
   useAddShoppingItem,
@@ -85,6 +86,8 @@ export function MealPlanner() {
   const [editKey, setEditKey] = useState<string | null>(null); // "${dayIdx}-${mealType}"
   const [editValue, setEditValue] = useState("");
   const cancelledRef = useRef(false);
+  const role = useAuthStore((s) => s.role);
+  const canEdit = role === "owner" || role === "editor";
   const [newName, setNewName] = useState("");
 
   const { data: shopping = [] } = useShoppingItems();
@@ -214,7 +217,7 @@ export function MealPlanner() {
                   <span className="text-base">{s.icon}</span>
                   {s.labelText}
                 </span>
-                {!isEditing && value && (
+                {canEdit && !isEditing && value && (
                   <button
                     onClick={() =>
                       deleteMeal.mutate({ day: selectedDay, mealType })
@@ -258,8 +261,8 @@ export function MealPlanner() {
                 </div>
               ) : (
                 <div
-                  className="flex items-center justify-between cursor-pointer group"
-                  onClick={() => startEdit(selectedDay, mealType)}
+                  className={cn("flex items-center justify-between group", canEdit && "cursor-pointer")}
+                  onClick={() => canEdit && startEdit(selectedDay, mealType)}
                 >
                   <div
                     className={`text-base font-extrabold ${value ? "text-stone-900" : "text-gray-300"}`}
@@ -281,7 +284,7 @@ export function MealPlanner() {
         <div className="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col">
           <div className="flex items-center justify-between mb-1">
             <h3 className="text-[14px] font-bold">🛒 장보기 목록</h3>
-            {shopping.some((s) => s.checked) && (
+            {canEdit && shopping.some((s) => s.checked) && (
               <button
                 onClick={() => clearChecked.mutate()}
                 className="text-[11px] text-gray-400 hover:text-red-400 transition-colors"
@@ -298,38 +301,43 @@ export function MealPlanner() {
                 <input
                   type="checkbox"
                   checked={item.checked}
-                  onChange={() => toggleItem.mutate({ id: item.id, checked: !item.checked })}
-                  className="w-4 h-4 accent-emerald-500 cursor-pointer shrink-0"
+                  onChange={() => canEdit && toggleItem.mutate({ id: item.id, checked: !item.checked })}
+                  disabled={!canEdit}
+                  className="w-4 h-4 accent-emerald-500 shrink-0 disabled:cursor-not-allowed"
                 />
                 <span className={cn("text-[13px] flex-1", item.checked ? "line-through text-gray-300" : "text-gray-700")}>
                   {item.name}
                 </span>
-                <button
-                  onClick={() => deleteItem.mutate(item.id)}
-                  className="text-gray-200 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 text-[16px] leading-none ml-1"
-                >
-                  ×
-                </button>
+                {canEdit && (
+                  <button
+                    onClick={() => deleteItem.mutate(item.id)}
+                    className="text-gray-200 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 text-[16px] leading-none ml-1"
+                  >
+                    ×
+                  </button>
+                )}
               </div>
             ))}
           </div>
 
           {/* 항목 추가 */}
-          <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
-            <input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) addShoppingItem(); }}
-              placeholder="재료명"
-              className="flex-1 text-[12px] border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-300"
-            />
-            <button
-              onClick={addShoppingItem}
-              className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[13px] font-bold rounded-lg transition-colors"
-            >
-              +
-            </button>
-          </div>
+          {canEdit && (
+            <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+              <input
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) addShoppingItem(); }}
+                placeholder="재료명"
+                className="flex-1 text-[12px] border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+              />
+              <button
+                onClick={addShoppingItem}
+                className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[13px] font-bold rounded-lg transition-colors"
+              >
+                +
+              </button>
+            </div>
+          )}
         </div>
         <div className="bg-white border border-gray-200 rounded-2xl p-5">
           <h3 className="text-[14px] font-bold mb-3.5">

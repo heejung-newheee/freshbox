@@ -9,6 +9,7 @@ import { IconPlus } from "@/components/ui/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
+import { useAuthStore } from "@/stores/authStore";
 
 const pageTitle: Record<string, string> = {
   "/": "대시보드",
@@ -23,6 +24,9 @@ export default function MainLayout() {
   const location = useLocation();
   const { isMobile, isTablet } = useBreakpoint();
   const [showAddModal, setShowAddModal] = useState(false);
+  const role = useAuthStore((s) => s.role);
+  const authLoading = useAuthStore((s) => s.loading);
+  const canEdit = role === "owner" || role === "editor";
 
   const { data: items = [], isLoading: itemsLoading } = useQuery({
     queryKey: ["foodItems"],
@@ -47,7 +51,7 @@ export default function MainLayout() {
     }
   };
 
-  if (itemsLoading) {
+  if (itemsLoading || authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-3">
@@ -75,7 +79,7 @@ export default function MainLayout() {
         <Header
           title={title}
           urgentCount={urgentCount}
-          onAddItem={() => setShowAddModal(true)}
+          onAddItem={canEdit ? () => setShowAddModal(true) : undefined}
         />
 
         <div className={cn("flex-1 p-4 md:p-5 lg:p-6 overflow-y-auto", isMobile && "pb-20")}>
@@ -87,7 +91,7 @@ export default function MainLayout() {
       {isMobile && <BottomTabBar />}
 
       {/* FAB: 모바일 전용 플로팅 추가 버튼 */}
-      {isMobile && (
+      {isMobile && canEdit && (
         <button
           onClick={() => setShowAddModal(true)}
           className="fixed bottom-[calc(env(safe-area-inset-bottom)+68px)] right-4 z-50 w-13 h-13 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-200 hover:bg-emerald-600 active:scale-95 transition-all"

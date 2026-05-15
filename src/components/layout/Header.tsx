@@ -103,7 +103,7 @@ export function Header({ title, urgentCount = 0, onAddItem }: HeaderProps) {
           </div>
 
           {/* 재료 추가 — 데스크톱 전용 (모바일은 FAB) */}
-          {!isMobile && (
+          {!isMobile && onAddItem && (
             <button
               onClick={onAddItem}
               className="flex items-center gap-1.5 bg-emerald-500 text-white border-none px-4 py-2 rounded-md text-[13px] font-semibold cursor-pointer whitespace-nowrap hover:bg-emerald-600 transition-colors"

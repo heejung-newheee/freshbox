@@ -27,8 +27,11 @@ export function Share() {
   const [selectedRole, setSelectedRole] = useState<Extract<Role, "editor" | "viewer">>("editor");
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteSuccess, setInviteSuccess] = useState<string | null>(null);
+  const [roleToast, setRoleToast] = useState<{ msg: string; ok: boolean } | null>(null);
   const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
+  const role = useAuthStore((s) => s.role);
+  const canEdit = role === "owner" || role === "editor";
 
   const { data: members = [], isLoading } = useQuery({
     queryKey: ["fridgeMembers"],
@@ -56,6 +59,21 @@ export function Share() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["fridgeMembers"] }),
   });
 
+  const updateRoleMutation = useMutation({
+    mutationFn: ({ id, role }: { id: string; role: Extract<Role, "editor" | "viewer"> }) =>
+      api.updateMemberRole(id, role),
+    onSuccess: (_, { role }) => {
+      queryClient.invalidateQueries({ queryKey: ["fridgeMembers"] });
+      const label = role === "editor" ? "편집자" : "열람자";
+      setRoleToast({ msg: `권한을 ${label}로 변경했습니다`, ok: true });
+      setTimeout(() => setRoleToast(null), 3000);
+    },
+    onError: () => {
+      setRoleToast({ msg: "권한 변경에 실패했습니다", ok: false });
+      setTimeout(() => setRoleToast(null), 3000);
+    },
+  });
+
   const handleInvite = () => {
     if (!inviteEmail.trim()) return;
     if (inviteEmail === user?.email) {
@@ -67,9 +85,10 @@ export function Share() {
   };
 
   return (
+    <>
     <div className="flex flex-col gap-5">
       {/* Invite */}
-      <div className="bg-white border border-gray-200 rounded-2xl p-6">
+      {canEdit && <div className="bg-white border border-gray-200 rounded-2xl p-6">
         <h3 className="text-[15px] font-extrabold text-stone-900 mb-1.5">멤버 초대</h3>
         <p className="text-[12px] text-gray-400 mb-4">
           이메일로 초대하여 냉장고를 함께 관리하세요
@@ -110,7 +129,7 @@ export function Share() {
             <p className="text-[12px] text-red-500 px-1">{inviteError}</p>
           )}
         </div>
-      </div>
+      </div>}
 
       {/* Role guide */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
@@ -187,16 +206,35 @@ export function Share() {
                       {member.member_email}
                     </div>
                   </div>
-                  <span className={cn("px-3 py-1 rounded-full text-[12px] font-bold mr-2 shrink-0", s.badge)}>
-                    {meta.label}
-                  </span>
-                  <button
-                    onClick={() => removeMutation.mutate(member.id)}
-                    disabled={removeMutation.isPending}
-                    className="w-7 h-7 rounded-lg border border-gray-200 bg-white cursor-pointer flex items-center justify-center text-gray-400 text-sm hover:bg-red-50 hover:text-red-400 hover:border-red-200 transition-colors shrink-0"
-                  >
-                    ×
-                  </button>
+                  {canEdit ? (
+                    <select
+                      value={member.role}
+                      onChange={(e) =>
+                        updateRoleMutation.mutate({
+                          id: member.id,
+                          role: e.target.value as Extract<Role, "editor" | "viewer">,
+                        })
+                      }
+                      disabled={updateRoleMutation.isPending}
+                      className={cn("px-2.5 py-1 rounded-full text-[12px] font-bold mr-2 shrink-0 border-none cursor-pointer outline-none", s.badge)}
+                    >
+                      <option value="editor">편집자</option>
+                      <option value="viewer">열람자</option>
+                    </select>
+                  ) : (
+                    <span className={cn("px-3 py-1 rounded-full text-[12px] font-bold mr-2 shrink-0", s.badge)}>
+                      {meta.label}
+                    </span>
+                  )}
+                  {canEdit && (
+                    <button
+                      onClick={() => removeMutation.mutate(member.id)}
+                      disabled={removeMutation.isPending}
+                      className="w-7 h-7 rounded-lg border border-gray-200 bg-white cursor-pointer flex items-center justify-center text-gray-400 text-sm hover:bg-red-50 hover:text-red-400 hover:border-red-200 transition-colors shrink-0"
+                    >
+                      ×
+                    </button>
+                  )}
                 </div>
               );
             })
@@ -204,5 +242,19 @@ export function Share() {
         </div>
       </div>
     </div>
+
+      {/* Role change toast */}
+      {roleToast && (
+        <div className={cn(
+          "fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-xl shadow-lg text-[13px] font-semibold flex items-center gap-2 transition-all",
+          roleToast.ok
+            ? "bg-emerald-500 text-white"
+            : "bg-red-500 text-white"
+        )}>
+          <span>{roleToast.ok ? "✓" : "✕"}</span>
+          {roleToast.msg}
+        </div>
+      )}
+    </>
   );
 }

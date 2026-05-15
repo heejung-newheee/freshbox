@@ -89,11 +89,11 @@ export interface FridgeMember {
 }
 
 export const getFridgeMembers = async (): Promise<FridgeMember[]> => {
-  const { userId } = getStoreIds();
+  const { fridgeId } = getStoreIds();
   const { data, error } = await supabase
     .from("fridge_members")
     .select("*")
-    .eq("fridge_owner_id", userId)
+    .eq("fridge_owner_id", fridgeId)
     .order("created_at", { ascending: true });
 
   if (error) throw error;
@@ -104,7 +104,7 @@ export const inviteFridgeMember = async (
   email: string,
   role: Extract<Role, "editor" | "viewer">,
 ): Promise<FridgeMember> => {
-  const { userId } = getStoreIds();
+  const { fridgeId } = getStoreIds();
 
   const { data: profile } = await supabase
     .from("profiles")
@@ -117,7 +117,7 @@ export const inviteFridgeMember = async (
   const { data: existing } = await supabase
     .from("fridge_members")
     .select("id")
-    .eq("fridge_owner_id", userId)
+    .eq("fridge_owner_id", fridgeId)
     .eq("member_email", email)
     .maybeSingle();
 
@@ -125,7 +125,7 @@ export const inviteFridgeMember = async (
 
   const { data, error } = await supabase
     .from("fridge_members")
-    .insert([{ fridge_owner_id: userId, member_email: email, member_id: profile.id, role }])
+    .insert([{ fridge_owner_id: fridgeId, member_email: email, member_id: profile.id, role }])
     .select()
     .single();
 
@@ -133,10 +133,30 @@ export const inviteFridgeMember = async (
 
   await supabase.rpc("set_member_fridge", {
     p_member_id: profile.id,
-    p_fridge_id: userId,
+    p_fridge_id: fridgeId,
   });
 
+  await supabase.rpc("set_member_role", { p_member_id: profile.id, p_role: role });
+
   return data as FridgeMember;
+};
+
+export const updateMemberRole = async (
+  id: string,
+  role: Extract<Role, "editor" | "viewer">,
+): Promise<void> => {
+  const { data: row } = await supabase
+    .from("fridge_members")
+    .select("member_id")
+    .eq("id", id)
+    .single();
+
+  const { error } = await supabase.from("fridge_members").update({ role }).eq("id", id);
+  if (error) throw error;
+
+  if (row?.member_id) {
+    await supabase.rpc("set_member_role", { p_member_id: row.member_id, p_role: role });
+  }
 };
 
 export const removeFridgeMember = async (id: string): Promise<void> => {

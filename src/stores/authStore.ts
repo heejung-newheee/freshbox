@@ -1,10 +1,12 @@
 import type { User } from "@supabase/supabase-js";
 import { create } from "zustand";
 import { supabase } from "../utils/supabase";
+import type { Role } from "@/@types";
 
 interface AuthStore {
   user: User | null;
   fridgeId: string | null;
+  role: Role | null;
   loading: boolean;
   setUser: (user: User | null) => void;
   setFridgeId: (id: string | null) => void;
@@ -15,23 +17,26 @@ interface AuthStore {
   checkUser: () => Promise<void>;
 }
 
-// profiles.fridge_id 조회 — 실패 시 userId로 fallback
-async function resolveFridgeId(userId: string): Promise<string> {
+async function resolveProfile(userId: string): Promise<{ fridgeId: string; role: Role }> {
   try {
-    const { data } = await supabase
+    const { data: profile } = await supabase
       .from("profiles")
-      .select("fridge_id")
+      .select("fridge_id, role")
       .eq("id", userId)
       .maybeSingle();
-    return data?.fridge_id ?? userId;
+
+    const fridgeId = profile?.fridge_id ?? userId;
+    const role: Role = fridgeId === userId ? "owner" : ((profile?.role as Role) ?? "viewer");
+    return { fridgeId, role };
   } catch {
-    return userId;
+    return { fridgeId: userId, role: "owner" };
   }
 }
 
 export const useAuthStore = create<AuthStore>((set) => ({
   user: null,
   fridgeId: null,
+  role: null,
   loading: true,
 
   setUser: (user) => set({ user }),
@@ -47,14 +52,14 @@ export const useAuthStore = create<AuthStore>((set) => ({
   signIn: async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) return { error: error.message };
-    const fridgeId = await resolveFridgeId(data.user.id);
-    set({ user: data.user, fridgeId });
+    const { fridgeId, role } = await resolveProfile(data.user.id);
+    set({ user: data.user, fridgeId, role });
     return { error: null };
   },
 
   signOut: async () => {
     await supabase.auth.signOut();
-    set({ user: null, fridgeId: null });
+    set({ user: null, fridgeId: null, role: null });
   },
 
   checkUser: async () => {
@@ -62,10 +67,10 @@ export const useAuthStore = create<AuthStore>((set) => ({
       const { data } = await supabase.auth.getSession();
       const user = data.session?.user ?? null;
       if (user) {
-        const fridgeId = await resolveFridgeId(user.id);
-        set({ user, fridgeId, loading: false });
+        const { fridgeId, role } = await resolveProfile(user.id);
+        set({ user, fridgeId, role, loading: false });
       } else {
-        set({ user: null, fridgeId: null, loading: false });
+        set({ user: null, fridgeId: null, role: null, loading: false });
       }
     } catch {
       set({ loading: false });

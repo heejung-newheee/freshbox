@@ -4,6 +4,7 @@ import { cn, ddayMeta, getDday } from "@/utils/utils";
 import { useState } from "react";
 import { AddModal } from "@/components/modal";
 import { useFoodItems, useConsumeItem, useAddItem } from "@/hooks/useFoodItems";
+import { useAuthStore } from "@/stores/authStore";
 
 const COLS = "grid-cols-[80px_1fr_80px_60px_100px_100px_70px_80px]";
 
@@ -13,6 +14,8 @@ export function Inventory() {
   const consumeMutation = useConsumeItem();
   const addMutation = useAddItem(() => setShowModal(false));
   const onConsume = (id: string) => consumeMutation.mutate(id);
+  const role = useAuthStore((s) => s.role);
+  const canEdit = role === "owner" || role === "editor";
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState<"" | "냉장" | "냉동" | "김치냉장고">(
     "",
@@ -222,24 +225,26 @@ export function Inventory() {
                     </div>
 
                     {/* 버튼 */}
-                    <button
-                      onClick={() => onConsume?.(item.id)}
-                      className="
-                w-full
-                px-3 py-2 rounded-lg
-                border border-emerald-100
-                bg-emerald-50
-                text-emerald-500
-                text-[12px]
-                font-bold
-                cursor-pointer
-                flex items-center justify-center gap-1
-                hover:bg-emerald-100
-                transition-colors
-              "
-                    >
-                      ✓ 소비
-                    </button>
+                    {canEdit && (
+                      <button
+                        onClick={() => onConsume?.(item.id)}
+                        className="
+                  w-full
+                  px-3 py-2 rounded-lg
+                  border border-emerald-100
+                  bg-emerald-50
+                  text-emerald-500
+                  text-[12px]
+                  font-bold
+                  cursor-pointer
+                  flex items-center justify-center gap-1
+                  hover:bg-emerald-100
+                  transition-colors
+                "
+                      >
+                        ✓ 소비
+                      </button>
+                    )}
                   </div>
 
                   {/* Desktop */}
@@ -299,23 +304,25 @@ export function Inventory() {
 
                     {/* 버튼 */}
                     <div className="hidden md:block">
-                      <button
-                        onClick={() => onConsume?.(item.id)}
-                        className="
-                  px-3 py-1 rounded-lg
-                  border border-emerald-100
-                  bg-emerald-50
-                  text-emerald-500
-                  text-[12px]
-                  font-bold
-                  cursor-pointer
-                  flex items-center gap-1
-                  hover:bg-emerald-100
-                  transition-colors
-                "
-                      >
-                        ✓ 소비
-                      </button>
+                      {canEdit && (
+                        <button
+                          onClick={() => onConsume?.(item.id)}
+                          className="
+                    px-3 py-1 rounded-lg
+                    border border-emerald-100
+                    bg-emerald-50
+                    text-emerald-500
+                    text-[12px]
+                    font-bold
+                    cursor-pointer
+                    flex items-center gap-1
+                    hover:bg-emerald-100
+                    transition-colors
+                  "
+                        >
+                          ✓ 소비
+                        </button>
+                      )}
                     </div>
                   </>
                 </div>
