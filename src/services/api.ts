@@ -253,13 +253,14 @@ export interface MealPlanRow {
   day: number;       // 0=Mon … 6=Sun
   meal_type: MealType;
   meal_name: string;
+  ingredients: string;
 }
 
 export const getMealPlans = async (weekStart: string): Promise<MealPlanRow[]> => {
   const { fridgeId } = getStoreIds();
   const { data, error } = await supabase
     .from("meal_plans")
-    .select("day, meal_type, meal_name")
+    .select("day, meal_type, meal_name, ingredients")
     .eq("fridge_id", fridgeId)
     .eq("week_start", weekStart);
   if (error) throw error;
@@ -271,10 +272,11 @@ export const upsertMealPlan = async (
   day: number,
   mealType: MealType,
   mealName: string,
+  ingredients = "",
 ): Promise<void> => {
   const { fridgeId } = getStoreIds();
   const { error } = await supabase.from("meal_plans").upsert(
-    { fridge_id: fridgeId, week_start: weekStart, day, meal_type: mealType, meal_name: mealName },
+    { fridge_id: fridgeId, week_start: weekStart, day, meal_type: mealType, meal_name: mealName, ingredients },
     { onConflict: "fridge_id,week_start,day,meal_type" },
   );
   if (error) throw error;

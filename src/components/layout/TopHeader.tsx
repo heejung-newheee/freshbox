@@ -9,7 +9,7 @@ const PAGE_TITLES: Record<string, string> = {
   dashboard: "대시보드",
   inventory: "재고 목록",
   fridge: "냉장고 맵",
-  meal: "식단 플래너",
+  meal: "주간 식단 플래너",
   share: "공유 관리",
 };
 
@@ -104,7 +104,10 @@ export function TopHeader({ tab, items, onAddClick, isMobile }: Props) {
       {!isMobile && (
         <div className="flex items-center -space-x-1.5 ml-2">
           {MEMBERS.slice(0, 3).map((m, i) => (
-            <div key={m.id} className={i === 0 ? "z-3" : i === 1 ? "z-2" : "z-1"}>
+            <div
+              key={m.id}
+              className={i === 0 ? "z-3" : i === 1 ? "z-2" : "z-1"}
+            >
               <Avatar name={m.name} color={m.color} size="sm" />
             </div>
           ))}

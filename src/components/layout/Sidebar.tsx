@@ -19,7 +19,7 @@ const NAV: {
   { id: "dashboard", path: "/", Icon: IconDashboard, label: "대시보드" },
   { id: "inventory", path: "/inventory", Icon: IconBox, label: "재고 목록" },
   { id: "fridge", path: "/fridge", Icon: IconFridge, label: "냉장고 맵" },
-  { id: "meal", path: "/meal", Icon: IconFork, label: "식단 플래너" },
+  { id: "meal", path: "/meal", Icon: IconFork, label: "주간 식단 플래너" },
   { id: "share", path: "/share", Icon: IconShare, label: "공유 관리" },
 ];
 

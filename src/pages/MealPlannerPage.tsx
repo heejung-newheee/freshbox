@@ -61,7 +61,6 @@ const RECIPES = [
   },
 ];
 
-
 function getWeekStart(offset = 0): string {
   const d = new Date();
   const day = d.getDay();
@@ -74,7 +73,9 @@ function formatWeekRange(weekStart: string): string {
   const start = new Date(weekStart + "T00:00:00");
   const end = new Date(weekStart + "T00:00:00");
   end.setDate(end.getDate() + 6);
-  return `${start.getMonth() + 1}/${start.getDate()} ~ ${end.getMonth() + 1}/${end.getDate()}`;
+  const weekLabels = ["1", "2", "3", "4", "5"];
+  const weekLabel = weekLabels[Math.ceil(start.getDate() / 7) - 1] ?? "5";
+  return `${start.getMonth() + 1}/${start.getDate()} - ${end.getMonth() + 1}/${end.getDate()} [${weekLabel}주]`;
 }
 
 export function MealPlanner() {
@@ -85,7 +86,9 @@ export function MealPlanner() {
   });
   const [editKey, setEditKey] = useState<string | null>(null); // "${dayIdx}-${mealType}"
   const [editValue, setEditValue] = useState("");
+  const [editIngredients, setEditIngredients] = useState("");
   const cancelledRef = useRef(false);
+  const ingredientsRef = useRef<HTMLInputElement>(null);
   const role = useAuthStore((s) => s.role);
   const canEdit = role === "owner" || role === "editor";
   const [newName, setNewName] = useState("");
@@ -109,10 +112,16 @@ export function MealPlanner() {
   const { items } = useFoodItems();
 
   const mealMap = rows.reduce<
-    Record<number, Partial<Record<MealType, string>>>
+    Record<
+      number,
+      Partial<Record<MealType, { name: string; ingredients: string }>>
+    >
   >((acc, row) => {
     if (!acc[row.day]) acc[row.day] = {};
-    acc[row.day][row.meal_type] = row.meal_name;
+    acc[row.day][row.meal_type] = {
+      name: row.meal_name,
+      ingredients: row.ingredients,
+    };
     return acc;
   }, {});
 
@@ -123,13 +132,16 @@ export function MealPlanner() {
   function startEdit(dayIdx: number, mealType: MealType) {
     cancelledRef.current = false;
     setEditKey(`${dayIdx}-${mealType}`);
-    setEditValue(mealMap[dayIdx]?.[mealType] ?? "");
+    const meal = mealMap[dayIdx]?.[mealType];
+    setEditValue(meal?.name ?? "");
+    setEditIngredients(meal?.ingredients ?? "");
   }
 
   function cancelEdit() {
     cancelledRef.current = true;
     setEditKey(null);
     setEditValue("");
+    setEditIngredients("");
   }
 
   function saveEdit(dayIdx: number, mealType: MealType) {
@@ -139,12 +151,18 @@ export function MealPlanner() {
     }
     const trimmed = editValue.trim();
     if (trimmed) {
-      upsert.mutate({ day: dayIdx, mealType, mealName: trimmed });
+      upsert.mutate({
+        day: dayIdx,
+        mealType,
+        mealName: trimmed,
+        ingredients: editIngredients.trim(),
+      });
     } else {
       deleteMeal.mutate({ day: dayIdx, mealType });
     }
     setEditKey(null);
     setEditValue("");
+    setEditIngredients("");
   }
 
   return (
@@ -191,7 +209,7 @@ export function MealPlanner() {
                     key={mi}
                     className="text-[9px] opacity-75 overflow-hidden text-ellipsis whitespace-nowrap w-full"
                   >
-                    {meal ?? "·"}
+                    {meal?.name ?? "·"}
                   </div>
                 ))}
               </button>
@@ -217,12 +235,12 @@ export function MealPlanner() {
                   <span className="text-base">{s.icon}</span>
                   {s.labelText}
                 </span>
-                {canEdit && !isEditing && value && (
+                {canEdit && !isEditing && value?.name && (
                   <button
                     onClick={() =>
                       deleteMeal.mutate({ day: selectedDay, mealType })
                     }
-                    className="text-gray-300 hover:text-red-400 transition-colors text-[18px] leading-none"
+                    className="text-gray-300 hover:text-red-400 transition-colors text-[18px] leading-none cursor-pointer"
                     title="삭제"
                   >
                     ×
@@ -231,45 +249,75 @@ export function MealPlanner() {
               </div>
 
               {isEditing ? (
-                <div className="flex items-center gap-1.5">
+                <div
+                  className="flex flex-col gap-1.5"
+                  onBlur={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget as Node))
+                      saveEdit(selectedDay, mealType);
+                  }}
+                >
                   <input
                     autoFocus
                     value={editValue}
                     onChange={(e) => setEditValue(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.nativeEvent.isComposing) e.currentTarget.blur();
+                      if (e.key === "Enter" && !e.nativeEvent.isComposing)
+                        ingredientsRef.current?.focus();
                       if (e.key === "Escape") cancelEdit();
                     }}
-                    onBlur={() => saveEdit(selectedDay, mealType)}
                     placeholder={`${s.labelText} 입력...`}
-                    className="text-sm font-semibold border border-gray-200 rounded-lg px-2.5 py-1.5 flex-1 min-w-0 focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white"
+                    className="text-sm font-semibold border border-gray-200 rounded-lg px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white"
                   />
-                  <button
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => saveEdit(selectedDay, mealType)}
-                    className="w-8 h-8 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-[14px] flex items-center justify-center shrink-0 transition-colors"
-                  >
-                    ✓
-                  </button>
-                  <button
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={cancelEdit}
-                    className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 text-[14px] flex items-center justify-center shrink-0 transition-colors"
-                  >
-                    ✕
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      ref={ingredientsRef}
+                      value={editIngredients}
+                      onChange={(e) => setEditIngredients(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && !e.nativeEvent.isComposing)
+                          saveEdit(selectedDay, mealType);
+                        if (e.key === "Escape") cancelEdit();
+                      }}
+                      placeholder="재료 또는 노트 (쉼표로 구분)"
+                      className="text-[11px] border border-gray-200 rounded-lg px-2.5 py-1.5 flex-1 min-w-0 focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white text-gray-500"
+                    />
+                    <button
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => saveEdit(selectedDay, mealType)}
+                      className="w-8 h-8 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-[14px] flex items-center justify-center shrink-0 transition-colors"
+                    >
+                      ✓
+                    </button>
+                    <button
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={cancelEdit}
+                      className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 text-[14px] flex items-center justify-center shrink-0 transition-colors"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
               ) : (
                 <div
-                  className={cn("flex items-center justify-between group", canEdit && "cursor-pointer")}
+                  className={cn(
+                    "flex items-start justify-between group",
+                    canEdit && "cursor-pointer",
+                  )}
                   onClick={() => canEdit && startEdit(selectedDay, mealType)}
                 >
-                  <div
-                    className={`text-base font-extrabold ${value ? "text-stone-900" : "text-gray-300"}`}
-                  >
-                    {value ?? "미정"}
+                  <div>
+                    <div
+                      className={`text-base font-extrabold ${value?.name ? "text-stone-900" : "text-gray-300"}`}
+                    >
+                      {value?.name ?? "미정"}
+                    </div>
+                    {value?.ingredients && (
+                      <div className="text-[11px] text-gray-400 mt-1">
+                        {value.ingredients}
+                      </div>
+                    )}
                   </div>
-                  <span className="text-[13px] ml-2 opacity-0 group-hover:opacity-60 transition-opacity">
+                  <span className="text-[13px] ml-2 opacity-0 group-hover:opacity-60 transition-opacity shrink-0">
                     ✏️
                   </span>
                 </div>
@@ -293,19 +341,34 @@ export function MealPlanner() {
               </button>
             )}
           </div>
-          <p className="text-[12px] text-gray-400 mb-3.5">이번 주 식단 기반 부족 재료</p>
+          <p className="text-[12px] text-gray-400 mb-3.5">
+            이번 주 식단 기반 부족 재료
+          </p>
 
           <div className="flex flex-col gap-1 flex-1">
             {shopping.map((item) => (
-              <div key={item.id} className="flex items-center gap-2 px-1 py-1.5 rounded-lg hover:bg-gray-50 group">
+              <div
+                key={item.id}
+                className="flex items-center gap-2 px-1 py-1.5 rounded-lg hover:bg-gray-50 group"
+              >
                 <input
                   type="checkbox"
                   checked={item.checked}
-                  onChange={() => canEdit && toggleItem.mutate({ id: item.id, checked: !item.checked })}
+                  onChange={() =>
+                    canEdit &&
+                    toggleItem.mutate({ id: item.id, checked: !item.checked })
+                  }
                   disabled={!canEdit}
                   className="w-4 h-4 accent-emerald-500 shrink-0 disabled:cursor-not-allowed"
                 />
-                <span className={cn("text-[13px] flex-1", item.checked ? "line-through text-gray-300" : "text-gray-700")}>
+                <span
+                  className={cn(
+                    "text-[13px] flex-1",
+                    item.checked
+                      ? "line-through text-gray-300"
+                      : "text-gray-700",
+                  )}
+                >
                   {item.name}
                 </span>
                 {canEdit && (
@@ -326,7 +389,10 @@ export function MealPlanner() {
               <input
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter" && !e.nativeEvent.isComposing) addShoppingItem(); }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.nativeEvent.isComposing)
+                    addShoppingItem();
+                }}
                 placeholder="재료명"
                 className="flex-1 text-[12px] border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-300"
               />
@@ -359,7 +425,7 @@ export function MealPlanner() {
             {RECIPES.map((r) => (
               <div
                 key={r.name}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
               >
                 <span className="text-lg">🔍</span>
                 <div className="flex-1">

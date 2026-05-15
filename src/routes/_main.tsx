@@ -15,7 +15,7 @@ const pageTitle: Record<string, string> = {
   "/": "대시보드",
   "/inventory": "재고 목록",
   "/fridge": "냉장고 맵",
-  "/meal": "식단 플래너",
+  "/meal": "주간 식단 플래너",
   "/share": "공유 관리",
 };
 
@@ -65,9 +65,7 @@ export default function MainLayout() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar: tablet 이상만 표시 */}
-      {!isMobile && (
-        <Sidebar itemCount={active.length} compact={isTablet} />
-      )}
+      {!isMobile && <Sidebar itemCount={active.length} compact={isTablet} />}
 
       {/* Main Content */}
       <main
@@ -82,8 +80,19 @@ export default function MainLayout() {
           onAddItem={canEdit ? () => setShowAddModal(true) : undefined}
         />
 
-        <div className={cn("flex-1 p-4 md:p-5 lg:p-6 overflow-y-auto", isMobile && "pb-20")}>
-          <Outlet context={{ items, urgentCount, onAddItem: () => setShowAddModal(true) }} />
+        <div
+          className={cn(
+            "flex-1 p-4 md:p-5 lg:p-6 overflow-y-auto",
+            isMobile && "pb-20",
+          )}
+        >
+          <Outlet
+            context={{
+              items,
+              urgentCount,
+              onAddItem: () => setShowAddModal(true),
+            }}
+          />
         </div>
       </main>
 
@@ -108,7 +117,10 @@ export default function MainLayout() {
       )}
 
       {showAddModal && (
-        <AddModal onClose={() => setShowAddModal(false)} onAdd={handleAddItem} />
+        <AddModal
+          onClose={() => setShowAddModal(false)}
+          onAdd={handleAddItem}
+        />
       )}
     </div>
   );

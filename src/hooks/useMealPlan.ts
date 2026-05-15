@@ -14,8 +14,8 @@ export function useMealPlan(weekStart: string) {
 export function useUpsertMeal(weekStart: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ day, mealType, mealName }: { day: number; mealType: MealType; mealName: string }) =>
-      api.upsertMealPlan(weekStart, day, mealType, mealName),
+    mutationFn: ({ day, mealType, mealName, ingredients }: { day: number; mealType: MealType; mealName: string; ingredients?: string }) =>
+      api.upsertMealPlan(weekStart, day, mealType, mealName, ingredients),
     onSuccess: () => qc.invalidateQueries({ queryKey: qk(weekStart) }),
   });
 }
