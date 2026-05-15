@@ -46,6 +46,27 @@ export const getFoodItems = async (): Promise<FoodItem[]> => {
   return (data || []).map(normalizeItem);
 };
 
+export const getFrequentItems = async (): Promise<{ name: string; category: string }[]> => {
+  const { fridgeId } = getStoreIds();
+  const { data, error } = await supabase
+    .from("food_items")
+    .select("name, category")
+    .eq("fridge_id", fridgeId);
+  if (error) throw error;
+
+  const counts = new Map<string, { category: string; count: number }>();
+  for (const item of data || []) {
+    const existing = counts.get(item.name);
+    if (existing) existing.count++;
+    else counts.set(item.name, { category: item.category, count: 1 });
+  }
+
+  return [...counts.entries()]
+    .sort((a, b) => b[1].count - a[1].count)
+    .slice(0, 8)
+    .map(([name, { category }]) => ({ name, category }));
+};
+
 export const addFoodItem = async (
   item: Omit<FoodItem, "id" | "consumed">,
 ): Promise<FoodItem | null> => {

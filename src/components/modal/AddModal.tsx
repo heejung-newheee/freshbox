@@ -2,6 +2,8 @@ import type { FoodItem, Category, Location, Zone } from "@/@types";
 import { CATEGORIES } from "@/constants/constants";
 import { XIcon } from "@/assets/icons";
 import { useState, useRef, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import * as api from "@/services/api";
 
 interface AddModalProps {
   onClose: () => void;
@@ -153,6 +155,11 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
     onClose();
   };
 
+  const { data: frequent = [] } = useQuery({
+    queryKey: ["frequentItems"],
+    queryFn: api.getFrequentItems,
+  });
+
   const inputCls =
     "w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[13px] text-gray-800 bg-gray-50 outline-none font-[inherit] box-border";
   const labelCls = "block text-[12px] font-semibold text-gray-600 mb-1.5";
@@ -196,6 +203,20 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
             />
+            {frequent.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {frequent.map((item) => (
+                  <button
+                    key={item.name}
+                    type="button"
+                    onClick={() => setForm((p) => ({ ...p, name: item.name, category: item.category as Category }))}
+                    className="px-2.5 py-1 rounded-full text-[12px] bg-gray-100 text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors cursor-pointer"
+                  >
+                    {item.name}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* 카테고리 */}
