@@ -1,7 +1,7 @@
 import type { FoodItem, Category, Location, Zone } from "@/@types";
 import { CATEGORIES } from "@/constants/constants";
 import { XIcon } from "@/assets/icons";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 interface AddModalProps {
   onClose: () => void;
@@ -25,6 +25,71 @@ const ZONES: Record<Location, Zone[]> = {
   냉동: ["상단", "중단", "하단"],
   김치냉장고: ["상단", "하단"],
 };
+
+const chevron = (
+  <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="2,4 6,8 10,4" />
+  </svg>
+);
+
+function DropdownField<T extends string>({
+  label,
+  value,
+  options,
+  onChange,
+  display,
+}: {
+  label: string;
+  value: T;
+  options: T[];
+  onChange: (v: T) => void;
+  display?: (v: T) => string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (!ref.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [open]);
+
+  const labelCls = "block text-[12px] font-semibold text-gray-600 mb-1.5";
+  const fieldCls = "w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[13px] text-gray-800 bg-gray-50 outline-none";
+
+  return (
+    <div ref={ref} className="relative">
+      <label className={labelCls}>{label}</label>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className={`${fieldCls} flex items-center justify-between cursor-pointer`}
+      >
+        <span>{display ? display(value) : value}</span>
+        {chevron}
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-20 overflow-hidden w-full">
+          {options.map((opt) => (
+            <button
+              key={opt}
+              type="button"
+              onClick={() => { onChange(opt); setOpen(false); }}
+              className={`w-full text-left px-3 py-2.5 text-[13px] hover:bg-gray-50 transition-colors ${
+                value === opt ? "font-bold text-emerald-600" : "text-gray-700"
+              }`}
+            >
+              {display ? display(opt) : opt}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function AddModal({ onClose, onAdd }: AddModalProps) {
   const today = new Date();
@@ -134,53 +199,28 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
           </div>
 
           {/* 카테고리 */}
-          <div>
-            <label className={labelCls}>카테고리</label>
-            <select
-              className={inputCls}
-              value={form.category}
-              onChange={(e) => set("category", e.target.value as Category)}
-            >
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
-          </div>
+          <DropdownField
+            label="카테고리"
+            value={form.category}
+            options={CATEGORIES as unknown as Category[]}
+            onChange={(v) => set("category", v)}
+          />
 
           {/* 보관 위치 & 구역 */}
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className={labelCls}>보관 위치</label>
-              <select
-                className={inputCls}
-                value={form.location}
-                onChange={(e) =>
-                  handleLocationChange(e.target.value as "냉장" | "냉동")
-                }
-              >
-                {LOCATIONS.map((l) => (
-                  <option key={l} value={l}>
-                    {l}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className={labelCls}>구역</label>
-              <select
-                className={inputCls}
-                value={form.zone}
-                onChange={(e) => set("zone", e.target.value as Zone)}
-              >
-                {ZONES[form.location].map((z) => (
-                  <option key={z} value={z}>
-                    {z}칸
-                  </option>
-                ))}
-              </select>
-            </div>
+            <DropdownField
+              label="보관 위치"
+              value={form.location}
+              options={LOCATIONS}
+              onChange={handleLocationChange}
+            />
+            <DropdownField
+              label="구역"
+              value={form.zone}
+              options={ZONES[form.location]}
+              onChange={(v) => set("zone", v)}
+              display={(z) => z + "칸"}
+            />
           </div>
 
           {/* 수량 & 단위 */}

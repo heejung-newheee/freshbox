@@ -245,6 +245,77 @@ export const clearCheckedShoppingItems = async (): Promise<void> => {
   if (error) throw error;
 };
 
+// ─── Recipe Recommendations (TheMealDB) ──────────────────────────────────────
+
+export interface RecipeRecommendation {
+  name: string;
+  koreanName: string;
+  ingredients: string;
+  area: string;
+  thumbnail: string;
+}
+
+async function translate(text: string, from: string, to: string): Promise<string> {
+  try {
+    const res = await fetch(
+      `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${from}|${to}`,
+    );
+    const data = await res.json();
+    return data.responseData?.translatedText ?? text;
+  } catch {
+    return text;
+  }
+}
+
+export const getRecipeRecommendations = async (
+  ingredients: string[],
+): Promise<RecipeRecommendation[]> => {
+  if (ingredients.length === 0) return [];
+
+  const englishIngredient = await translate(ingredients[0], "ko", "en");
+
+  const searchRes = await fetch(
+    `https://www.themealdb.com/api/json/v1/1/filter.php?i=${encodeURIComponent(englishIngredient)}`,
+  );
+  const searchData = await searchRes.json();
+  const meals: { idMeal: string; strMeal: string; strMealThumb: string }[] =
+    searchData.meals ?? [];
+
+  if (meals.length === 0) return [];
+
+  const shuffled = [...meals].sort(() => Math.random() - 0.5).slice(0, 3);
+
+  const details = await Promise.all(
+    shuffled.map(async (m) => {
+      const res = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${m.idMeal}`);
+      const d = await res.json();
+      return d.meals?.[0] ?? null;
+    }),
+  );
+
+  return Promise.all(
+    details.filter(Boolean).map(async (d) => {
+      const ings: string[] = [];
+      for (let i = 1; i <= 5; i++) {
+        const ing = d[`strIngredient${i}`]?.trim();
+        if (ing) ings.push(ing);
+      }
+      const [koreanName, koreanIngredients, koreanArea] = await Promise.all([
+        translate(d.strMeal, "en", "ko"),
+        translate(ings.join(", "), "en", "ko"),
+        d.strArea ? translate(d.strArea, "en", "ko") : Promise.resolve(""),
+      ]);
+      return {
+        name: d.strMeal,
+        koreanName,
+        ingredients: koreanIngredients,
+        area: koreanArea,
+        thumbnail: d.strMealThumb ?? "",
+      };
+    }),
+  );
+};
+
 // ─── Meal Plans ───────────────────────────────────────────────────────────────
 
 export type MealType = "b" | "l" | "d";

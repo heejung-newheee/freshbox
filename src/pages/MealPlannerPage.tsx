@@ -11,6 +11,7 @@ import {
   useClearCheckedItems,
 } from "@/hooks/useShoppingItems";
 import type { MealType } from "@/services/api";
+import { useRecipeRecommendations } from "@/hooks/useRecipes";
 
 const DAYS = ["월", "화", "수", "목", "금", "토", "일"] as const;
 
@@ -40,26 +41,6 @@ const MEAL_STYLE: Record<
 
 const MEAL_TYPES: MealType[] = ["b", "l", "d"];
 
-const RECIPES = [
-  {
-    name: "시금치 달걀 볶음",
-    ingredients: "시금치 + 달걀",
-    time: "10분",
-    kcal: "280kcal",
-  },
-  {
-    name: "우유 두부 스무디",
-    ingredients: "우유 + 두부",
-    time: "5분",
-    kcal: "190kcal",
-  },
-  {
-    name: "닭가슴살 시금치 덮밥",
-    ingredients: "닭가슴살 + 시금치",
-    time: "20분",
-    kcal: "420kcal",
-  },
-];
 
 function getWeekStart(offset = 0): string {
   const d = new Date();
@@ -127,6 +108,11 @@ export function MealPlanner() {
 
   const urgentItems = items.filter(
     (i) => !i.consumed && getDday(i.expiry) <= 5 && getDday(i.expiry) >= 0,
+  );
+
+  const recipeSource = (urgentItems.length > 0 ? urgentItems : items.slice(0, 4)).slice(0, 5);
+  const { data: recipes = [], isLoading: recipesLoading } = useRecipeRecommendations(
+    recipeSource.map((i) => i.name),
   );
 
   function startEdit(dayIdx: number, mealType: MealType) {
@@ -410,9 +396,7 @@ export function MealPlanner() {
             🔥 임박 재료 활용 추천
           </h3>
           <div className="flex gap-1.5 flex-wrap mb-3.5">
-            {(urgentItems.length > 0 ? urgentItems : items.slice(0, 4))
-              .slice(0, 5)
-              .map((i) => (
+            {recipeSource.map((i) => (
                 <span
                   key={i.id}
                   className="px-2.5 py-1 rounded-full bg-green-50 border border-green-200 text-[12px] font-semibold text-green-800"
@@ -422,21 +406,28 @@ export function MealPlanner() {
               ))}
           </div>
           <div className="flex flex-col gap-0.5">
-            {RECIPES.map((r) => (
+            {recipesLoading ? (
+              <div className="py-4 text-center text-[12px] text-gray-400">레시피 추천 중...</div>
+            ) : recipes.length === 0 ? (
+              <div className="py-4 text-center text-[12px] text-gray-400">재료를 추가하면 레시피를 추천해드려요</div>
+            ) : recipes.map((r) => (
               <div
                 key={r.name}
-                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-2.5 px-2 py-2 rounded-xl hover:bg-gray-50 transition-colors"
               >
-                <span className="text-lg">🔍</span>
-                <div className="flex-1">
-                  <div className="text-[13px] font-bold text-stone-900">
-                    {r.name}
-                  </div>
-                  <div className="text-[11px] text-gray-400 mt-0.5">
-                    {r.ingredients} · ⏱{r.time} · {r.kcal}
+                {r.thumbnail && (
+                  <img
+                    src={r.thumbnail}
+                    alt={r.name}
+                    className="w-11 h-11 rounded-lg object-cover shrink-0"
+                  />
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13px] font-bold text-stone-900 truncate">{r.koreanName}</div>
+                  <div className="text-[10px] text-gray-400 mt-0.5 truncate">
+                    {r.area && <span>{r.area} · </span>}{r.ingredients}
                   </div>
                 </div>
-                <span className="text-sm text-gray-300">›</span>
               </div>
             ))}
           </div>
