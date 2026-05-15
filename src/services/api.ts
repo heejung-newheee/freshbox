@@ -77,6 +77,24 @@ export const deleteFoodItem = async (id: string): Promise<void> => {
   if (error) throw error;
 };
 
+// ─── Fridge Owner ────────────────────────────────────────────────────────────
+
+export interface FridgeOwnerInfo {
+  id: string;
+  email: string;
+}
+
+export const getFridgeOwnerInfo = async (): Promise<FridgeOwnerInfo> => {
+  const { fridgeId } = getStoreIds();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, email")
+    .eq("id", fridgeId)
+    .single();
+  if (error) throw error;
+  return data as FridgeOwnerInfo;
+};
+
 // ─── Fridge Members ───────────────────────────────────────────────────────────
 
 export interface FridgeMember {
@@ -103,7 +121,7 @@ export const getFridgeMembers = async (): Promise<FridgeMember[]> => {
 export const inviteFridgeMember = async (
   email: string,
   role: Extract<Role, "editor" | "viewer">,
-): Promise<FridgeMember> => {
+): Promise<void> => {
   const { fridgeId } = getStoreIds();
 
   const { data: profile } = await supabase
@@ -123,11 +141,12 @@ export const inviteFridgeMember = async (
 
   if (existing) throw new Error("이미 초대된 멤버입니다");
 
-  const { data, error } = await supabase
-    .from("fridge_members")
-    .insert([{ fridge_owner_id: fridgeId, member_email: email, member_id: profile.id, role }])
-    .select()
-    .single();
+  const { error } = await supabase.rpc("invite_fridge_member", {
+    p_fridge_id: fridgeId,
+    p_member_email: email,
+    p_member_id: profile.id,
+    p_role: role,
+  });
 
   if (error) throw error;
 
@@ -137,8 +156,6 @@ export const inviteFridgeMember = async (
   });
 
   await supabase.rpc("set_member_role", { p_member_id: profile.id, p_role: role });
-
-  return data as FridgeMember;
 };
 
 export const updateMemberRole = async (
