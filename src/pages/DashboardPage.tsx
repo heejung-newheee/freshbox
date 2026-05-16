@@ -1,10 +1,10 @@
 import { CATEGORIES, CAT_HEX } from "@/constants/constants";
-import { ddayMeta, getDday } from "@/utils/utils";
-import { useFoodItems, useConsumeItem } from "@/hooks/useFoodItems";
-import { useQuery } from "@tanstack/react-query";
-import { useNavigate } from "react-router-dom";
+import { useConsumeItem, useFoodItems } from "@/hooks/useFoodItems";
 import * as api from "@/services/api";
 import { useAuthStore } from "@/stores/authStore";
+import { ddayMeta, getDday } from "@/utils/utils";
+import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 
 const AVATAR_COLORS = [
   "#10b981", "#3b82f6", "#f59e0b", "#ef4444",
@@ -22,12 +22,13 @@ export function Dashboard() {
     queryFn: api.getFridgeMembers,
   });
   const active = items.filter((i) => !i.consumed);
-  const urgentItems = active.filter(
-    (i) => getDday(i.expiry) <= 3 && getDday(i.expiry) >= 0,
-  );
-  const expiredCount = active.filter((i) => getDday(i.expiry) < 0).length;
-  const fridgeCount = active.filter((i) => i.location === "냉장").length;
-  const freezerCount = active.filter((i) => i.location === "냉동").length;
+  const urgentItems = active
+    .filter((i) => getDday(i.expiry) >= 0 && getDday(i.expiry) <= 3)
+    .sort((a, b) => getDday(a.expiry) - getDday(b.expiry));
+  const expiredItems = active
+    .filter((i) => getDday(i.expiry) < 0)
+    .sort((a, b) => getDday(a.expiry) - getDday(b.expiry));
+  const expiredCount = expiredItems.length;
 
   const catCounts = CATEGORIES.map((cat) => ({
     cat,
@@ -38,7 +39,6 @@ export function Dashboard() {
   const stats = [
     { icon: "🛒", value: active.length, label: "전체 재고", sub: "보관 중인 식품", bg: "bg-green-50" },
     { icon: "⚠️", value: urgentItems.length, label: "임박 (3일 이내)", sub: "빠른 소비 필요", bg: "bg-amber-50" },
-    { icon: "❄️", value: fridgeCount, label: "냉장 보관", sub: `${freezerCount}개 냉동`, bg: "bg-blue-50" },
     { icon: "🗑️", value: expiredCount, label: "유통 만료", sub: "폐기 필요", bg: "bg-red-50" },
   ];
 
@@ -56,7 +56,7 @@ export function Dashboard() {
       )}
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 md:gap-3.5">
+      <div className="grid grid-cols-3 gap-2.5 md:gap-3.5">
         {stats.map((s) => (
           <div key={s.label} className="bg-white border border-gray-200 rounded-2xl p-3.5 md:p-5 flex md:block items-center gap-3">
             <div className={`w-9 h-9 md:w-[38px] md:h-[38px] rounded-xl ${s.bg} flex items-center justify-center text-base md:text-lg md:mb-3 shrink-0`}>
@@ -71,14 +71,14 @@ export function Dashboard() {
         ))}
       </div>
 
-      {/* Grid: urgent + category */}
+      {/* Grid: urgent + expired */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Urgent Foods */}
         <div className="bg-white rounded-2xl border border-gray-200 p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-[14px] font-bold">🔥 임박 식품</h3>
             {urgentItems.length > 0 && (
-              <span className="bg-red-100 text-red-500 text-[11px] font-bold px-2 py-0.5 rounded-full">
+              <span className="bg-amber-100 text-amber-600 text-[11px] font-bold px-2 py-0.5 rounded-full">
                 {urgentItems.length}개
               </span>
             )}
@@ -94,21 +94,15 @@ export function Dashboard() {
                 const m = ddayMeta(d);
                 return (
                   <div key={item.id} className="flex items-center gap-2.5 px-3 py-2.5 bg-gray-50 rounded-xl">
-                    <span
-                      className="w-2 h-2 rounded-full shrink-0 inline-block"
-                      style={{ background: m.color }}
-                    />
+                    <span className="w-2 h-2 rounded-full shrink-0 inline-block" style={{ background: m.color }} />
                     <div className="flex-1 min-w-0">
                       <div className="text-[13px] font-bold text-stone-900">{item.name}</div>
                       <div className="text-[11px] text-gray-400 mt-0.5">
                         {item.location} · {item.zone ? `${item.zone}칸` : ""} · {item.expiry}
                       </div>
                     </div>
-                    <span
-                      className="text-[11px] font-bold rounded-full px-2 py-0.5 shrink-0 border"
-                      style={{ color: m.color, background: m.bg, borderColor: m.border }}
-                    >
-                      D-{d}
+                    <span className="text-[11px] font-bold rounded-full px-2 py-0.5 shrink-0 border" style={{ color: m.color, background: m.bg, borderColor: m.border }}>
+                      {m.label}
                     </span>
                     <button
                       onClick={() => onConsume?.(item.id)}
@@ -123,8 +117,53 @@ export function Dashboard() {
           )}
         </div>
 
-        {/* Category Breakdown */}
+        {/* Expired Foods */}
         <div className="bg-white rounded-2xl border border-gray-200 p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-[14px] font-bold">🗑️ 만료 식품</h3>
+            {expiredItems.length > 0 && (
+              <span className="bg-red-100 text-red-500 text-[11px] font-bold px-2 py-0.5 rounded-full">
+                {expiredItems.length}개
+              </span>
+            )}
+          </div>
+          {expiredItems.length === 0 ? (
+            <div className="text-center py-6 text-gray-400 text-[12px]">
+              만료된 식품이 없습니다 ✅
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {expiredItems.slice(0, 5).map((item) => {
+                const d = getDday(item.expiry);
+                const m = ddayMeta(d);
+                return (
+                  <div key={item.id} className="flex items-center gap-2.5 px-3 py-2.5 bg-gray-50 rounded-xl">
+                    <span className="w-2 h-2 rounded-full shrink-0 inline-block" style={{ background: m.color }} />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-[13px] font-bold text-stone-900">{item.name}</div>
+                      <div className="text-[11px] text-gray-400 mt-0.5">
+                        {item.location} · {item.zone ? `${item.zone}칸` : ""} · {item.expiry}
+                      </div>
+                    </div>
+                    <span className="text-[11px] font-bold rounded-full px-2 py-0.5 shrink-0 border" style={{ color: m.color, background: m.bg, borderColor: m.border }}>
+                      {Math.abs(d)}일 초과
+                    </span>
+                    <button
+                      onClick={() => onConsume?.(item.id)}
+                      className="w-7 h-7 rounded-lg border border-red-100 bg-red-50 flex items-center justify-center cursor-pointer shrink-0 hover:bg-red-100 transition-colors"
+                    >
+                      <span className="text-red-400 font-black text-[13px]">✕</span>
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Category Breakdown */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-5">
           <h3 className="text-[14px] font-bold mb-4">카테고리 현황</h3>
           {catCounts.length === 0 ? (
             <div className="text-center py-6 text-gray-400 text-[12px]">식품이 없습니다</div>
@@ -134,9 +173,9 @@ export function Dashboard() {
                 const hex = CAT_HEX[cat] ?? "#94a3b8";
                 const pct = Math.round((count / maxCat) * 100);
                 return (
-                  <div key={cat}>
+                  <div key={cat} onClick={() => navigate("/inventory")} className="cursor-pointer group">
                     <div className="flex justify-between mb-1.5">
-                      <span className="text-[13px] font-semibold text-gray-700">{cat}</span>
+                      <span className="text-[13px] font-semibold text-gray-700 group-hover:text-stone-900">{cat}</span>
                       <span className="text-[13px] font-bold" style={{ color: hex }}>{count}개</span>
                     </div>
                     <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
@@ -151,7 +190,6 @@ export function Dashboard() {
             </div>
           )}
         </div>
-      </div>
 
       {/* Shared Members */}
       <div className="bg-white rounded-2xl border border-gray-200 p-5">
