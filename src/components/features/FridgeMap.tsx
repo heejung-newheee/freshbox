@@ -18,7 +18,9 @@ function ItemChip({ item }: { item: FoodItem }) {
     >
       <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: m.color }} />
       <span className="font-semibold text-gray-700">{item.name}</span>
-      <span className="font-bold" style={{ color: m.color }}>D-{d}</span>
+      <span className="font-bold" style={{ color: m.color }}>
+        {d < 0 ? `D+${Math.abs(d)}` : d === 0 ? "D-Day" : `D-${d}`}
+      </span>
     </div>
   );
 }
