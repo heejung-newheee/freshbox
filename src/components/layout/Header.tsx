@@ -10,9 +10,10 @@ interface HeaderProps {
   title: string;
   urgentCount?: number;
   onAddItem?: () => void;
+  onSettingsClick?: () => void;
 }
 
-export function Header({ title, urgentCount = 0, onAddItem }: HeaderProps) {
+export function Header({ title, urgentCount = 0, onAddItem, onSettingsClick }: HeaderProps) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [readCount, setReadCount] = useState(0);
@@ -21,7 +22,7 @@ export function Header({ title, urgentCount = 0, onAddItem }: HeaderProps) {
   const notifRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const { isMobile } = useBreakpoint();
-  const { user, signOut } = useAuthStore();
+  const { user, signOut, role } = useAuthStore();
 
   const userInitial = user?.email?.[0]?.toUpperCase() ?? "?";
 
@@ -129,6 +130,14 @@ export function Header({ title, urgentCount = 0, onAddItem }: HeaderProps) {
                     {user?.email}
                   </p>
                 </div>
+                {role === "owner" && onSettingsClick && (
+                  <button
+                    onClick={() => { setUserMenuOpen(false); onSettingsClick(); }}
+                    className="w-full text-left px-4 py-3 text-[13px] text-gray-700 font-semibold hover:bg-gray-50 transition-colors cursor-pointer bg-transparent border-none border-b border-gray-100"
+                  >
+                    냉장고 설정
+                  </button>
+                )}
                 <button
                   onClick={handleSignOut}
                   className="w-full text-left px-4 py-3 text-[13px] text-red-500 font-semibold hover:bg-red-50 transition-colors rounded-b-xl cursor-pointer bg-transparent border-none"

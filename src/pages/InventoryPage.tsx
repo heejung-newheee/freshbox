@@ -5,6 +5,7 @@ import { useState } from "react";
 import { AddModal } from "@/components/modal";
 import { useFoodItems, useConsumeItem, useAddItem } from "@/hooks/useFoodItems";
 import { useAuthStore } from "@/stores/authStore";
+import { useFridgeSettings } from "@/hooks/useFridgeSettings";
 
 const COLS = "grid-cols-[80px_1fr_80px_60px_100px_100px_70px_80px]";
 
@@ -16,6 +17,8 @@ export function Inventory() {
   const onConsume = (id: string) => consumeMutation.mutate(id);
   const role = useAuthStore((s) => s.role);
   const canEdit = role === "owner" || role === "editor";
+  const { data: settings } = useFridgeSettings();
+  const hasKimchi = settings?.has_kimchi_fridge ?? false;
   const [search, setSearch] = useState("");
   const [location, setLocation] = useState<"" | "냉장" | "냉동" | "김치냉장고">(
     "",
@@ -44,7 +47,7 @@ export function Inventory() {
               className="flex-1 border-none bg-transparent text-[13px] text-gray-700 outline-none"
             />
           </div>
-          {(["", "냉장", "냉동", "김치냉장고"] as const).map((loc) => {
+          {(["", "냉장", "냉동", ...(hasKimchi ? (["김치냉장고"] as const) : [])] as Array<"" | "냉장" | "냉동" | "김치냉장고">).map((loc) => {
             const label =
               loc === ""
                 ? "전체"

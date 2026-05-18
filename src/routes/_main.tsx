@@ -79,6 +79,7 @@ export default function MainLayout() {
           title={title}
           urgentCount={urgentCount}
           onAddItem={canEdit ? () => setShowAddModal(true) : undefined}
+          onSettingsClick={() => setShowSettings(true)}
         />
 
         <div
