@@ -98,6 +98,33 @@ export const deleteFoodItem = async (id: string): Promise<void> => {
   if (error) throw error;
 };
 
+// ─── Fridge Settings ─────────────────────────────────────────────────────────
+
+export interface FridgeSettings {
+  use_zones: boolean;
+  has_kimchi_fridge: boolean;
+}
+
+export const getFridgeSettings = async (): Promise<FridgeSettings> => {
+  const { fridgeId } = getStoreIds();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("use_zones, has_kimchi_fridge")
+    .eq("id", fridgeId)
+    .single();
+  if (error) throw error;
+  return {
+    use_zones: data.use_zones ?? true,
+    has_kimchi_fridge: data.has_kimchi_fridge ?? false,
+  };
+};
+
+export const updateFridgeSettings = async (settings: Partial<FridgeSettings>): Promise<void> => {
+  const { fridgeId } = getStoreIds();
+  const { error } = await supabase.from("profiles").update(settings).eq("id", fridgeId);
+  if (error) throw error;
+};
+
 // ─── Fridge Owner ────────────────────────────────────────────────────────────
 
 export interface FridgeOwnerInfo {

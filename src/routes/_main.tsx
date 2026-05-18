@@ -1,6 +1,6 @@
 import type { FoodItem } from "@/@types";
 import { Header, Sidebar, BottomTabBar } from "@/components/layout";
-import { AddModal } from "@/components/modal";
+import { AddModal, SettingsModal } from "@/components/modal";
 import * as api from "@/services/api";
 import { getDday } from "@/utils";
 import { cn } from "@/utils/utils";
@@ -24,6 +24,7 @@ export default function MainLayout() {
   const location = useLocation();
   const { isMobile, isTablet } = useBreakpoint();
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
   const role = useAuthStore((s) => s.role);
   const authLoading = useAuthStore((s) => s.loading);
   const canEdit = role === "owner" || role === "editor";
@@ -65,7 +66,7 @@ export default function MainLayout() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar: tablet 이상만 표시 */}
-      {!isMobile && <Sidebar itemCount={active.length} compact={isTablet} />}
+      {!isMobile && <Sidebar itemCount={active.length} compact={isTablet} onSettingsClick={() => setShowSettings(true)} />}
 
       {/* Main Content */}
       <main
@@ -122,6 +123,7 @@ export default function MainLayout() {
           onAdd={handleAddItem}
         />
       )}
+      {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
     </div>
   );
 }

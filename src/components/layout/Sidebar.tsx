@@ -7,8 +7,10 @@ import {
   IconFork,
   IconFridge,
   IconLeaf,
+  IconSettings,
   IconShare,
 } from "../ui/icons";
+import { ROLE_META } from "@/constants/constants";
 
 const NAV: {
   id: string;
@@ -26,13 +28,16 @@ const NAV: {
 interface Props {
   itemCount: number;
   compact?: boolean;
+  onSettingsClick?: () => void;
 }
 
-export function Sidebar({ itemCount, compact = false }: Props) {
+export function Sidebar({ itemCount, compact = false, onSettingsClick }: Props) {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
+  const role = useAuthStore((s) => s.role);
   const { pathname } = useLocation();
   const initial = user?.email?.[0]?.toUpperCase() ?? "?";
+  const roleLabel = role ? ROLE_META[role]?.label : "멤버";
 
   return (
     <aside
@@ -139,8 +144,17 @@ export function Sidebar({ itemCount, compact = false }: Props) {
               <div className="text-[13px] font-bold text-slate-700 truncate">
                 {user?.email ?? ""}
               </div>
-              <div className="text-[11px] text-slate-400 mt-0.5">소유자</div>
+              <div className="text-[11px] text-slate-400 mt-0.5">{roleLabel}</div>
             </div>
+            {role === "owner" && (
+              <button
+                onClick={onSettingsClick}
+                title="설정"
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:bg-slate-200 hover:text-slate-600 transition-colors cursor-pointer shrink-0"
+              >
+                <IconSettings size={15} />
+              </button>
+            )}
           </div>
         </div>
       )}
