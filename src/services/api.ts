@@ -114,7 +114,7 @@ export const getFridgeSettings = async (): Promise<FridgeSettings> => {
     .single();
   if (error) throw error;
   return {
-    use_zones: data.use_zones ?? true,
+    use_zones: data.use_zones ?? false,
     has_kimchi_fridge: data.has_kimchi_fridge ?? false,
   };
 };

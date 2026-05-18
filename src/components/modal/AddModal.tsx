@@ -162,7 +162,7 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
   });
 
   const { data: settings } = useFridgeSettings();
-  const useZones = settings?.use_zones ?? true;
+  const useZones = settings?.use_zones ?? false;
   const availableLocations = LOCATIONS.filter(
     (l) => l !== "김치냉장고" || (settings?.has_kimchi_fridge ?? false),
   );

@@ -37,7 +37,7 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
   const [overrides, setOverrides] = useState<Partial<{ use_zones: boolean; has_kimchi_fridge: boolean }>>({});
 
   const current = {
-    use_zones: overrides.use_zones ?? settings?.use_zones ?? true,
+    use_zones: overrides.use_zones ?? settings?.use_zones ?? false,
     has_kimchi_fridge: overrides.has_kimchi_fridge ?? settings?.has_kimchi_fridge ?? false,
   };
 

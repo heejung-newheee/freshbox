@@ -99,7 +99,7 @@ function FridgeSection({
 
 export function FridgeMap({ items }: FridgeMapProps) {
   const { data: settings } = useFridgeSettings();
-  const useZones = settings?.use_zones ?? true;
+  const useZones = settings?.use_zones ?? false;
   const hasKimchi = settings?.has_kimchi_fridge ?? false;
 
   const active = items.filter((i) => !i.consumed);
