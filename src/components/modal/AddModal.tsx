@@ -209,7 +209,7 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
                   <button
                     key={item.name}
                     type="button"
-                    onClick={() => setForm((p) => ({ ...p, name: item.name, category: item.category as Category }))}
+                    onClick={() => setForm((p) => ({ ...p, name: item.name, category: item.category as Category, location: item.location as Location, zone: item.zone as Zone }))}
                     className="px-2.5 py-1 rounded-full text-[12px] bg-gray-100 text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors cursor-pointer"
                   >
                     {item.name}
