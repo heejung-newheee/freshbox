@@ -2,13 +2,12 @@ import type { FoodItem, Category, Location, Zone } from "@/@types";
 import { CATEGORIES } from "@/constants/constants";
 import { XIcon } from "@/assets/icons";
 import { useState, useRef, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import * as api from "@/services/api";
 import { useFridgeSettings } from "@/hooks/useFridgeSettings";
 
-interface AddModalProps {
+interface EditModalProps {
+  item: FoodItem;
   onClose: () => void;
-  onAdd: (item: Omit<FoodItem, "id" | "consumed">) => void;
+  onSave: (id: string, item: Omit<FoodItem, "id" | "consumed">) => void;
 }
 
 interface FormState {
@@ -36,17 +35,9 @@ const chevron = (
 );
 
 function DropdownField<T extends string>({
-  label,
-  value,
-  options,
-  onChange,
-  display,
+  label, value, options, onChange, display,
 }: {
-  label: string;
-  value: T;
-  options: T[];
-  onChange: (v: T) => void;
-  display?: (v: T) => string;
+  label: string; value: T; options: T[]; onChange: (v: T) => void; display?: (v: T) => string;
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -94,25 +85,16 @@ function DropdownField<T extends string>({
   );
 }
 
-export function AddModal({ onClose, onAdd }: AddModalProps) {
-  const today = new Date();
-  const defaultExpiry = new Date(
-    today.getFullYear(),
-    today.getMonth() + 1,
-    today.getDate(),
-  )
-    .toISOString()
-    .split("T")[0];
-
+export function EditModal({ item, onClose, onSave }: EditModalProps) {
   const [form, setForm] = useState<FormState>({
-    name: "",
-    category: "채소/과일",
-    location: "냉장",
-    zone: "상단",
-    bought: today.toISOString().split("T")[0],
-    expiry: defaultExpiry,
-    quantity: 1,
-    unit: "개",
+    name: item.name,
+    category: item.category,
+    location: item.location,
+    zone: item.zone ?? "상단",
+    bought: item.bought,
+    expiry: item.expiry,
+    quantity: item.quantity ?? 1,
+    unit: item.unit ?? "개",
   });
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
@@ -122,12 +104,12 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
     setForm((p) => ({ ...p, location: loc, zone: ZONES[loc][0] }));
   };
 
-  const handleAdd = () => {
+  const handleSave = () => {
     if (!form.name) {
       alert("식품명은 필수입니다");
       return;
     }
-    onAdd({
+    onSave(item.id, {
       name: form.name,
       category: form.category,
       location: form.location,
@@ -137,29 +119,8 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
       quantity: form.quantity,
       unit: form.unit,
     });
-    setForm({
-      name: "",
-      category: "채소/과일",
-      location: "냉장",
-      zone: "상단",
-      bought: new Date().toISOString().split("T")[0],
-      expiry: new Date(
-        new Date().getFullYear(),
-        new Date().getMonth() + 1,
-        new Date().getDate(),
-      )
-        .toISOString()
-        .split("T")[0],
-      quantity: 1,
-      unit: "개",
-    });
     onClose();
   };
-
-  const { data: frequent = [] } = useQuery({
-    queryKey: ["frequentItems"],
-    queryFn: api.getFrequentItems,
-  });
 
   const { data: settings } = useFridgeSettings();
   const useZones = settings?.use_zones ?? false;
@@ -180,15 +141,10 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
         onClick={(e) => e.stopPropagation()}
         className="bg-white rounded-xl p-7 w-[440px] max-w-[92vw] shadow-2xl"
       >
-        {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div>
-            <div className="text-base font-bold text-gray-800">
-              새 재료 추가
-            </div>
-            <div className="text-[12px] text-gray-400 mt-1">
-              냉장고에 보관할 식품을 등록하세요
-            </div>
+            <div className="text-base font-bold text-gray-800">재료 수정</div>
+            <div className="text-[12px] text-gray-400 mt-1">식품 정보를 수정하세요</div>
           </div>
           <button
             onClick={onClose}
@@ -198,36 +154,17 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
           </button>
         </div>
 
-        {/* Form */}
         <div className="flex flex-col gap-3.5">
-          {/* 식품명 */}
           <div>
             <label className={labelCls}>식품명 *</label>
             <input
               type="text"
               className={inputCls}
-              placeholder="예: 브로콜리"
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
-              autoFocus
             />
-            {frequent.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                {frequent.map((item) => (
-                  <button
-                    key={item.name}
-                    type="button"
-                    onClick={() => setForm((p) => ({ ...p, name: item.name, category: item.category as Category, location: item.location as Location, zone: item.zone as Zone }))}
-                    className="px-2.5 py-1 rounded-full text-[12px] bg-gray-100 text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors cursor-pointer"
-                  >
-                    {item.name}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
 
-          {/* 카테고리 */}
           <DropdownField
             label="카테고리"
             value={form.category}
@@ -235,7 +172,6 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
             onChange={(v) => set("category", v)}
           />
 
-          {/* 보관 위치 & 구역 */}
           <div className={`grid gap-3 ${useZones ? "grid-cols-2" : "grid-cols-1"}`}>
             <DropdownField
               label="보관 위치"
@@ -254,11 +190,7 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
             )}
           </div>
 
-          {/* 수량 & 단위 */}
-          <div
-            className="grid gap-3"
-            style={{ gridTemplateColumns: "80px 1fr" }}
-          >
+          <div className="grid gap-3" style={{ gridTemplateColumns: "80px 1fr" }}>
             <div>
               <label className={labelCls}>수량</label>
               <input
@@ -274,14 +206,12 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
               <input
                 type="text"
                 className={inputCls}
-                placeholder="개"
                 value={form.unit}
                 onChange={(e) => set("unit", e.target.value)}
               />
             </div>
           </div>
 
-          {/* 구매일 & 유통기한 */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelCls}>구매일</label>
@@ -304,7 +234,6 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
           </div>
         </div>
 
-        {/* Actions */}
         <div className="flex gap-3 mt-7">
           <button
             onClick={onClose}
@@ -313,10 +242,10 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
             취소
           </button>
           <button
-            onClick={handleAdd}
+            onClick={handleSave}
             className="flex-[1.5] py-2.5 rounded-md border-none bg-emerald-500 cursor-pointer text-[13px] font-semibold text-white hover:bg-emerald-600 transition-colors"
           >
-            재료 추가하기
+            수정 저장
           </button>
         </div>
       </div>

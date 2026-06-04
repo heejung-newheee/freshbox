@@ -2,8 +2,8 @@ import type { FoodItem } from "@/@types";
 import { CATEGORIES, CAT_COLORS } from "@/constants/constants";
 import { cn, ddayMeta, getDday } from "@/utils/utils";
 import { useState } from "react";
-import { AddModal } from "@/components/modal";
-import { useFoodItems, useConsumeItem, useAddItem } from "@/hooks/useFoodItems";
+import { AddModal, EditModal } from "@/components/modal";
+import { useFoodItems, useConsumeItem, useAddItem, useUpdateItem } from "@/hooks/useFoodItems";
 import { useAuthStore } from "@/stores/authStore";
 import { useFridgeSettings } from "@/hooks/useFridgeSettings";
 
@@ -11,9 +11,11 @@ const COLS = "grid-cols-[80px_1fr_80px_60px_100px_100px_70px_80px]";
 
 export function Inventory() {
   const [showModal, setShowModal] = useState(false);
+  const [editingItem, setEditingItem] = useState<FoodItem | null>(null);
   const { items } = useFoodItems();
   const consumeMutation = useConsumeItem();
   const addMutation = useAddItem(() => setShowModal(false));
+  const updateMutation = useUpdateItem(() => setEditingItem(null));
   const onConsume = (id: string) => consumeMutation.mutate(id);
   const role = useAuthStore((s) => s.role);
   const canEdit = role === "owner" || role === "editor";
@@ -173,7 +175,10 @@ export function Inventory() {
                     {/* 상단 */}
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2 min-w-0">
-                        <div className="text-[14px] font-bold text-stone-900 truncate">
+                        <div
+                          className={cn("text-[14px] font-bold text-stone-900 truncate", canEdit && "cursor-pointer hover:text-emerald-600 transition-colors")}
+                          onClick={() => canEdit && setEditingItem(item)}
+                        >
                           {item.name}
                         </div>
                         <span
@@ -231,19 +236,7 @@ export function Inventory() {
                     {canEdit && (
                       <button
                         onClick={() => onConsume?.(item.id)}
-                        className="
-                  w-full
-                  px-3 py-2 rounded-lg
-                  border border-emerald-100
-                  bg-emerald-50
-                  text-emerald-500
-                  text-[12px]
-                  font-bold
-                  cursor-pointer
-                  flex items-center justify-center gap-1
-                  hover:bg-emerald-100
-                  transition-colors
-                "
+                        className="w-full px-3 py-2 rounded-lg border border-emerald-100 bg-emerald-50 text-emerald-500 text-[12px] font-bold cursor-pointer flex items-center justify-center gap-1 hover:bg-emerald-100 transition-colors"
                       >
                         ✓ 소비
                       </button>
@@ -268,7 +261,10 @@ export function Inventory() {
 
                     {/* 식품명 */}
                     <div className="hidden md:flex items-center gap-2">
-                      <div className="text-[13px] font-bold text-stone-900">
+                      <div
+                        className={cn("text-[13px] font-bold text-stone-900", canEdit && "cursor-pointer hover:text-emerald-600 transition-colors")}
+                        onClick={() => canEdit && setEditingItem(item)}
+                      >
                         {item.name}
                       </div>
                       <span
@@ -310,18 +306,7 @@ export function Inventory() {
                       {canEdit && (
                         <button
                           onClick={() => onConsume?.(item.id)}
-                          className="
-                    px-3 py-1 rounded-lg
-                    border border-emerald-100
-                    bg-emerald-50
-                    text-emerald-500
-                    text-[12px]
-                    font-bold
-                    cursor-pointer
-                    flex items-center gap-1
-                    hover:bg-emerald-100
-                    transition-colors
-                  "
+                          className="px-3 py-1 rounded-lg border border-emerald-100 bg-emerald-50 text-emerald-500 text-[12px] font-bold cursor-pointer flex items-center gap-1 hover:bg-emerald-100 transition-colors"
                         >
                           ✓ 소비
                         </button>
@@ -341,6 +326,14 @@ export function Inventory() {
           onAdd={(formData: Omit<FoodItem, "id" | "consumed">) =>
             addMutation.mutate(formData)
           }
+        />
+      )}
+
+      {editingItem && (
+        <EditModal
+          item={editingItem}
+          onClose={() => setEditingItem(null)}
+          onSave={(id, formData) => updateMutation.mutate({ id, item: formData })}
         />
       )}
     </>

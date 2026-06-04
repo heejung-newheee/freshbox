@@ -31,3 +31,15 @@ export function useAddItem(onSuccess?: () => void) {
     },
   });
 }
+
+export function useUpdateItem(onSuccess?: () => void) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, item }: { id: string; item: Omit<FoodItem, "id" | "consumed"> }) =>
+      api.updateFoodItem(id, item),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEY });
+      onSuccess?.();
+    },
+  });
+}

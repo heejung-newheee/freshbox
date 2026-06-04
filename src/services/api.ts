@@ -93,6 +93,17 @@ export const markFoodItemConsumed = async (id: string): Promise<void> => {
   if (error) throw error;
 };
 
+export const updateFoodItem = async (
+  id: string,
+  item: Omit<FoodItem, "id" | "consumed">,
+): Promise<void> => {
+  const { error } = await supabase
+    .from("food_items")
+    .update(item)
+    .eq("id", id);
+  if (error) throw error;
+};
+
 export const deleteFoodItem = async (id: string): Promise<void> => {
   const { error } = await supabase.from("food_items").delete().eq("id", id);
   if (error) throw error;
