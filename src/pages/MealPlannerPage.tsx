@@ -77,6 +77,7 @@ function RecipeModal({ recipe, onClose }: { recipe: RecipeRecommendation; onClos
 import { useFoodItems } from "@/hooks/useFoodItems";
 import { useMealPlan, useUpsertMeal, useDeleteMeal } from "@/hooks/useMealPlan";
 import { useAuthStore } from "@/stores/authStore";
+import { useMealNotes, useUpdateMealNotes } from "@/hooks/useMealNotes";
 import {
   useShoppingItems,
   useAddShoppingItem,
@@ -147,6 +148,17 @@ export function MealPlanner() {
   const role = useAuthStore((s) => s.role);
   const canEdit = role === "owner" || role === "editor";
   const [newName, setNewName] = useState("");
+
+  const { data: notesData = "" } = useMealNotes();
+  const updateNotes = useUpdateMealNotes();
+  const [notesDraft, setNotesDraft] = useState<string | null>(null);
+  const notesValue = notesDraft ?? notesData;
+  const handleNotesSave = () => {
+    if (notesDraft !== null) {
+      updateNotes.mutate(notesDraft);
+      setNotesDraft(null);
+    }
+  };
 
   const { data: shopping = [] } = useShoppingItems();
   const addItem = useAddShoppingItem();
@@ -389,7 +401,7 @@ export function MealPlanner() {
         })}
       </div>
 
-      {/* Bottom: recommendations + shopping */}
+      {/* Bottom: shopping + notes */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col">
           <div className="flex items-center justify-between mb-1">
@@ -467,26 +479,50 @@ export function MealPlanner() {
             </div>
           )}
         </div>
-        <div className="bg-white border border-gray-200 rounded-2xl p-5">
-          <h3 className="text-[14px] font-bold mb-3.5">
-            🔥 임박 재료 활용 추천
-          </h3>
-          <div className="flex gap-1.5 flex-wrap mb-3.5">
-            {recipeSource.map((i) => (
-                <span
-                  key={i.id}
-                  className="px-2.5 py-1 rounded-full bg-green-50 border border-green-200 text-[12px] font-semibold text-green-800"
-                >
-                  {i.name}
-                </span>
-              ))}
+        {/* 노트 */}
+        <div className="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col">
+          <h3 className="text-[14px] font-bold mb-1">📝 메모</h3>
+          <p className="text-[12px] text-gray-400 mb-3.5">사야 할 것, 식단 관련 메모</p>
+          <div className="relative flex-1">
+            <textarea
+              value={notesValue}
+              onChange={(e) => setNotesDraft(e.target.value)}
+              onBlur={handleNotesSave}
+              placeholder="메모를 입력하세요..."
+              className="w-full resize-none text-[13px] text-gray-700 border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-gray-50 min-h-40 leading-relaxed block"
+            />
+            {updateNotes.isPending && (
+              <div className="absolute bottom-2.5 right-3 flex items-center gap-1.5 pointer-events-none">
+                <div className="w-3 h-3 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+                <span className="text-[11px] text-emerald-400 font-medium">저장 중</span>
+              </div>
+            )}
           </div>
-          <div className="flex flex-col gap-0.5">
-            {recipesLoading ? (
-              <div className="py-4 text-center text-[12px] text-gray-400">레시피 추천 중...</div>
-            ) : recipes.length === 0 ? (
-              <div className="py-4 text-center text-[12px] text-gray-400">재료를 추가하면 레시피를 추천해드려요</div>
-            ) : recipes.map((r) => (
+        </div>
+      </div>
+
+      {/* Recipe recommendations - full width */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-5">
+        <div className="flex items-center gap-3 mb-3.5">
+          <h3 className="text-[14px] font-bold">🔥 임박 재료 활용 추천</h3>
+          <div className="flex gap-1.5 flex-wrap">
+            {recipeSource.map((i) => (
+              <span
+                key={i.id}
+                className="px-2.5 py-1 rounded-full bg-green-50 border border-green-200 text-[12px] font-semibold text-green-800"
+              >
+                {i.name}
+              </span>
+            ))}
+          </div>
+        </div>
+        {recipesLoading ? (
+          <div className="py-4 text-center text-[12px] text-gray-400">레시피 추천 중...</div>
+        ) : recipes.length === 0 ? (
+          <div className="py-4 text-center text-[12px] text-gray-400">재료를 추가하면 레시피를 추천해드려요</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
+            {recipes.map((r) => (
               <button
                 key={r.name}
                 type="button"
@@ -510,7 +546,7 @@ export function MealPlanner() {
               </button>
             ))}
           </div>
-        </div>
+        )}
       </div>
     </div>
 

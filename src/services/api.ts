@@ -138,6 +138,28 @@ export const updateFridgeSettings = async (settings: Partial<FridgeSettings>): P
   if (error) throw error;
 };
 
+// ─── Meal Notes ───────────────────────────────────────────────────────────────
+
+export const getMealNotes = async (): Promise<string> => {
+  const { fridgeId } = getStoreIds();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("meal_notes")
+    .eq("id", fridgeId)
+    .single();
+  if (error) throw error;
+  return data.meal_notes ?? "";
+};
+
+export const updateMealNotes = async (notes: string): Promise<void> => {
+  const { fridgeId } = getStoreIds();
+  const { error } = await supabase
+    .from("profiles")
+    .update({ meal_notes: notes })
+    .eq("id", fridgeId);
+  if (error) throw error;
+};
+
 // ─── Fridge Owner ────────────────────────────────────────────────────────────
 
 export interface FridgeOwnerInfo {
