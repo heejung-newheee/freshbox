@@ -101,6 +101,9 @@ export function FridgeMap({ items }: FridgeMapProps) {
   const { data: settings } = useFridgeSettings();
   const useZones = settings?.use_zones ?? false;
   const hasKimchi = settings?.has_kimchi_fridge ?? false;
+  const freezerZones = (settings?.freezer_horizontal ?? false)
+    ? (["좌", "우"] as const)
+    : ZONES_냉동;
 
   const active = items.filter((i) => !i.consumed);
   const fridgeItems = active.filter((i) => i.location === "냉장");
@@ -112,7 +115,7 @@ export function FridgeMap({ items }: FridgeMapProps) {
   return (
     <div className={`grid ${cols} gap-5`}>
       <FridgeSection title="냉장칸" icon="❄️" iconBg="bg-blue-50" items={fridgeItems} zones={ZONES_냉장} showZones={useZones} />
-      <FridgeSection title="냉동칸" icon="🧊" iconBg="bg-cyan-50" items={freezerItems} zones={ZONES_냉동} showZones={useZones} />
+      <FridgeSection title="냉동칸" icon="🧊" iconBg="bg-cyan-50" items={freezerItems} zones={freezerZones} showZones={useZones} />
       {hasKimchi && (
         <FridgeSection title="김치냉장고" icon="🥬" iconBg="bg-emerald-50" items={kimchiItems} zones={ZONES_김치냉장고} showZones={useZones} />
       )}

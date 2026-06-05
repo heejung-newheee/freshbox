@@ -30,18 +30,53 @@ function Toggle({
   );
 }
 
+function LayoutPicker({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: boolean;
+  onChange: (v: boolean) => void;
+  disabled?: boolean;
+}) {
+  const opts = [
+    { label: "상·중·하단", v: false },
+    { label: "좌·우", v: true },
+  ];
+  return (
+    <div className="flex gap-4">
+      {opts.map((o) => (
+        <label
+          key={String(o.v)}
+          className={`flex items-center gap-2 cursor-pointer ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+        >
+          <input
+            type="radio"
+            disabled={disabled}
+            checked={value === o.v}
+            onChange={() => onChange(o.v)}
+            className="w-4 h-4 accent-emerald-500 cursor-pointer"
+          />
+          <span className="text-[13px] font-medium text-stone-700">{o.label}</span>
+        </label>
+      ))}
+    </div>
+  );
+}
+
 export function SettingsModal({ onClose }: { onClose: () => void }) {
   const { data: settings, isLoading } = useFridgeSettings();
   const update = useUpdateFridgeSettings();
   const [error, setError] = useState<string | null>(null);
-  const [overrides, setOverrides] = useState<Partial<{ use_zones: boolean; has_kimchi_fridge: boolean }>>({});
+  const [overrides, setOverrides] = useState<Partial<{ use_zones: boolean; has_kimchi_fridge: boolean; freezer_horizontal: boolean }>>({});
 
   const current = {
     use_zones: overrides.use_zones ?? settings?.use_zones ?? false,
     has_kimchi_fridge: overrides.has_kimchi_fridge ?? settings?.has_kimchi_fridge ?? false,
+    freezer_horizontal: overrides.freezer_horizontal ?? settings?.freezer_horizontal ?? false,
   };
 
-  const handleToggle = (key: "use_zones" | "has_kimchi_fridge", value: boolean) => {
+  const handleToggle = (key: "use_zones" | "has_kimchi_fridge" | "freezer_horizontal", value: boolean) => {
     setOverrides((p) => ({ ...p, [key]: value }));
     setError(null);
     update.mutate(
@@ -99,14 +134,14 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
 
               <div className="h-px bg-gray-100" />
 
-              <div>
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">구역 설정</p>
+              <div className="flex flex-col gap-4">
+                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">구역 설정</p>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-[14px] font-semibold text-stone-800">구역(칸) 세분화</p>
                     <p className="text-[12px] text-gray-400 mt-0.5">
                       {current.use_zones
-                        ? "상단·중단·하단 등 구역 선택 가능"
+                        ? "구역 선택 가능"
                         : "구역 구분 없이 위치만 선택"}
                     </p>
                   </div>
@@ -116,6 +151,17 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                     disabled={update.isPending}
                   />
                 </div>
+
+                {current.use_zones && (
+                  <div>
+                    <p className="text-[12px] font-semibold text-gray-500 mb-2">냉동칸 구역 방향</p>
+                    <LayoutPicker
+                      value={current.freezer_horizontal}
+                      onChange={(v) => handleToggle("freezer_horizontal", v)}
+                      disabled={update.isPending}
+                    />
+                  </div>
+                )}
               </div>
 
               {error && (

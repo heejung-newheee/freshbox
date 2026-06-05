@@ -22,7 +22,7 @@ interface FormState {
 }
 
 const LOCATIONS: Location[] = ["냉장", "냉동", "김치냉장고"];
-const ZONES: Record<Location, Zone[]> = {
+const ZONES_BASE: Record<Location, Zone[]> = {
   냉장: ["상단", "중단", "하단", "야채", "도어"],
   냉동: ["상단", "중단", "하단"],
   김치냉장고: ["상단", "하단"],
@@ -127,6 +127,10 @@ export function EditModal({ item, onClose, onSave }: EditModalProps) {
   const availableLocations = LOCATIONS.filter(
     (l) => l !== "김치냉장고" || (settings?.has_kimchi_fridge ?? false),
   );
+  const ZONES: Record<Location, Zone[]> = {
+    ...ZONES_BASE,
+    냉동: (settings?.freezer_horizontal ?? false) ? ["좌", "우"] : ["상단", "중단", "하단"],
+  };
 
   const inputCls =
     "w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[13px] text-gray-800 bg-gray-50 outline-none font-[inherit] box-border";
