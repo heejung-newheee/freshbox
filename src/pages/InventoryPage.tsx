@@ -1,7 +1,7 @@
 import type { FoodItem } from "@/@types";
 import { CATEGORIES, CAT_COLORS } from "@/constants/constants";
 import { cn, ddayMeta, getDday } from "@/utils/utils";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { AddModal, EditModal } from "@/components/modal";
 import { useFoodItems, useConsumeItem, useAddItem, useUpdateItem } from "@/hooks/useFoodItems";
 import { useAuthStore } from "@/stores/authStore";
@@ -22,18 +22,41 @@ export function Inventory() {
   const { data: settings } = useFridgeSettings();
   const hasKimchi = settings?.has_kimchi_fridge ?? false;
   const [search, setSearch] = useState("");
-  const [location, setLocation] = useState<"" | "냉장" | "냉동" | "김치냉장고">(
-    "",
-  );
+  const [location, setLocation] = useState<"" | "냉장" | "냉동" | "김치냉장고">("");
   const [category, setCategory] = useState("전체");
+  const [sort, setSort] = useState<"expiry" | "newest" | "oldest" | "alpha">("expiry");
+  const [sortOpen, setSortOpen] = useState(false);
+  const sortRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!sortOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (!sortRef.current?.contains(e.target as Node)) setSortOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [sortOpen]);
+
+  const SORT_OPTIONS: { value: typeof sort; label: string }[] = [
+    { value: "expiry", label: "유통기한 임박순" },
+    { value: "newest", label: "최근 추가순" },
+    { value: "oldest", label: "오래된순" },
+    { value: "alpha", label: "가나다순" },
+  ];
 
   const active = items.filter((i) => !i.consumed);
 
   let filtered = active;
   if (search) filtered = filtered.filter((i) => i.name.includes(search));
   if (location) filtered = filtered.filter((i) => i.location === location);
-  if (category !== "전체")
-    filtered = filtered.filter((i) => i.category === category);
+  if (category !== "전체") filtered = filtered.filter((i) => i.category === category);
+
+  filtered = [...filtered].sort((a, b) => {
+    if (sort === "expiry") return a.expiry.localeCompare(b.expiry);
+    if (sort === "newest") return b.bought.localeCompare(a.bought);
+    if (sort === "oldest") return a.bought.localeCompare(b.bought);
+    return a.name.localeCompare(b.name, "ko");
+  });
 
   return (
     <>
@@ -48,6 +71,44 @@ export function Inventory() {
               placeholder="식품 검색..."
               className="flex-1 border-none bg-transparent text-[13px] text-gray-700 outline-none"
             />
+          </div>
+
+          {/* 정렬 */}
+          <div ref={sortRef} className="relative shrink-0">
+            <button
+              onClick={() => setSortOpen((o) => !o)}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-2 rounded-lg border text-[13px] font-semibold cursor-pointer transition-colors whitespace-nowrap",
+                sort !== "expiry"
+                  ? "border-emerald-500 bg-emerald-50 text-emerald-600"
+                  : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50",
+              )}
+            >
+              <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+                <line x1="2" y1="4" x2="14" y2="4" />
+                <line x1="4" y1="8" x2="12" y2="8" />
+                <line x1="6" y1="12" x2="10" y2="12" />
+              </svg>
+              {SORT_OPTIONS.find((o) => o.value === sort)?.label}
+            </button>
+            {sortOpen && (
+              <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden min-w-36">
+                {SORT_OPTIONS.map((o) => (
+                  <button
+                    key={o.value}
+                    onClick={() => { setSort(o.value); setSortOpen(false); }}
+                    className={cn(
+                      "w-full text-left px-4 py-2.5 text-[13px] transition-colors",
+                      sort === o.value
+                        ? "font-bold text-emerald-600 bg-emerald-50"
+                        : "text-gray-700 hover:bg-gray-50",
+                    )}
+                  >
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           {(["", "냉장", "냉동", ...(hasKimchi ? (["김치냉장고"] as const) : [])] as Array<"" | "냉장" | "냉동" | "김치냉장고">).map((loc) => {
             const label =
