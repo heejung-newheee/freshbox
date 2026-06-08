@@ -198,11 +198,16 @@ export function EditModal({ item, onClose, onSave }: EditModalProps) {
             <div>
               <label className={labelCls}>수량</label>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 className={inputCls}
-                min="1"
-                value={form.quantity}
-                onChange={(e) => set("quantity", parseInt(e.target.value) || 1)}
+                value={form.quantity === 0 ? "" : form.quantity}
+                onChange={(e) => {
+                  const n = parseInt(e.target.value.replace(/\D/g, ""));
+                  set("quantity", isNaN(n) ? 0 : n);
+                }}
+                onBlur={() => { if (!form.quantity) set("quantity", 1); }}
               />
             </div>
             <div>
