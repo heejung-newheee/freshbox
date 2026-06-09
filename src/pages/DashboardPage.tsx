@@ -5,6 +5,14 @@ import { useAuthStore } from "@/stores/authStore";
 import { ddayMeta, getDday } from "@/utils/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { useMealNotes, useUpdateMealNotes } from "@/hooks/useMealNotes";
+import {
+  useShoppingItems,
+  useAddShoppingItem,
+  useToggleShoppingItem,
+  useDeleteShoppingItem,
+} from "@/hooks/useShoppingItems";
+import { useState } from "react";
 
 const AVATAR_COLORS = [
   "#10b981", "#3b82f6", "#f59e0b", "#ef4444",
@@ -21,6 +29,19 @@ export function Dashboard() {
     queryKey: ["fridgeMembers"],
     queryFn: api.getFridgeMembers,
   });
+  const { data: notes = "" } = useMealNotes();
+  const updateNotes = useUpdateMealNotes();
+  const [notesDraft, setNotesDraft] = useState<string | null>(null);
+  const notesValue = notesDraft ?? notes;
+  const handleNotesSave = () => {
+    if (notesDraft !== null) { updateNotes.mutate(notesDraft); setNotesDraft(null); }
+  };
+
+  const { data: shopping = [] } = useShoppingItems();
+  const addShoppingItem = useAddShoppingItem();
+  const toggleShoppingItem = useToggleShoppingItem();
+  const deleteShoppingItem = useDeleteShoppingItem();
+  const [newShoppingName, setNewShoppingName] = useState("");
   const active = items.filter((i) => !i.consumed);
   const urgentItems = active
     .filter((i) => getDday(i.expiry) >= 0 && getDday(i.expiry) <= 3)
@@ -159,6 +180,88 @@ export function Dashboard() {
               })}
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Shopping + Notes */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* 장보기 목록 */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-5 flex flex-col">
+          <div className="flex items-center justify-between mb-3.5">
+            <h3 className="text-[14px] font-bold">🛒 장보기 목록</h3>
+            {shopping.filter((s) => !s.checked).length > 0 && (
+              <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600">
+                {shopping.filter((s) => !s.checked).length}개 남음
+              </span>
+            )}
+          </div>
+          <div className="flex flex-col gap-1 flex-1">
+            {shopping.length === 0 ? (
+              <p className="text-[12px] text-gray-300 py-2">항목이 없습니다</p>
+            ) : shopping.map((item) => (
+              <div key={item.id} className="flex items-center gap-2 px-1 py-1.5 rounded-lg hover:bg-gray-50 group">
+                <input
+                  type="checkbox"
+                  checked={item.checked}
+                  onChange={() => toggleShoppingItem.mutate({ id: item.id, checked: !item.checked })}
+                  className="w-4 h-4 accent-emerald-500 shrink-0 cursor-pointer"
+                />
+                <span className={`text-[13px] flex-1 ${item.checked ? "line-through text-gray-300" : "text-gray-700"}`}>
+                  {item.name}
+                </span>
+                <button
+                  onClick={() => deleteShoppingItem.mutate(item.id)}
+                  className="text-gray-200 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 text-[16px] leading-none"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+            <input
+              value={newShoppingName}
+              onChange={(e) => setNewShoppingName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.nativeEvent.isComposing && newShoppingName.trim()) {
+                  addShoppingItem.mutate({ name: newShoppingName.trim(), qty: "" });
+                  setNewShoppingName("");
+                }
+              }}
+              placeholder="항목 추가..."
+              className="flex-1 text-[12px] border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+            />
+            <button
+              onClick={() => {
+                if (!newShoppingName.trim()) return;
+                addShoppingItem.mutate({ name: newShoppingName.trim(), qty: "" });
+                setNewShoppingName("");
+              }}
+              className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[13px] font-bold rounded-lg transition-colors"
+            >
+              +
+            </button>
+          </div>
+        </div>
+
+        {/* 메모 */}
+        <div className="bg-white rounded-2xl border border-gray-200 p-5 flex flex-col">
+          <h3 className="text-[14px] font-bold mb-3.5">📝 메모</h3>
+          <div className="relative flex-1">
+            <textarea
+              value={notesValue}
+              onChange={(e) => setNotesDraft(e.target.value)}
+              onBlur={handleNotesSave}
+              placeholder="메모를 입력하세요..."
+              className="w-full resize-none text-[13px] text-gray-700 border border-gray-200 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-gray-50 min-h-36 leading-relaxed block"
+            />
+            {updateNotes.isPending && (
+              <div className="absolute bottom-2.5 right-3 flex items-center gap-1.5 pointer-events-none">
+                <div className="w-3 h-3 border-2 border-emerald-400 border-t-transparent rounded-full animate-spin" />
+                <span className="text-[11px] text-emerald-400 font-medium">저장 중</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
