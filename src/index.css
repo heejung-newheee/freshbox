@@ -143,3 +143,10 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 }
+
+/* iOS Safari 자동 확대 방지: font-size < 16px 인 input에 포커스 시 zoom 발생 */
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  font-size: max(1rem, 16px) !important;
+}
