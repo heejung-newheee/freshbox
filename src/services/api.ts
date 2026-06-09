@@ -104,6 +104,18 @@ export const updateFoodItem = async (
   if (error) throw error;
 };
 
+export const moveItemZone = async (
+  id: string,
+  location: import("@/@types").Location,
+  zone: import("@/@types").Zone | undefined,
+): Promise<void> => {
+  const { error } = await supabase
+    .from("food_items")
+    .update({ location, zone: zone ?? null })
+    .eq("id", id);
+  if (error) throw error;
+};
+
 export const deleteFoodItem = async (id: string): Promise<void> => {
   const { error } = await supabase.from("food_items").delete().eq("id", id);
   if (error) throw error;

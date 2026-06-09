@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/services/api";
-import type { FoodItem } from "@/@types";
+import type { FoodItem, Location, Zone } from "@/@types";
 
 const QUERY_KEY = ["foodItems"] as const;
 
@@ -41,5 +41,25 @@ export function useUpdateItem(onSuccess?: () => void) {
       queryClient.invalidateQueries({ queryKey: QUERY_KEY });
       onSuccess?.();
     },
+  });
+}
+
+export function useMoveItemZone() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, location, zone }: { id: string; location: Location; zone: Zone | undefined }) =>
+      api.moveItemZone(id, location, zone),
+    onMutate: async ({ id, location, zone }) => {
+      await qc.cancelQueries({ queryKey: QUERY_KEY });
+      const prev = qc.getQueryData<FoodItem[]>(QUERY_KEY);
+      qc.setQueryData<FoodItem[]>(QUERY_KEY, (old = []) =>
+        old.map((item) => item.id === id ? { ...item, location, zone } : item),
+      );
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) qc.setQueryData(QUERY_KEY, ctx.prev);
+    },
+    onSettled: () => qc.invalidateQueries({ queryKey: QUERY_KEY }),
   });
 }
