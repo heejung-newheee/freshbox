@@ -241,7 +241,7 @@ export function FridgeMap({ items }: FridgeMapProps) {
   const sectionCount = 2 + (hasKimchi ? 1 : 0) + (hasRoomTemp ? 1 : 0);
   const cols =
     sectionCount >= 4
-      ? "grid-cols-2"
+      ? "grid-cols-1 md:grid-cols-2"
       : sectionCount === 3
         ? "grid-cols-1 md:grid-cols-3"
         : "grid-cols-1 md:grid-cols-2";
