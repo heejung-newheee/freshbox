@@ -3,7 +3,12 @@ import { CATEGORIES, CAT_COLORS } from "@/constants/constants";
 import { cn, ddayMeta, getDday } from "@/utils/utils";
 import { useState, useRef, useEffect } from "react";
 import { AddModal, EditModal } from "@/components/modal";
-import { useFoodItems, useConsumeItem, useAddItem, useUpdateItem } from "@/hooks/useFoodItems";
+import {
+  useFoodItems,
+  useConsumeItem,
+  useAddItem,
+  useUpdateItem,
+} from "@/hooks/useFoodItems";
 import { useAuthStore } from "@/stores/authStore";
 import { useFridgeSettings } from "@/hooks/useFridgeSettings";
 
@@ -21,10 +26,15 @@ export function Inventory() {
   const canEdit = role === "owner" || role === "editor";
   const { data: settings } = useFridgeSettings();
   const hasKimchi = settings?.has_kimchi_fridge ?? false;
+  const hasRoomTemp = settings?.has_room_temp ?? false;
   const [search, setSearch] = useState("");
-  const [location, setLocation] = useState<"" | "냉장" | "냉동" | "김치냉장고">("");
+  const [location, setLocation] = useState<
+    "" | "냉장" | "냉동" | "김치냉장고" | "실온"
+  >("");
   const [category, setCategory] = useState("전체");
-  const [sort, setSort] = useState<"expiry" | "newest" | "oldest" | "alpha">("expiry");
+  const [sort, setSort] = useState<"expiry" | "newest" | "oldest" | "alpha">(
+    "expiry",
+  );
   const [sortOpen, setSortOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
 
@@ -49,7 +59,8 @@ export function Inventory() {
   let filtered = active;
   if (search) filtered = filtered.filter((i) => i.name.includes(search));
   if (location) filtered = filtered.filter((i) => i.location === location);
-  if (category !== "전체") filtered = filtered.filter((i) => i.category === category);
+  if (category !== "전체")
+    filtered = filtered.filter((i) => i.category === category);
 
   filtered = [...filtered].sort((a, b) => {
     if (sort === "expiry") return a.expiry.localeCompare(b.expiry);
@@ -84,7 +95,14 @@ export function Inventory() {
                   : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50",
               )}
             >
-              <svg className="w-3.5 h-3.5 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+              <svg
+                className="w-3.5 h-3.5 shrink-0"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+              >
                 <line x1="2" y1="4" x2="14" y2="4" />
                 <line x1="4" y1="8" x2="12" y2="8" />
                 <line x1="6" y1="12" x2="10" y2="12" />
@@ -96,7 +114,10 @@ export function Inventory() {
                 {SORT_OPTIONS.map((o) => (
                   <button
                     key={o.value}
-                    onClick={() => { setSort(o.value); setSortOpen(false); }}
+                    onClick={() => {
+                      setSort(o.value);
+                      setSortOpen(false);
+                    }}
                     className={cn(
                       "w-full text-left px-4 py-2.5 text-[13px] transition-colors",
                       sort === o.value
@@ -110,7 +131,15 @@ export function Inventory() {
               </div>
             )}
           </div>
-          {(["", "냉장", "냉동", ...(hasKimchi ? (["김치냉장고"] as const) : [])] as Array<"" | "냉장" | "냉동" | "김치냉장고">).map((loc) => {
+          {(
+            [
+              "",
+              "냉장",
+              "냉동",
+              ...(hasKimchi ? (["김치냉장고"] as const) : []),
+              ...(hasRoomTemp ? (["실온"] as const) : []),
+            ] as Array<"" | "냉장" | "냉동" | "김치냉장고" | "실온">
+          ).map((loc) => {
             const label =
               loc === ""
                 ? "전체"
@@ -118,7 +147,9 @@ export function Inventory() {
                   ? "❄️ 냉장"
                   : loc === "냉동"
                     ? "🧊 냉동"
-                    : "🥬 김치냉장고";
+                    : loc === "김치냉장고"
+                      ? "🥬 김치냉장고"
+                      : "🏠 실온";
             return (
               <button
                 key={loc}
@@ -237,7 +268,11 @@ export function Inventory() {
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2 min-w-0">
                         <div
-                          className={cn("text-[14px] font-bold text-stone-900 truncate", canEdit && "cursor-pointer hover:text-emerald-600 transition-colors")}
+                          className={cn(
+                            "text-[14px] font-bold text-stone-900 truncate",
+                            canEdit &&
+                              "cursor-pointer hover:text-emerald-600 transition-colors",
+                          )}
                           onClick={() => canEdit && setEditingItem(item)}
                         >
                           {item.name}
@@ -323,7 +358,11 @@ export function Inventory() {
                     {/* 식품명 */}
                     <div className="hidden md:flex items-center gap-2">
                       <div
-                        className={cn("text-[13px] font-bold text-stone-900", canEdit && "cursor-pointer hover:text-emerald-600 transition-colors")}
+                        className={cn(
+                          "text-[13px] font-bold text-stone-900",
+                          canEdit &&
+                            "cursor-pointer hover:text-emerald-600 transition-colors",
+                        )}
                         onClick={() => canEdit && setEditingItem(item)}
                       >
                         {item.name}
@@ -394,7 +433,9 @@ export function Inventory() {
         <EditModal
           item={editingItem}
           onClose={() => setEditingItem(null)}
-          onSave={(id, formData) => updateMutation.mutate({ id, item: formData })}
+          onSave={(id, formData) =>
+            updateMutation.mutate({ id, item: formData })
+          }
         />
       )}
     </>

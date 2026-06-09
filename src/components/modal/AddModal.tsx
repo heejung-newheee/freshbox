@@ -22,15 +22,24 @@ interface FormState {
   unit: string;
 }
 
-const LOCATIONS: Location[] = ["냉장", "냉동", "김치냉장고"];
+const LOCATIONS: Location[] = ["냉장", "냉동", "김치냉장고", "실온"];
 const ZONES_BASE: Record<Location, Zone[]> = {
   냉장: ["상단", "중단", "하단", "야채", "도어"],
   냉동: ["상단", "중단", "하단"],
   김치냉장고: ["상단", "하단"],
+  실온: ["상단", "하단"],
 };
 
 const chevron = (
-  <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    className="w-3.5 h-3.5 text-gray-400 shrink-0"
+    viewBox="0 0 12 12"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <polyline points="2,4 6,8 10,4" />
   </svg>
 );
@@ -61,7 +70,8 @@ function DropdownField<T extends string>({
   }, [open]);
 
   const labelCls = "block text-[12px] font-semibold text-gray-600 mb-1.5";
-  const fieldCls = "w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[13px] text-gray-800 bg-gray-50 outline-none";
+  const fieldCls =
+    "w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[13px] text-gray-800 bg-gray-50 outline-none";
 
   return (
     <div ref={ref} className="relative">
@@ -80,7 +90,10 @@ function DropdownField<T extends string>({
             <button
               key={opt}
               type="button"
-              onClick={() => { onChange(opt); setOpen(false); }}
+              onClick={() => {
+                onChange(opt);
+                setOpen(false);
+              }}
               className={`w-full text-left px-3 py-2.5 text-[13px] hover:bg-gray-50 transition-colors ${
                 value === opt ? "font-bold text-emerald-600" : "text-gray-700"
               }`}
@@ -164,11 +177,17 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
   const { data: settings } = useFridgeSettings();
   const useZones = settings?.use_zones ?? false;
   const availableLocations = LOCATIONS.filter(
-    (l) => l !== "김치냉장고" || (settings?.has_kimchi_fridge ?? false),
+    (l) =>
+      (l !== "김치냉장고" || (settings?.has_kimchi_fridge ?? false)) &&
+      (l !== "실온" || (settings?.has_room_temp ?? false)),
   );
   const ZONES: Record<Location, Zone[]> = {
     ...ZONES_BASE,
-    냉동: (settings?.freezer_horizontal ?? false) ? ["좌", "우"] : ["상단", "중단", "하단"],
+    냉동:
+      (settings?.freezer_horizontal ?? false)
+        ? ["좌", "우"]
+        : ["상단", "중단", "하단"],
+    실온: ["상단", "하단"],
   };
 
   const inputCls =
@@ -221,7 +240,15 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
                   <button
                     key={item.name}
                     type="button"
-                    onClick={() => setForm((p) => ({ ...p, name: item.name, category: item.category as Category, location: item.location as Location, zone: item.zone as Zone }))}
+                    onClick={() =>
+                      setForm((p) => ({
+                        ...p,
+                        name: item.name,
+                        category: item.category as Category,
+                        location: item.location as Location,
+                        zone: item.zone as Zone,
+                      }))
+                    }
                     className="px-2.5 py-1 rounded-full text-[12px] bg-gray-100 text-gray-600 hover:bg-emerald-50 hover:text-emerald-700 transition-colors cursor-pointer"
                   >
                     {item.name}
@@ -240,7 +267,9 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
           />
 
           {/* 보관 위치 & 구역 */}
-          <div className={`grid gap-3 ${useZones ? "grid-cols-2" : "grid-cols-1"}`}>
+          <div
+            className={`grid gap-3 ${useZones ? "grid-cols-2" : "grid-cols-1"}`}
+          >
             <DropdownField
               label="보관 위치"
               value={form.location}
@@ -275,7 +304,9 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
                   const n = parseInt(e.target.value.replace(/\D/g, ""));
                   set("quantity", isNaN(n) ? 0 : n);
                 }}
-                onBlur={() => { if (!form.quantity) set("quantity", 1); }}
+                onBlur={() => {
+                  if (!form.quantity) set("quantity", 1);
+                }}
               />
             </div>
             <div>

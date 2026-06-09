@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { useFridgeSettings, useUpdateFridgeSettings } from "@/hooks/useFridgeSettings";
+import {
+  useFridgeSettings,
+  useUpdateFridgeSettings,
+} from "@/hooks/useFridgeSettings";
 
 function Toggle({
   checked,
@@ -16,7 +19,10 @@ function Toggle({
       role="switch"
       aria-checked={checked}
       disabled={disabled}
-      onClick={(e) => { e.stopPropagation(); onChange(!checked); }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onChange(!checked);
+      }}
       className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${
         checked ? "bg-emerald-500" : "bg-gray-200"
       } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
@@ -57,7 +63,9 @@ function LayoutPicker({
             onChange={() => onChange(o.v)}
             className="w-4 h-4 accent-emerald-500 cursor-pointer"
           />
-          <span className="text-[13px] font-medium text-stone-700">{o.label}</span>
+          <span className="text-[13px] font-medium text-stone-700">
+            {o.label}
+          </span>
         </label>
       ))}
     </div>
@@ -68,15 +76,32 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
   const { data: settings, isLoading } = useFridgeSettings();
   const update = useUpdateFridgeSettings();
   const [error, setError] = useState<string | null>(null);
-  const [overrides, setOverrides] = useState<Partial<{ use_zones: boolean; has_kimchi_fridge: boolean; freezer_horizontal: boolean }>>({});
+  const [overrides, setOverrides] = useState<
+    Partial<{
+      use_zones: boolean;
+      has_kimchi_fridge: boolean;
+      has_room_temp: boolean;
+      freezer_horizontal: boolean;
+    }>
+  >({});
 
   const current = {
     use_zones: overrides.use_zones ?? settings?.use_zones ?? false,
-    has_kimchi_fridge: overrides.has_kimchi_fridge ?? settings?.has_kimchi_fridge ?? false,
-    freezer_horizontal: overrides.freezer_horizontal ?? settings?.freezer_horizontal ?? false,
+    has_kimchi_fridge:
+      overrides.has_kimchi_fridge ?? settings?.has_kimchi_fridge ?? false,
+    has_room_temp: overrides.has_room_temp ?? settings?.has_room_temp ?? false,
+    freezer_horizontal:
+      overrides.freezer_horizontal ?? settings?.freezer_horizontal ?? false,
   };
 
-  const handleToggle = (key: "use_zones" | "has_kimchi_fridge" | "freezer_horizontal", value: boolean) => {
+  const handleToggle = (
+    key:
+      | "use_zones"
+      | "has_kimchi_fridge"
+      | "has_room_temp"
+      | "freezer_horizontal",
+    value: boolean,
+  ) => {
     setOverrides((p) => ({ ...p, [key]: value }));
     setError(null);
     update.mutate(
@@ -102,7 +127,9 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-[15px] font-extrabold text-stone-900">냉장고 설정</h2>
+          <h2 className="text-[15px] font-extrabold text-stone-900">
+            냉장고 설정
+          </h2>
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 text-[16px] transition-colors cursor-pointer"
@@ -114,19 +141,42 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
         {/* Body */}
         <div className="px-6 py-5 flex flex-col gap-5">
           {isLoading ? (
-            <div className="py-4 text-center text-[13px] text-gray-400">불러오는 중...</div>
+            <div className="py-4 text-center text-[13px] text-gray-400">
+              불러오는 중...
+            </div>
           ) : (
             <>
-              <div>
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">보관 위치</p>
+              <div className="flex flex-col gap-4">
+                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                  보관 위치
+                </p>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[14px] font-semibold text-stone-800">김치냉장고 사용</p>
-                    <p className="text-[12px] text-gray-400 mt-0.5">재료 추가 시 김치냉장고 선택 가능</p>
+                    <p className="text-[14px] font-semibold text-stone-800">
+                      김치냉장고 사용
+                    </p>
+                    <p className="text-[12px] text-gray-400 mt-0.5">
+                      재료 추가 시 김치냉장고 선택 가능
+                    </p>
                   </div>
                   <Toggle
                     checked={current.has_kimchi_fridge}
                     onChange={(v) => handleToggle("has_kimchi_fridge", v)}
+                    disabled={update.isPending}
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[14px] font-semibold text-stone-800">
+                      실온 보관 사용
+                    </p>
+                    <p className="text-[12px] text-gray-400 mt-0.5">
+                      상온 보관 식품 위치 선택 가능
+                    </p>
+                  </div>
+                  <Toggle
+                    checked={current.has_room_temp}
+                    onChange={(v) => handleToggle("has_room_temp", v)}
                     disabled={update.isPending}
                   />
                 </div>
@@ -135,10 +185,14 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
               <div className="h-px bg-gray-100" />
 
               <div className="flex flex-col gap-4">
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">구역 설정</p>
+                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                  구역 설정
+                </p>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[14px] font-semibold text-stone-800">구역(칸) 세분화</p>
+                    <p className="text-[14px] font-semibold text-stone-800">
+                      구역(칸) 세분화
+                    </p>
                     <p className="text-[12px] text-gray-400 mt-0.5">
                       {current.use_zones
                         ? "구역 선택 가능"
@@ -153,8 +207,10 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                 </div>
 
                 {current.use_zones && (
-                  <div>
-                    <p className="text-[12px] font-semibold text-gray-500 mb-2">냉동칸 구역 방향</p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-[14px] font-semibold text-stone-800">
+                      냉동칸 구역 방향
+                    </p>
                     <LayoutPicker
                       value={current.freezer_horizontal}
                       onChange={(v) => handleToggle("freezer_horizontal", v)}

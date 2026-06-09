@@ -1,4 +1,4 @@
-export type Location = "냉장" | "냉동" | "김치냉장고";
+export type Location = "냉장" | "냉동" | "김치냉장고" | "실온";
 export type Zone = "상단" | "중단" | "하단" | "야채" | "도어" | "좌" | "우";
 export type Category =
   | "채소/과일"
@@ -6,8 +6,9 @@ export type Category =
   | "해산물"
   | "유제품"
   | "두부/콩류"
-  | "양념"
   | "가공식품"
+  | "김치/반찬"
+  | "양념"
   | "기타";
 export type Role = "owner" | "editor" | "viewer";
 

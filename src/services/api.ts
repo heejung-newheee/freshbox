@@ -114,6 +114,7 @@ export const deleteFoodItem = async (id: string): Promise<void> => {
 export interface FridgeSettings {
   use_zones: boolean;
   has_kimchi_fridge: boolean;
+  has_room_temp: boolean;
   freezer_horizontal: boolean;
 }
 
@@ -121,13 +122,14 @@ export const getFridgeSettings = async (): Promise<FridgeSettings> => {
   const { fridgeId } = getStoreIds();
   const { data, error } = await supabase
     .from("profiles")
-    .select("use_zones, has_kimchi_fridge, freezer_horizontal")
+    .select("use_zones, has_kimchi_fridge, has_room_temp, freezer_horizontal")
     .eq("id", fridgeId)
     .single();
   if (error) throw error;
   return {
     use_zones: data.use_zones ?? false,
     has_kimchi_fridge: data.has_kimchi_fridge ?? false,
+    has_room_temp: data.has_room_temp ?? false,
     freezer_horizontal: data.freezer_horizontal ?? false,
   };
 };

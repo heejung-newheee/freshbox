@@ -17,7 +17,9 @@ export function CategoryBreakdown({ items }: CategoryBreakdownProps) {
 
   if (breakdown.length === 0) {
     return (
-      <div className="text-center py-6 text-gray-400 text-sm">식품이 없습니다.</div>
+      <div className="text-center py-6 text-gray-400 text-sm">
+        식품이 없습니다.
+      </div>
     );
   }
 
