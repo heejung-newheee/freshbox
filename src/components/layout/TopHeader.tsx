@@ -1,8 +1,7 @@
 import { useState } from "react";
 import type { FoodItem } from "../../@types/types";
-import { MEMBERS } from "../../constants/constants";
 import { getDday, getDdayMeta, cn } from "../../utils/utils";
-import { Avatar, DdayBadge, PrimaryButton } from "../ui/ui-components";
+import { DdayBadge, PrimaryButton } from "../ui/ui-components";
 import { IconBell, IconPlus } from "../ui/icons";
 
 const PAGE_TITLES: Record<string, string> = {
@@ -100,24 +99,6 @@ export function TopHeader({ tab, items, onAddClick, isMobile }: Props) {
         </PrimaryButton>
       )}
 
-      {/* Member avatars (desktop) */}
-      {!isMobile && (
-        <div className="flex items-center -space-x-1.5 ml-2">
-          {MEMBERS.slice(0, 3).map((m, i) => (
-            <div
-              key={m.id}
-              className={i === 0 ? "z-3" : i === 1 ? "z-2" : "z-1"}
-            >
-              <Avatar name={m.name} color={m.color} size="sm" />
-            </div>
-          ))}
-          {MEMBERS.length > 3 && (
-            <div className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold bg-stone-200 text-stone-600">
-              +{MEMBERS.length - 3}
-            </div>
-          )}
-        </div>
-      )}
     </header>
   );
 }
