@@ -85,13 +85,6 @@ VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=your_anon_key_here
 ```
 
-### 예시:
-
-```bash
-VITE_SUPABASE_URL=https://abcdefghijk.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlZmdoaWprIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NzA0NzIwMDAsImV4cCI6MTk4NjE0ODA4MH0.YOUR_KEY_HERE
-```
-
 ---
 
 ## 4️⃣ 개발 환경에서 테스트
