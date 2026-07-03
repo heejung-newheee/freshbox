@@ -305,7 +305,7 @@ export function FridgeMap({ items }: FridgeMapProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, {
-      activationConstraint: { delay: 200, tolerance: 8 },
+      activationConstraint: { delay: 3000, tolerance: 8 },
     }),
   );
 
