@@ -50,23 +50,22 @@ function LayoutPicker({
     { label: "좌·우", v: true },
   ];
   return (
-    <div className="flex gap-4">
+    <div
+      className={`flex gap-2 ${disabled ? "opacity-50 pointer-events-none" : ""}`}
+    >
       {opts.map((o) => (
-        <label
+        <button
           key={String(o.v)}
-          className={`flex items-center gap-2 cursor-pointer ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+          type="button"
+          onClick={() => onChange(o.v)}
+          className={`px-4 py-1.5 rounded-full text-[13px] font-semibold border transition-all cursor-pointer ${
+            value === o.v
+              ? "bg-emerald-500 text-white border-emerald-500"
+              : "bg-white text-gray-500 border-gray-200 hover:border-emerald-300 hover:text-emerald-600"
+          }`}
         >
-          <input
-            type="radio"
-            disabled={disabled}
-            checked={value === o.v}
-            onChange={() => onChange(o.v)}
-            className="w-4 h-4 accent-emerald-500 cursor-pointer"
-          />
-          <span className="text-[13px] font-medium text-stone-700">
-            {o.label}
-          </span>
-        </label>
+          {o.label}
+        </button>
       ))}
     </div>
   );
