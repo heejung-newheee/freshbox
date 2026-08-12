@@ -7,7 +7,11 @@ import {
 } from "@/constants/constants";
 import { cn, ddayMeta, getDday } from "@/utils/utils";
 import { useFridgeSettings } from "@/hooks/useFridgeSettings";
-import { useConsumeItem, useMoveItemZone, useUpdateItem } from "@/hooks/useFoodItems";
+import {
+  useConsumeItem,
+  useMoveItemZone,
+  useUpdateItem,
+} from "@/hooks/useFoodItems";
 import { useState } from "react";
 import { EditModal } from "@/components/modal";
 import {
@@ -62,9 +66,12 @@ function ItemActionPopup({
       >
         <div className="flex items-start justify-between mb-3">
           <div>
-            <div className="text-[16px] font-black text-stone-900">{item.name}</div>
+            <div className="text-[16px] font-black text-stone-900">
+              {item.name}
+            </div>
             <div className="text-[12px] text-gray-400 mt-0.5">
-              {item.location}{item.zone ? ` · ${item.zone}칸` : ""}
+              {item.location}
+              {item.zone ? ` · ${item.zone}칸` : ""}
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -85,14 +92,20 @@ function ItemActionPopup({
 
         <div className="flex flex-col gap-2 mt-4">
           <button
-            onClick={() => { onConsume(item.id); onClose(); }}
-            className="w-full py-2.5 bg-emerald-500 text-white rounded-xl text-[14px] font-bold hover:bg-emerald-600 transition-colors"
+            onClick={() => {
+              onConsume(item.id);
+              onClose();
+            }}
+            className="w-full py-2.5 bg-emerald-500 text-white rounded-lg text-[14px] font-bold hover:bg-emerald-600 transition-colors"
           >
             소비 완료 ✓
           </button>
           <button
-            onClick={() => { onEdit(item); onClose(); }}
-            className="w-full py-2.5 bg-gray-100 text-gray-700 rounded-xl text-[14px] font-semibold hover:bg-gray-200 transition-colors"
+            onClick={() => {
+              onEdit(item);
+              onClose();
+            }}
+            className="w-full py-2.5 bg-gray-100 text-gray-700 rounded-lg text-[14px] font-semibold hover:bg-gray-200 transition-colors"
           >
             수정하기
           </button>
@@ -131,7 +144,13 @@ function ItemChip({
   );
 }
 
-function DraggableChip({ item, onClick }: { item: FoodItem; onClick: (item: FoodItem) => void }) {
+function DraggableChip({
+  item,
+  onClick,
+}: {
+  item: FoodItem;
+  onClick: (item: FoodItem) => void;
+}) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
     id: item.id,
   });
@@ -174,7 +193,7 @@ function DroppableZone({
       <div
         ref={setNodeRef}
         className={cn(
-          "rounded-xl px-3 py-2.5 min-h-11 flex flex-wrap gap-1.5 items-center transition-colors border",
+          "rounded-lg px-3 py-2.5 min-h-11 flex flex-wrap gap-1.5 items-center transition-colors border",
           isOver
             ? `${accent} border-emerald-300`
             : "bg-gray-50 border-transparent",
@@ -183,7 +202,9 @@ function DroppableZone({
         {items.length === 0 ? (
           <span className="text-xs text-gray-300">{empty}</span>
         ) : (
-          items.map((item) => <DraggableChip key={item.id} item={item} onClick={onChipClick} />)
+          items.map((item) => (
+            <DraggableChip key={item.id} item={item} onClick={onChipClick} />
+          ))
         )}
       </div>
     </div>

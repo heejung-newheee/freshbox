@@ -66,7 +66,15 @@ function RoleDropdown({
         )}
       >
         {value === "editor" ? "편집자" : "열람자"}
-        <svg className="w-2.5 h-2.5 shrink-0" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          className="w-2.5 h-2.5 shrink-0"
+          viewBox="0 0 12 12"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <polyline points="2,4 6,8 10,4" />
         </svg>
       </button>
@@ -76,7 +84,10 @@ function RoleDropdown({
             <button
               key={r}
               type="button"
-              onClick={() => { onChange(r); setOpen(false); }}
+              onClick={() => {
+                onChange(r);
+                setOpen(false);
+              }}
               className={cn(
                 "w-full text-left px-3.5 py-2 text-[12px] hover:bg-gray-50 transition-colors whitespace-nowrap",
                 value === r ? "font-bold text-emerald-600" : "text-gray-700",
@@ -191,7 +202,7 @@ export function Share() {
       <div className="flex flex-col gap-5">
         {/* Invite */}
         {canEdit && (
-          <div className="bg-white border border-gray-200 rounded-2xl p-6">
+          <div className="bg-white border border-gray-200 rounded-xl px-3 py-3.5 md:px-5 md:py-4">
             <h3 className="text-[15px] font-extrabold text-stone-900 mb-1.5">
               멤버 초대
             </h3>
@@ -202,34 +213,52 @@ export function Share() {
               <div className="flex flex-col md:flex-row gap-2.5">
                 <input
                   type="email"
-                  placeholder="이메일 주소 입력..."
+                  placeholder="이메일 주소 입력"
                   value={inviteEmail}
                   onChange={(e) => {
                     setInviteEmail(e.target.value);
                     setInviteError(null);
                   }}
                   onKeyDown={(e) => e.key === "Enter" && handleInvite()}
-                  className="flex-1 px-3.5 py-2.5 border border-gray-200 rounded-xl text-[13px] outline-none text-gray-700 focus:border-emerald-400 transition-colors"
+                  className="flex-1 px-3.5 py-2.5 border border-gray-200 rounded-lg text-[13px] outline-none text-gray-700 focus:border-emerald-400 transition-colors"
                 />
-                <div ref={roleDropdownRef} className="relative shrink-0">
+                <div
+                  ref={roleDropdownRef}
+                  className="relative w-full md:w-auto shrink-0"
+                >
                   <button
                     type="button"
                     onClick={() => setRoleDropdownOpen((o) => !o)}
-                    className="flex items-center gap-2 px-3.5 py-2.5 border border-gray-200 rounded-xl text-[13px] bg-white text-gray-700 cursor-pointer outline-none whitespace-nowrap"
+                    className="flex items-center justify-between w-full md:w-auto gap-2 h-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-[13px] bg-white text-gray-700 cursor-pointer outline-none whitespace-nowrap"
                   >
                     {selectedRole === "editor" ? "편집자" : "열람자"}
-                    <svg className="w-3 h-3 text-gray-400 shrink-0" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="2,4 6,8 10,4"/></svg>
+                    <svg
+                      className="w-3 h-3 text-gray-400 shrink-0"
+                      viewBox="0 0 12 12"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <polyline points="2,4 6,8 10,4" />
+                    </svg>
                   </button>
                   {roleDropdownOpen && (
-                    <div className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-10 overflow-hidden min-w-full">
+                    <div className="absolute left-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden min-w-full">
                       {(["editor", "viewer"] as const).map((r) => (
                         <button
                           key={r}
                           type="button"
-                          onClick={() => { setSelectedRole(r); setRoleDropdownOpen(false); }}
+                          onClick={() => {
+                            setSelectedRole(r);
+                            setRoleDropdownOpen(false);
+                          }}
                           className={cn(
                             "w-full text-left px-4 py-2.5 text-[13px] hover:bg-gray-50 transition-colors",
-                            selectedRole === r ? "font-bold text-emerald-600" : "text-gray-700",
+                            selectedRole === r
+                              ? "font-bold text-emerald-600"
+                              : "text-gray-700",
                           )}
                         >
                           {r === "editor" ? "편집자" : "열람자"}
@@ -241,7 +270,7 @@ export function Share() {
                 <button
                   onClick={handleInvite}
                   disabled={inviteMutation.isPending || !inviteEmail.trim()}
-                  className="px-5 py-2.5 bg-emerald-500 text-white border-none rounded-xl text-[13px] font-bold cursor-pointer hover:bg-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed transition-colors shrink-0 whitespace-nowrap"
+                  className="w-full md:w-auto px-5 py-2.5 bg-emerald-500 text-white border border-emerald-500 rounded-lg text-[13px] font-bold cursor-pointer hover:bg-emerald-600 hover:border-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed transition-colors shrink-0 whitespace-nowrap"
                 >
                   {inviteMutation.isPending ? "초대 중..." : "초대 보내기"}
                 </button>
@@ -261,7 +290,7 @@ export function Share() {
 
         {/* Role guide */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-          <div className="bg-white border border-emerald-100 rounded-2xl px-3 py-3.5 md:px-5 md:py-4">
+          <div className="bg-white border border-emerald-100 rounded-xl px-3 py-3.5 md:px-5 md:py-4">
             <span className="inline-block px-2.5 py-0.5 rounded-full text-[12px] font-bold mb-2.5 bg-emerald-100 text-emerald-700">
               소유자
             </span>
@@ -275,7 +304,7 @@ export function Share() {
             return (
               <div
                 key={role}
-                className={`bg-white border ${s.card} rounded-2xl px-3 py-3.5 md:px-5 md:py-4`}
+                className={`bg-white border ${s.card} rounded-xl px-3 py-3.5 md:px-5 md:py-4`}
               >
                 <span
                   className={`inline-block px-2.5 py-0.5 rounded-full text-[12px] font-bold mb-2.5 ${s.badge}`}
@@ -291,7 +320,7 @@ export function Share() {
         </div>
 
         {/* Current Members */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-6">
+        <div className="bg-white border border-gray-200 rounded-xl px-3 py-3.5 md:px-5 md:py-4">
           <h3 className="text-[15px] font-extrabold text-stone-900 mb-4">
             현재 멤버 ({1 + members.length}명)
           </h3>
@@ -366,7 +395,9 @@ export function Share() {
                     {canEdit && !isMe ? (
                       <RoleDropdown
                         value={member.role}
-                        onChange={(r) => updateRoleMutation.mutate({ id: member.id, role: r })}
+                        onChange={(r) =>
+                          updateRoleMutation.mutate({ id: member.id, role: r })
+                        }
                         disabled={updateRoleMutation.isPending}
                         badgeCls={s.badge}
                       />

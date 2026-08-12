@@ -503,7 +503,7 @@ export function MealPlanner() {
             )}
           </div>
           {/* 노트 */}
-          <div className="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col">
+          <div className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col">
             <h3 className="text-[14px] font-bold mb-1">📝 메모</h3>
             <p className="text-[12px] text-gray-400 mb-3.5">
               사야 할 것, 식단 관련 메모
