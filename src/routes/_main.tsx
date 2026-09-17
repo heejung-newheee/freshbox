@@ -46,7 +46,6 @@ export default function MainLayout() {
   const handleAddItem = async (formData: Omit<FoodItem, "id" | "consumed">) => {
     try {
       await addItemMutation.mutateAsync(formData);
-      setShowAddModal(false);
     } catch {
       alert("재료 추가에 실패했습니다. 다시 시도해주세요.");
     }

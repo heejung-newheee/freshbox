@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import * as api from "@/services/api";
 import { useFridgeSettings } from "@/hooks/useFridgeSettings";
+import { scanReceipt, type ScannedItem } from "@/services/receiptOcr";
 
 interface AddModalProps {
   onClose: () => void;
@@ -41,6 +42,21 @@ const chevron = (
     strokeLinejoin="round"
   >
     <polyline points="2,4 6,8 10,4" />
+  </svg>
+);
+
+const camera = (
+  <svg
+    className="w-4 h-4 shrink-0"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8z" />
+    <circle cx="12" cy="12.5" r="3.5" />
   </svg>
 );
 
@@ -128,8 +144,56 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
     unit: "개",
   });
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [scanning, setScanning] = useState(false);
+  const [queue, setQueue] = useState<ScannedItem[]>([]);
+  const [queueIndex, setQueueIndex] = useState(0);
+
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((p) => ({ ...p, [k]: v }));
+
+  // 영수증에서 읽은 값은 식품명·수량·단위·카테고리만 채우고
+  // 보관 위치와 유통기한은 사용자가 고른 값을 다음 품목까지 그대로 유지한다
+  const applyScanned = (item: ScannedItem) =>
+    setForm((p) => ({
+      ...p,
+      name: item.name,
+      quantity: item.quantity,
+      unit: item.unit,
+      category: item.category,
+    }));
+
+  const handleScan = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    setScanning(true);
+    try {
+      const scanned = await scanReceipt(file);
+      if (scanned.length === 0) {
+        alert("영수증에서 재료를 찾지 못했습니다. 더 밝은 곳에서 다시 찍어주세요");
+        return;
+      }
+      setQueue(scanned);
+      setQueueIndex(0);
+      applyScanned(scanned[0]);
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "영수증 인식에 실패했습니다");
+    } finally {
+      setScanning(false);
+    }
+  };
+
+  const goNext = () => {
+    const next = queueIndex + 1;
+    if (next >= queue.length) {
+      onClose();
+      return;
+    }
+    setQueueIndex(next);
+    applyScanned(queue[next]);
+  };
 
   const handleLocationChange = (loc: Location) => {
     setForm((p) => ({ ...p, location: loc, zone: ZONES[loc][0] }));
@@ -150,6 +214,10 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
       quantity: form.quantity,
       unit: form.unit,
     });
+    if (queue.length > 0) {
+      goNext();
+      return;
+    }
     setForm({
       name: "",
       category: "채소/과일",
@@ -210,7 +278,9 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
               새 재료 추가
             </div>
             <div className="text-[12px] text-gray-400 mt-1">
-              냉장고에 보관할 식품을 등록하세요
+              {queue.length > 0
+                ? `영수증에서 ${queue.length}개 인식 · ${queueIndex + 1}번째 확인 중`
+                : "냉장고에 보관할 식품을 등록하세요"}
             </div>
           </div>
           <button
@@ -220,6 +290,35 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
             <XIcon s={14} c="#6b7280" />
           </button>
         </div>
+
+        {/* 영수증 스캔 */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleScan}
+          className="hidden"
+        />
+        {queue.length === 0 && (
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={scanning}
+            className="w-full mb-4 py-2.5 rounded-lg border border-dashed border-emerald-300 bg-emerald-50 text-[13px] font-semibold text-emerald-700 flex items-center justify-center gap-2 hover:bg-emerald-100 transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-default"
+          >
+            {scanning ? (
+              <>
+                <span className="w-3.5 h-3.5 border-2 border-emerald-500 border-t-transparent rounded-full animate-spin" />
+                영수증 인식 중...
+              </>
+            ) : (
+              <>
+                {camera}
+                영수증 찍어서 불러오기
+              </>
+            )}
+          </button>
+        )}
 
         {/* Form */}
         <div className="flex flex-col gap-3.5">
@@ -347,16 +446,20 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
         {/* Actions */}
         <div className="flex gap-3 mt-7">
           <button
-            onClick={onClose}
+            onClick={queue.length > 0 ? goNext : onClose}
             className="flex-1 py-2.5 rounded-md border border-gray-200 bg-gray-50 cursor-pointer text-[13px] font-semibold text-gray-500 hover:bg-gray-100 transition-colors"
           >
-            취소
+            {queue.length > 0 ? "건너뛰기" : "취소"}
           </button>
           <button
             onClick={handleAdd}
             className="flex-[1.5] py-2.5 rounded-md border-none bg-emerald-500 cursor-pointer text-[13px] font-semibold text-white hover:bg-emerald-600 transition-colors"
           >
-            재료 추가하기
+            {queue.length === 0
+              ? "재료 추가하기"
+              : queueIndex + 1 < queue.length
+                ? "저장하고 다음"
+                : "저장하고 완료"}
           </button>
         </div>
       </div>

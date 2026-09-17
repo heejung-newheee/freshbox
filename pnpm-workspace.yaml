@@ -1,0 +1,5 @@
+allowBuilds:
+  # vite가 쓰는 번들러. 플랫폼별 네이티브 바이너리를 설치한다
+  esbuild: true
+  # shadcn CLI가 딸려 오며 끌고 오는 목 서버. 이 프로젝트에서는 쓰지 않는다
+  msw: false
