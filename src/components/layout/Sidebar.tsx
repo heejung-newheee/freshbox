@@ -146,7 +146,7 @@ export function Sidebar({ itemCount, compact = false, onSettingsClick }: Props) 
               </div>
               <div className="text-[11px] text-slate-400 mt-0.5">{roleLabel}</div>
             </div>
-            {role === "owner" && (
+            {onSettingsClick && (
               <button
                 onClick={onSettingsClick}
                 title="설정"

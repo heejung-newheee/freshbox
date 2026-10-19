@@ -1,40 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   useFridgeSettings,
   useUpdateFridgeSettings,
 } from "@/hooks/useFridgeSettings";
-
-function Toggle({
-  checked,
-  onChange,
-  disabled,
-}: {
-  checked: boolean;
-  onChange: (v: boolean) => void;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-checked={checked}
-      disabled={disabled}
-      onClick={(e) => {
-        e.stopPropagation();
-        onChange(!checked);
-      }}
-      className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${
-        checked ? "bg-emerald-500" : "bg-gray-200"
-      } ${disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-    >
-      <span
-        className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
-          checked ? "translate-x-5" : "translate-x-0"
-        }`}
-      />
-    </button>
-  );
-}
+import { Toggle } from "@/components/common";
+import { usePushSetting } from "@/hooks/useNotifications";
+import { useAuthStore } from "@/stores/authStore";
 
 function LayoutPicker({
   value,
@@ -73,6 +45,9 @@ function LayoutPicker({
 
 export function SettingsModal({ onClose }: { onClose: () => void }) {
   const { data: settings, isLoading } = useFridgeSettings();
+  const push = usePushSetting();
+  const { user, role, signOut } = useAuthStore();
+  const navigate = useNavigate();
   const update = useUpdateFridgeSettings();
   const [error, setError] = useState<string | null>(null);
   const [overrides, setOverrides] = useState<
@@ -115,6 +90,11 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
     );
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/login", { replace: true });
+  };
+
   return (
     <div
       onClick={onClose}
@@ -122,12 +102,12 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-2xl w-full max-w-sm shadow-2xl"
+        className="bg-white rounded-2xl w-full max-w-sm shadow-2xl max-h-[90vh] flex flex-col"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
           <h2 className="text-[15px] font-extrabold text-stone-900">
-            냉장고 설정
+            설정
           </h2>
           <button
             onClick={onClose}
@@ -138,13 +118,63 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5 flex flex-col gap-5">
-          {isLoading ? (
+        <div className="px-6 py-5 flex flex-col gap-5 overflow-y-auto">
+          {/* 계정 */}
+          <div className="flex flex-col gap-4">
+            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+              계정
+            </p>
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[14px] font-semibold text-stone-800 truncate">
+                {user?.email}
+              </p>
+              <button
+                onClick={handleSignOut}
+                className="shrink-0 text-[12px] font-semibold text-red-500 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
+              >
+                로그아웃
+              </button>
+            </div>
+          </div>
+
+          <div className="h-px bg-gray-100" />
+
+          {/* 알림 */}
+          <div className="flex flex-col gap-4">
+            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+              알림
+            </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[14px] font-semibold text-stone-800">
+                  푸시 알림 받기
+                </p>
+                <p className="text-[12px] text-gray-400 mt-0.5">
+                  {push.supported
+                    ? "매일 아침 유통기한 임박 식품 알림"
+                    : "이 브라우저는 푸시 알림을 지원하지 않아요"}
+                </p>
+              </div>
+              {push.loading ? (
+                <div className="w-11 h-6 shrink-0" />
+              ) : (
+                <Toggle
+                  checked={push.enabled}
+                  onChange={push.toggle}
+                  disabled={!push.supported || push.pending}
+                />
+              )}
+            </div>
+          </div>
+
+          {role === "owner" && (isLoading ? (
             <div className="py-4 text-center text-[13px] text-gray-400">
               불러오는 중...
             </div>
           ) : (
             <>
+              <div className="h-px bg-gray-100" />
+
               <div className="flex flex-col gap-4">
                 <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
                   보관 위치
@@ -223,7 +253,7 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                 <p className="text-[12px] text-red-500 text-center">{error}</p>
               )}
             </>
-          )}
+          ))}
         </div>
       </div>
     </div>

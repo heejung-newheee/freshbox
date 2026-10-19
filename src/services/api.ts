@@ -497,3 +497,49 @@ export const deleteMealPlan = async (
     .eq("meal_type", mealType);
   if (error) throw error;
 };
+
+// ─── Notifications ────────────────────────────────────────────────────────────
+
+export interface AppNotification {
+  id: string;
+  stage: "d3" | "d1" | "d0";
+  created_at: string;
+  food_item: { name: string; expiry: string };
+}
+
+// 임박 식품 알림 생성 후 미확인 알림 조회
+export const getNotifications = async (): Promise<AppNotification[]> => {
+  await supabase.rpc("generate_my_notifications");
+  const { data, error } = await supabase
+    .from("notifications")
+    .select("id, stage, created_at, food_item:food_items!inner(name, expiry, consumed)")
+    .is("read_at", null)
+    .eq("food_item.consumed", false)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data || []) as unknown as AppNotification[];
+};
+
+export const markNotificationsRead = async (ids: string[]): Promise<void> => {
+  const { error } = await supabase
+    .from("notifications")
+    .update({ read_at: new Date().toISOString() })
+    .in("id", ids);
+  if (error) throw error;
+};
+
+// ─── Push Subscriptions ───────────────────────────────────────────────────────
+
+export const savePushSubscription = async (sub: PushSubscriptionJSON): Promise<void> => {
+  const { userId } = getStoreIds();
+  const { error } = await supabase.from("push_subscriptions").upsert(
+    { user_id: userId, endpoint: sub.endpoint, p256dh: sub.keys!.p256dh, auth: sub.keys!.auth },
+    { onConflict: "endpoint" },
+  );
+  if (error) throw error;
+};
+
+export const deletePushSubscription = async (endpoint: string): Promise<void> => {
+  const { error } = await supabase.from("push_subscriptions").delete().eq("endpoint", endpoint);
+  if (error) throw error;
+};

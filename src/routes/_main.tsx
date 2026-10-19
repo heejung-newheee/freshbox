@@ -77,7 +77,6 @@ export default function MainLayout() {
       >
         <Header
           title={title}
-          urgentCount={urgentCount}
           onAddItem={canEdit ? () => setShowAddModal(true) : undefined}
           onSettingsClick={() => setShowSettings(true)}
         />

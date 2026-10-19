@@ -30,6 +30,11 @@ supabase.auth.onAuthStateChange((_event, session) => {
 // 앱 시작 시 세션 + fridge_id 한번에 로드
 useAuthStore.getState().checkUser();
 
+// 웹 푸시 수신용 서비스 워커
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/sw.js");
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
