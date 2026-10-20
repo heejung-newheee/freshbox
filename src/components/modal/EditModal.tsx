@@ -164,7 +164,7 @@ export function EditModal({ item, onClose, onSave }: EditModalProps) {
   const labelCls = "block text-[12px] font-semibold text-gray-600 mb-1.5";
 
   return (
-    <div
+    <div data-modal
       onClick={onClose}
       className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[999]"
     >

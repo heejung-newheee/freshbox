@@ -196,6 +196,7 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
 
   return (
     <div
+      data-modal
       onClick={onClose}
       className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[999]"
     >
@@ -206,9 +207,7 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
         {/* Header */}
         <div className="flex justify-between items-start mb-6">
           <div>
-            <div className="text-base font-bold text-gray-800">
-              새 재료 추가
-            </div>
+            <div className="text-base font-bold text-gray-800">재료 추가</div>
             <div className="text-[12px] text-gray-400 mt-1">
               냉장고에 보관할 식품을 등록하세요
             </div>
@@ -354,7 +353,7 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
           </button>
           <button
             onClick={handleAdd}
-            className="flex-[1.5] py-2.5 rounded-md border-none bg-emerald-500 cursor-pointer text-[13px] font-semibold text-white hover:bg-emerald-600 transition-colors"
+            className="flex-1 py-2.5 rounded-md border-none bg-emerald-500 cursor-pointer text-[13px] font-semibold text-white hover:bg-emerald-600 transition-colors"
           >
             재료 추가하기
           </button>

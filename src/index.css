@@ -131,6 +131,11 @@
     cursor: pointer;
   }
 
+  /* 모달(data-modal)이 떠 있는 동안 뒷배경 스크롤 잠금 */
+  html:has([data-modal]) {
+    overflow: hidden;
+  }
+
   html {
     font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
     scroll-behavior: smooth;

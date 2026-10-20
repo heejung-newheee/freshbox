@@ -96,7 +96,7 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div
+    <div data-modal
       onClick={onClose}
       className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[999] p-4"
     >

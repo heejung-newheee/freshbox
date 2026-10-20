@@ -56,7 +56,7 @@ function ItemActionPopup({
   const d = getDday(item.expiry);
   const m = ddayMeta(d);
   return (
-    <div
+    <div data-modal
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
       onClick={onClose}
     >

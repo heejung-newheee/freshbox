@@ -41,7 +41,8 @@ export function Sidebar({
   const role = useAuthStore((s) => s.role);
   const { pathname } = useLocation();
   const displayName = getDisplayName(user);
-  const avatarUrl: string | undefined = user?.user_metadata?.avatar_url || undefined;
+  const avatarUrl: string | undefined =
+    user?.user_metadata?.avatar_url || undefined;
   const initial = displayName[0]?.toUpperCase() ?? "?";
   const roleLabel = role ? ROLE_META[role]?.label : "멤버";
 
@@ -158,9 +159,7 @@ export function Sidebar({
               <div className="text-[13px] font-bold text-slate-700 truncate">
                 {displayName}
               </div>
-              <div className="text-[11px] text-slate-400 mt-0.5">
-                {roleLabel}
-              </div>
+              <div className="text-[11px] text-slate-400">{roleLabel}</div>
             </div>
             {onSettingsClick && (
               <button
