@@ -46,7 +46,7 @@ export function TopHeader({ tab, items, onAddClick, isMobile }: Props) {
 
         {/* Notification dropdown */}
         {notifOpen && (
-          <div className="absolute right-0 top-12 w-80 bg-white border border-stone-100 rounded-2xl shadow-lg overflow-hidden z-50">
+          <div className="absolute right-0 top-12 w-80 bg-white border border-stone-100 rounded-xl shadow-lg overflow-hidden z-50">
             <div className="px-4 py-3 border-b border-stone-100 bg-stone-50">
               <p className="text-sm font-bold text-stone-800">알림</p>
             </div>

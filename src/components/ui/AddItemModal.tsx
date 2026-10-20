@@ -54,7 +54,7 @@ export function AddItemModal({ onClose, onAdd, isMobile }: Props) {
         className="
           bg-white
           w-full md:w-[440px] md:max-w-full
-          rounded-t-3xl md:rounded-2xl
+          rounded-t-3xl md:rounded-xl
           p-6
           shadow-2xl
           max-h-[90vh]

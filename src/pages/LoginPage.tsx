@@ -33,7 +33,7 @@ export function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-200 mb-3">
+          <div className="w-14 h-14 rounded-xl bg-linear-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-200 mb-3">
             <IconLeaf size={28} className="text-white" />
           </div>
           <h1 className="text-2xl font-black text-stone-900 tracking-tight">FreshBox</h1>
@@ -41,7 +41,7 @@ export function LoginPage() {
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-7 shadow-sm">
+        <div className="bg-white rounded-xl border border-gray-200 p-7 shadow-sm">
           <h2 className="text-[18px] font-bold text-stone-900 mb-1">로그인</h2>
           <p className="text-[12px] text-gray-400 mb-6">계정에 로그인하여 시작하세요</p>
 

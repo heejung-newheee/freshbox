@@ -31,7 +31,11 @@ interface Props {
   onSettingsClick?: () => void;
 }
 
-export function Sidebar({ itemCount, compact = false, onSettingsClick }: Props) {
+export function Sidebar({
+  itemCount,
+  compact = false,
+  onSettingsClick,
+}: Props) {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const role = useAuthStore((s) => s.role);
@@ -48,7 +52,7 @@ export function Sidebar({ itemCount, compact = false, onSettingsClick }: Props) 
     >
       {/* Logo */}
       <div
-        className={cn("pt-5 pb-4", compact ? "px-3" : "px-5")}
+        className={cn("pt-5 pb-4 cursor-pointer", compact ? "px-3" : "px-5")}
         onClick={() => navigate("/")}
       >
         <div
@@ -144,7 +148,9 @@ export function Sidebar({ itemCount, compact = false, onSettingsClick }: Props) 
               <div className="text-[13px] font-bold text-slate-700 truncate">
                 {user?.email ?? ""}
               </div>
-              <div className="text-[11px] text-slate-400 mt-0.5">{roleLabel}</div>
+              <div className="text-[11px] text-slate-400 mt-0.5">
+                {roleLabel}
+              </div>
             </div>
             {onSettingsClick && (
               <button

@@ -61,7 +61,7 @@ function ItemActionPopup({
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-2xl shadow-xl p-5 w-72 mx-4"
+        className="bg-white rounded-xl shadow-xl p-5 w-72 mx-4"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between mb-3">
@@ -235,7 +235,7 @@ function FridgeSection({
   );
 
   return (
-    <div className="bg-white border border-gray-200 rounded-2xl p-5">
+    <div className="bg-white border border-gray-200 rounded-xl p-5">
       <div className="flex items-center gap-3 mb-5">
         <div
           className={`w-11 h-11 rounded-xl ${iconBg} flex items-center justify-center text-[22px]`}

@@ -30,7 +30,7 @@ export function BottomTabBar() {
             />
             <span
               className={cn(
-                "text-[10px] font-semibold transition-colors",
+                "text-[11px] font-semibold transition-colors",
                 active ? "text-emerald-500" : "text-stone-400",
               )}
             >

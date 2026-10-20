@@ -42,7 +42,7 @@ export function SignUpPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-200 mb-3">
+          <div className="w-14 h-14 rounded-xl bg-linear-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-200 mb-3">
             <IconLeaf size={28} className="text-white" />
           </div>
           <h1 className="text-2xl font-black text-stone-900 tracking-tight">
@@ -53,7 +53,7 @@ export function SignUpPage() {
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-200 p-7 shadow-sm">
+        <div className="bg-white rounded-xl border border-gray-200 p-7 shadow-sm">
           {done ? (
             <div className="text-center py-4">
               <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-4 text-2xl">

@@ -1,9 +1,6 @@
 import { CATEGORIES, CAT_HEX } from "@/constants/constants";
 import { useConsumeItem, useFoodItems } from "@/hooks/useFoodItems";
-import * as api from "@/services/api";
-import { useAuthStore } from "@/stores/authStore";
 import { ddayMeta, getDday } from "@/utils/utils";
-import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { useMealNotes, useUpdateMealNotes } from "@/hooks/useMealNotes";
 import {
@@ -14,21 +11,11 @@ import {
 } from "@/hooks/useShoppingItems";
 import { useState } from "react";
 
-const AVATAR_COLORS = [
-  "#10b981", "#3b82f6", "#f59e0b", "#ef4444",
-  "#8b5cf6", "#ec4899", "#06b6d4", "#f97316",
-];
-
 export function Dashboard() {
   const { items } = useFoodItems();
   const consumeMutation = useConsumeItem();
   const onConsume = (id: string) => consumeMutation.mutate(id);
   const navigate = useNavigate();
-  const user = useAuthStore((s) => s.user);
-  const { data: members = [] } = useQuery({
-    queryKey: ["fridgeMembers"],
-    queryFn: api.getFridgeMembers,
-  });
   const { data: notes = "" } = useMealNotes();
   const updateNotes = useUpdateMealNotes();
   const [notesDraft, setNotesDraft] = useState<string | null>(null);
@@ -79,7 +66,7 @@ export function Dashboard() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2.5 md:gap-3.5">
         {stats.map((s) => (
-          <div key={s.label} className="bg-white border border-gray-200 rounded-2xl p-3.5 md:p-5 flex md:block items-center gap-3">
+          <div key={s.label} className="bg-white border border-gray-200 rounded-xl p-3.5 md:p-5 flex md:block items-center gap-3">
             <div className={`w-9 h-9 md:w-[38px] md:h-[38px] rounded-xl ${s.bg} flex items-center justify-center text-base md:text-lg md:mb-3 shrink-0`}>
               {s.icon}
             </div>
@@ -95,7 +82,7 @@ export function Dashboard() {
       {/* Grid: urgent + expired */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Urgent Foods */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5">
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-[14px] font-bold">🔥 임박 식품</h3>
             {urgentItems.length > 0 && (
@@ -139,7 +126,7 @@ export function Dashboard() {
         </div>
 
         {/* Expired Foods */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5">
+        <div className="bg-white rounded-xl border border-gray-200 p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-[14px] font-bold">🗑️ 만료 식품</h3>
             {expiredItems.length > 0 && (
@@ -186,7 +173,7 @@ export function Dashboard() {
       {/* Shopping + Notes */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* 장보기 목록 */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 flex flex-col">
+        <div className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col">
           <div className="flex items-center justify-between mb-3.5">
             <h3 className="text-[14px] font-bold">🛒 장보기 목록</h3>
             {shopping.filter((s) => !s.checked).length > 0 && (
@@ -245,7 +232,7 @@ export function Dashboard() {
         </div>
 
         {/* 메모 */}
-        <div className="bg-white rounded-2xl border border-gray-200 p-5 flex flex-col">
+        <div className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col">
           <h3 className="text-[14px] font-bold mb-3.5">📝 메모</h3>
           <div className="relative flex-1">
             <textarea
@@ -266,7 +253,7 @@ export function Dashboard() {
       </div>
 
       {/* Category Breakdown */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-5">
+      <div className="bg-white rounded-xl border border-gray-200 p-5">
           <h3 className="text-[14px] font-bold mb-4">카테고리 현황</h3>
           {catCounts.length === 0 ? (
             <div className="text-center py-6 text-gray-400 text-[12px]">식품이 없습니다</div>
@@ -293,54 +280,6 @@ export function Dashboard() {
             </div>
           )}
         </div>
-
-      {/* Shared Members */}
-      <div className="bg-white rounded-2xl border border-gray-200 p-5">
-        <h3 className="text-[14px] font-bold mb-3.5">공유 멤버</h3>
-        <div className="flex gap-2.5 flex-wrap items-center">
-          {/* 소유자 (본인) */}
-          {user && (
-            <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2">
-              <div
-                className="w-7.5 h-7.5 rounded-full flex items-center justify-center text-[12px] font-bold"
-                style={{ background: "#10b98120", border: "2px solid #10b98150", color: "#10b981" }}
-              >
-                {user.email?.[0]?.toUpperCase()}
-              </div>
-              <div>
-                <div className="text-[12px] font-bold text-gray-700 max-w-28 truncate">{user.email}</div>
-                <div className="text-[10px] text-gray-400">소유자</div>
-              </div>
-            </div>
-          )}
-          {/* 초대된 멤버 */}
-          {members.map((m, idx) => {
-            const color = AVATAR_COLORS[(idx + 1) % AVATAR_COLORS.length];
-            const roleLabel = m.role === "editor" ? "편집자" : "열람자";
-            return (
-              <div key={m.id} className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2">
-                <div
-                  className="w-7.5 h-7.5 rounded-full flex items-center justify-center text-[12px] font-bold shrink-0"
-                  style={{ background: color + "20", border: `2px solid ${color}50`, color }}
-                >
-                  {m.member_email[0]?.toUpperCase()}
-                </div>
-                <div>
-                  <div className="text-[12px] font-bold text-gray-700 max-w-28 truncate">{m.member_email}</div>
-                  <div className="text-[10px] text-gray-400">{roleLabel}</div>
-                </div>
-              </div>
-            );
-          })}
-          {/* 멤버 추가 버튼 */}
-          <button
-            onClick={() => navigate("/share")}
-            className="w-11.5 h-11.5 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-lg cursor-pointer hover:border-emerald-400 hover:text-emerald-400 transition-colors bg-transparent"
-          >
-            +
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

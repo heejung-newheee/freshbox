@@ -102,7 +102,7 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-2xl w-full max-w-sm shadow-2xl max-h-[90vh] flex flex-col"
+        className="bg-white rounded-xl w-full max-w-sm shadow-2xl max-h-[90vh] flex flex-col"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">

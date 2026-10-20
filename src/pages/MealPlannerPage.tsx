@@ -16,7 +16,7 @@ function RecipeModal({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl"
+        className="bg-white rounded-xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl"
       >
         {/* Sticky header */}
         <div className="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-100 shrink-0">
@@ -265,7 +265,7 @@ export function MealPlanner() {
     <>
       <div className="flex flex-col gap-5">
         {/* Week navigation + day tabs */}
-        <div className="bg-white border border-gray-200 rounded-2xl px-5 py-4">
+        <div className="bg-white border border-gray-200 rounded-xl px-5 py-4">
           <div className="flex items-center justify-between mb-3">
             <button
               onClick={() => setWeekOffset((o) => o - 1)}
@@ -426,7 +426,7 @@ export function MealPlanner() {
 
         {/* Bottom: shopping + notes */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white border border-gray-200 rounded-2xl p-5 flex flex-col">
+          <div className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col">
             <div className="flex items-center justify-between mb-1">
               <h3 className="text-[14px] font-bold">🛒 장보기 목록</h3>
               {canEdit && shopping.some((s) => s.checked) && (
@@ -529,7 +529,7 @@ export function MealPlanner() {
         </div>
 
         {/* Recipe recommendations - full width */}
-        <div className="bg-white border border-gray-200 rounded-2xl p-5">
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
           <div className="flex items-center gap-3 mb-3.5">
             <h3 className="text-[14px] font-bold">🔥 임박 재료 활용 추천</h3>
             <div className="flex gap-1.5 flex-wrap">
@@ -571,7 +571,7 @@ export function MealPlanner() {
                     <div className="text-[13px] font-bold text-stone-900 truncate">
                       {r.koreanName}
                     </div>
-                    <div className="text-[10px] text-gray-400 mt-0.5 truncate">
+                    <div className="text-[11px] text-gray-400 mt-0.5 truncate">
                       {r.area && <span>{r.area} · </span>}
                       {r.ingredients}
                     </div>
