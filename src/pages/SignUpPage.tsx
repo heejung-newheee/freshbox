@@ -4,6 +4,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { IconLeaf } from "@/components/ui/icons";
 
 export function SignUpPage() {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -25,7 +26,7 @@ export function SignUpPage() {
       return;
     }
     setLoading(true);
-    const { error: err } = await signUp(email, password);
+    const { error: err } = await signUp(email, password, name.trim());
     setLoading(false);
     if (err) {
       setError(err);
@@ -82,6 +83,19 @@ export function SignUpPage() {
               </p>
 
               <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
+                <div>
+                  <label className="block text-[12px] font-semibold text-gray-600 mb-1.5">
+                    이름
+                  </label>
+                  <input
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="이름"
+                    className={inputCls}
+                    autoComplete="name"
+                    required
+                  />
+                </div>
                 <div>
                   <label className="block text-[12px] font-semibold text-gray-600 mb-1.5">
                     이메일

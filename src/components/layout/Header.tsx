@@ -7,11 +7,13 @@ import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { useAuthStore } from "@/stores/authStore";
 import { useMarkNotificationsRead, useNotifications } from "@/hooks/useNotifications";
 import { getDday } from "@/utils";
+import { getDisplayName } from "@/utils/utils";
 
 interface HeaderProps {
   title: string;
   onAddItem?: () => void;
   onSettingsClick?: () => void;
+  onProfileClick?: () => void;
 }
 
 function expiryMessage(expiry: string) {
@@ -22,7 +24,7 @@ function expiryMessage(expiry: string) {
   return `유통기한이 ${d}일 남았어요`;
 }
 
-export function Header({ title, onAddItem, onSettingsClick }: HeaderProps) {
+export function Header({ title, onAddItem, onSettingsClick, onProfileClick }: HeaderProps) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { data: notifications = [] } = useNotifications();
@@ -33,7 +35,8 @@ export function Header({ title, onAddItem, onSettingsClick }: HeaderProps) {
   const { isMobile } = useBreakpoint();
   const { user, signOut } = useAuthStore();
 
-  const userInitial = user?.email?.[0]?.toUpperCase() ?? "?";
+  const displayName = getDisplayName(user);
+  const userInitial = displayName[0]?.toUpperCase() ?? "?";
 
   const handleSignOut = async () => {
     await signOut();
@@ -136,7 +139,7 @@ export function Header({ title, onAddItem, onSettingsClick }: HeaderProps) {
           {!isMobile && onAddItem && (
             <button
               onClick={onAddItem}
-              className="flex items-center gap-1.5 bg-emerald-500 text-white border-none px-4 py-2 rounded-md text-[13px] font-semibold cursor-pointer whitespace-nowrap hover:bg-emerald-600 transition-colors"
+              className="flex items-center gap-1.5 h-9 bg-emerald-500 text-white border-none px-4 rounded-md text-[13px] font-semibold cursor-pointer whitespace-nowrap hover:bg-emerald-600 transition-colors"
             >
               <PlusIcon s={16} c="#fff" />
               재료 추가
@@ -147,18 +150,28 @@ export function Header({ title, onAddItem, onSettingsClick }: HeaderProps) {
           <div className="relative" ref={userMenuRef}>
             <button
               onClick={() => setUserMenuOpen((o) => !o)}
-              className="bg-transparent border-none cursor-pointer p-0"
+              className="bg-transparent border-none cursor-pointer p-0 flex"
             >
-              <Avatar name={userInitial} color="#10b981" size="md" />
+              <Avatar name={userInitial} color="#10b981" size="md" src={user?.user_metadata?.avatar_url || undefined} />
             </button>
             {userMenuOpen && (
               <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-md min-w-48 z-50">
                 <div className="px-4 py-3 border-b border-gray-100">
-                  <p className="text-[12px] text-gray-400">로그인 계정</p>
-                  <p className="text-[13px] font-semibold text-gray-700 truncate mt-0.5">
+                  <p className="text-[13px] font-semibold text-gray-700 truncate">
+                    {displayName}
+                  </p>
+                  <p className="text-[12px] text-gray-400 truncate mt-0.5">
                     {user?.email}
                   </p>
                 </div>
+                {onProfileClick && (
+                  <button
+                    onClick={() => { setUserMenuOpen(false); onProfileClick(); }}
+                    className="w-full text-left px-4 py-3 text-[13px] text-gray-700 font-semibold hover:bg-gray-50 transition-colors cursor-pointer bg-transparent border-none border-b border-gray-100"
+                  >
+                    내 프로필
+                  </button>
+                )}
                 {onSettingsClick && (
                   <button
                     onClick={() => { setUserMenuOpen(false); onSettingsClick(); }}

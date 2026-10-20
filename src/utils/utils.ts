@@ -1,3 +1,4 @@
+import type { User } from "@supabase/supabase-js";
 import type { DdayMeta } from "../@types/types";
 import { TODAY } from "../constants/constants";
 
@@ -90,4 +91,11 @@ export function ddayMeta(d: number) {
     bg: "#f0fdf4",
     border: "#bbf7d0",
   };
+}
+
+// 프로필 표시 이름: 선택한 항목(이름/닉네임) → 다른 항목 → 이메일 순
+export function getDisplayName(user: User | null): string {
+  const m = user?.user_metadata ?? {};
+  const preferred = m.display_pref === "nickname" ? m.nickname : m.name;
+  return preferred || m.nickname || m.name || user?.email || "";
 }

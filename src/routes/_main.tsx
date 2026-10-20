@@ -1,6 +1,6 @@
 import type { FoodItem } from "@/@types";
 import { Header, Sidebar, BottomTabBar } from "@/components/layout";
-import { AddModal, SettingsModal } from "@/components/modal";
+import { AddModal, ProfileModal, SettingsModal } from "@/components/modal";
 import * as api from "@/services/api";
 import { getDday } from "@/utils";
 import { cn } from "@/utils/utils";
@@ -25,6 +25,7 @@ export default function MainLayout() {
   const { isMobile, isTablet } = useBreakpoint();
   const [showAddModal, setShowAddModal] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const role = useAuthStore((s) => s.role);
   const authLoading = useAuthStore((s) => s.loading);
   const canEdit = role === "owner" || role === "editor";
@@ -85,6 +86,7 @@ export default function MainLayout() {
           title={title}
           onAddItem={canEdit ? () => setShowAddModal(true) : undefined}
           onSettingsClick={() => setShowSettings(true)}
+          onProfileClick={() => setShowProfile(true)}
         />
 
         <div
@@ -130,6 +132,7 @@ export default function MainLayout() {
         />
       )}
       {showSettings && <SettingsModal onClose={() => setShowSettings(false)} />}
+      {showProfile && <ProfileModal onClose={() => setShowProfile(false)} />}
     </div>
   );
 }

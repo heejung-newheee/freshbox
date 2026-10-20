@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
-import { cn } from "../../utils/utils";
+import { cn, getDisplayName } from "../../utils/utils";
 import {
   IconBox,
   IconDashboard,
@@ -40,7 +40,9 @@ export function Sidebar({
   const user = useAuthStore((s) => s.user);
   const role = useAuthStore((s) => s.role);
   const { pathname } = useLocation();
-  const initial = user?.email?.[0]?.toUpperCase() ?? "?";
+  const displayName = getDisplayName(user);
+  const avatarUrl: string | undefined = user?.user_metadata?.avatar_url || undefined;
+  const initial = displayName[0]?.toUpperCase() ?? "?";
   const roleLabel = role ? ROLE_META[role]?.label : "멤버";
 
   return (
@@ -134,19 +136,27 @@ export function Sidebar({
       {!compact && (
         <div className="p-3 border-t border-slate-100">
           <div className="flex items-center gap-2.5 px-2.5 py-2.5 rounded-xl bg-slate-50">
-            <div
-              className="w-8.5 h-8.5 rounded-full flex items-center justify-center text-[13px] font-extrabold shrink-0"
-              style={{
-                backgroundColor: "#10b98120",
-                border: "2px solid #10b98160",
-                color: "#10b981",
-              }}
-            >
-              {initial}
-            </div>
+            {avatarUrl ? (
+              <img
+                src={avatarUrl}
+                alt={displayName}
+                className="w-8.5 h-8.5 rounded-full object-cover shrink-0"
+              />
+            ) : (
+              <div
+                className="w-8.5 h-8.5 rounded-full flex items-center justify-center text-[13px] font-extrabold shrink-0"
+                style={{
+                  backgroundColor: "#10b98120",
+                  border: "2px solid #10b98160",
+                  color: "#10b981",
+                }}
+              >
+                {initial}
+              </div>
+            )}
             <div className="flex-1 min-w-0">
               <div className="text-[13px] font-bold text-slate-700 truncate">
-                {user?.email ?? ""}
+                {displayName}
               </div>
               <div className="text-[11px] text-slate-400 mt-0.5">
                 {roleLabel}

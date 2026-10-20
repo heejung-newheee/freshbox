@@ -11,7 +11,7 @@ interface AuthStore {
   setUser: (user: User | null) => void;
   setFridgeId: (id: string | null) => void;
   setLoading: (loading: boolean) => void;
-  signUp: (email: string, password: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string, name: string) => Promise<{ error: string | null }>;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   checkUser: () => Promise<void>;
@@ -43,8 +43,12 @@ export const useAuthStore = create<AuthStore>((set) => ({
   setFridgeId: (fridgeId) => set({ fridgeId }),
   setLoading: (loading) => set({ loading }),
 
-  signUp: async (email, password) => {
-    const { error } = await supabase.auth.signUp({ email, password });
+  signUp: async (email, password, name) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { name } },
+    });
     if (error) return { error: error.message };
     return { error: null };
   },

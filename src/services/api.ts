@@ -543,3 +543,36 @@ export const deletePushSubscription = async (endpoint: string): Promise<void> =>
   const { error } = await supabase.from("push_subscriptions").delete().eq("endpoint", endpoint);
   if (error) throw error;
 };
+
+// ─── My Profile ───────────────────────────────────────────────────────────────
+// 이름·닉네임·표시 선택·사진은 Supabase Auth user_metadata 에 저장
+
+export interface ProfileMeta {
+  name?: string;
+  nickname?: string;
+  display_pref?: "name" | "nickname";
+  avatar_url?: string;
+}
+
+export const updateMyProfile = async (meta: ProfileMeta) => {
+  const { data, error } = await supabase.auth.updateUser({ data: meta });
+  if (error) throw error;
+  return data.user;
+};
+
+export const changePassword = async (password: string): Promise<void> => {
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) throw error;
+};
+
+export const uploadAvatar = async (file: File): Promise<string> => {
+  const { userId } = getStoreIds();
+  const path = `${userId}/avatar`;
+  const { error } = await supabase.storage
+    .from("avatars")
+    .upload(path, file, { upsert: true, contentType: file.type });
+  if (error) throw error;
+  const { data } = supabase.storage.from("avatars").getPublicUrl(path);
+  // 같은 경로에 덮어쓰므로 캐시 무효화용 쿼리 추가
+  return `${data.publicUrl}?t=${Date.now()}`;
+};
