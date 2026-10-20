@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
 import { IconLeaf } from "@/components/ui/icons";
+import { Button, Input } from "@/components/ui";
 
 export function LoginPage() {
   const [email, setEmail] = useState("");
@@ -25,8 +26,6 @@ export function LoginPage() {
     }
   };
 
-  const inputCls =
-    "w-full px-4 py-3 border border-gray-200 rounded-xl text-[14px] text-gray-800 bg-gray-50 outline-none focus:border-emerald-400 focus:bg-white transition-colors";
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -48,24 +47,22 @@ export function LoginPage() {
           <form onSubmit={handleSubmit} className="flex flex-col gap-3.5">
             <div>
               <label className="block text-[12px] font-semibold text-gray-600 mb-1.5">이메일</label>
-              <input
+              <Input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="이메일 주소"
-                className={inputCls}
                 autoComplete="email"
                 required
               />
             </div>
             <div>
               <label className="block text-[12px] font-semibold text-gray-600 mb-1.5">비밀번호</label>
-              <input
+              <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="비밀번호"
-                className={inputCls}
                 autoComplete="current-password"
                 required
               />
@@ -77,13 +74,13 @@ export function LoginPage() {
               </div>
             )}
 
-            <button
+            <Button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-emerald-500 text-white rounded-xl text-[14px] font-bold border-none cursor-pointer hover:bg-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-1"
+              className="w-full mt-1"
             >
               {loading ? "로그인 중..." : "로그인"}
-            </button>
+            </Button>
           </form>
         </div>
 

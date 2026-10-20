@@ -4,7 +4,7 @@ import {
   useFridgeSettings,
   useUpdateFridgeSettings,
 } from "@/hooks/useFridgeSettings";
-import { Toggle } from "@/components/common";
+import { Button, Toggle } from "@/components/ui";
 import { usePushSetting } from "@/hooks/useNotifications";
 import { useAuthStore } from "@/stores/authStore";
 
@@ -128,12 +128,9 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
               <p className="text-[14px] font-semibold text-stone-800 truncate">
                 {user?.email}
               </p>
-              <button
-                onClick={handleSignOut}
-                className="shrink-0 text-[12px] font-semibold text-red-500 px-3 py-1.5 rounded-lg hover:bg-red-50 transition-colors cursor-pointer"
-              >
+              <Button variant="danger" size="sm" onClick={handleSignOut}>
                 로그아웃
-              </button>
+              </Button>
             </div>
           </div>
 

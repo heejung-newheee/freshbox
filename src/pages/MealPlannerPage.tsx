@@ -85,7 +85,7 @@ function RecipeModal({
                 href={recipe.youtube}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-[13px] font-bold transition-colors"
+                className="flex items-center justify-center gap-2 w-full h-9.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-[13px] font-bold transition-colors"
               >
                 ▶ YouTube에서 보기
               </a>
@@ -109,6 +109,7 @@ import {
 } from "@/hooks/useShoppingItems";
 import type { MealType } from "@/services/api";
 import { useRecipeRecommendations } from "@/hooks/useRecipes";
+import { Button, Input } from "@/components/ui";
 
 const DAYS = ["월", "화", "수", "목", "금", "토", "일"] as const;
 
@@ -344,31 +345,31 @@ export function MealPlanner() {
             </div>
           </div>
           <div className="flex items-center justify-between mb-3">
-            <button
+            <Button
+              variant="secondary"
               onClick={() =>
                 viewMode === "week"
                   ? setWeekOffset((o) => o - 1)
                   : setMonthOffset((o) => o - 1)
               }
-              className="px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-600 text-[13px] font-semibold transition-colors"
             >
               {viewMode === "week" ? "◀ 이전 주" : "◀ 이전 달"}
-            </button>
+            </Button>
             <span className="text-[14px] font-bold text-stone-800">
               {viewMode === "week"
                 ? formatWeekRange(weekStart)
                 : `${monthView.year}년 ${monthView.month + 1}월`}
             </span>
-            <button
+            <Button
+              variant="secondary"
               onClick={() =>
                 viewMode === "week"
                   ? setWeekOffset((o) => o + 1)
                   : setMonthOffset((o) => o + 1)
               }
-              className="px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-600 text-[13px] font-semibold transition-colors"
             >
               {viewMode === "week" ? "다음 주 ▶" : "다음 달 ▶"}
-            </button>
+            </Button>
           </div>
           {viewMode === "month" ? (
             <div className="grid grid-cols-7 gap-0.5 md:gap-1">
@@ -508,7 +509,7 @@ export function MealPlanner() {
                         saveEdit(selectedDay, mealType);
                     }}
                   >
-                    <input
+                    <Input
                       autoFocus
                       value={editValue}
                       onChange={(e) => setEditValue(e.target.value)}
@@ -518,10 +519,10 @@ export function MealPlanner() {
                         if (e.key === "Escape") cancelEdit();
                       }}
                       placeholder={`${s.labelText} 입력...`}
-                      className="text-sm font-semibold border border-gray-200 rounded-lg px-2.5 py-1.5 w-full focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white"
+                      className="font-semibold bg-white"
                     />
                     <div className="flex items-center gap-1.5">
-                      <input
+                      <Input
                         ref={ingredientsRef}
                         value={editIngredients}
                         onChange={(e) => setEditIngredients(e.target.value)}
@@ -531,22 +532,23 @@ export function MealPlanner() {
                           if (e.key === "Escape") cancelEdit();
                         }}
                         placeholder="재료 또는 노트 (쉼표로 구분)"
-                        className="text-[11px] border border-gray-200 rounded-lg px-2.5 py-1.5 flex-1 min-w-0 focus:outline-none focus:ring-2 focus:ring-emerald-300 bg-white text-gray-500"
+                        className="flex-1 min-w-0 bg-white text-gray-500"
                       />
-                      <button
+                      <Button
                         onMouseDown={(e) => e.preventDefault()}
                         onClick={() => saveEdit(selectedDay, mealType)}
-                        className="w-8 h-8 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white text-[14px] flex items-center justify-center shrink-0 transition-colors"
+                        className="w-9.5 px-0 text-[14px]"
                       >
                         ✓
-                      </button>
-                      <button
+                      </Button>
+                      <Button
+                        variant="secondary"
                         onMouseDown={(e) => e.preventDefault()}
                         onClick={cancelEdit}
-                        className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 text-[14px] flex items-center justify-center shrink-0 transition-colors"
+                        className="w-9.5 px-0 text-[14px]"
                       >
                         ✕
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ) : (
@@ -638,7 +640,7 @@ export function MealPlanner() {
             {/* 항목 추가 */}
             {canEdit && (
               <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
-                <input
+                <Input
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   onKeyDown={(e) => {
@@ -646,14 +648,9 @@ export function MealPlanner() {
                       addShoppingItem();
                   }}
                   placeholder="재료명"
-                  className="flex-1 text-[12px] border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+                  className="flex-1"
                 />
-                <button
-                  onClick={addShoppingItem}
-                  className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[13px] font-bold rounded-lg transition-colors"
-                >
-                  +
-                </button>
+                <Button onClick={addShoppingItem}>+</Button>
               </div>
             )}
           </div>

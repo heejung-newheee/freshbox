@@ -10,6 +10,7 @@ import {
   useDeleteShoppingItem,
 } from "@/hooks/useShoppingItems";
 import { useState } from "react";
+import { Button, Input } from "@/components/ui";
 
 export function Dashboard() {
   const { items } = useFoodItems();
@@ -206,7 +207,7 @@ export function Dashboard() {
             ))}
           </div>
           <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
-            <input
+            <Input
               value={newShoppingName}
               onChange={(e) => setNewShoppingName(e.target.value)}
               onKeyDown={(e) => {
@@ -216,18 +217,17 @@ export function Dashboard() {
                 }
               }}
               placeholder="항목 추가..."
-              className="flex-1 text-[12px] border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-emerald-300"
+              className="flex-1"
             />
-            <button
+            <Button
               onClick={() => {
                 if (!newShoppingName.trim()) return;
                 addShoppingItem.mutate({ name: newShoppingName.trim(), qty: "" });
                 setNewShoppingName("");
               }}
-              className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-[13px] font-bold rounded-lg transition-colors"
             >
               +
-            </button>
+            </Button>
           </div>
         </div>
 

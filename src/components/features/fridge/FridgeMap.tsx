@@ -25,6 +25,7 @@ import {
   useDraggable,
 } from "@dnd-kit/core";
 import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import { Button } from "@/components/ui";
 
 // droppable id format: "location:::zone" or "location:::__none" (unzoned)
 const toDropId = (location: Location, zone: string) => `${location}:::${zone}`;
@@ -91,24 +92,25 @@ function ItemActionPopup({
         </div>
 
         <div className="flex flex-col gap-2 mt-4">
-          <button
+          <Button
             onClick={() => {
               onConsume(item.id);
               onClose();
             }}
-            className="w-full py-2.5 bg-emerald-500 text-white rounded-lg text-[14px] font-bold hover:bg-emerald-600 transition-colors"
+            className="w-full"
           >
             소비 완료 ✓
-          </button>
-          <button
+          </Button>
+          <Button
+            variant="secondary"
             onClick={() => {
               onEdit(item);
               onClose();
             }}
-            className="w-full py-2.5 bg-gray-100 text-gray-700 rounded-lg text-[14px] font-semibold hover:bg-gray-200 transition-colors"
+            className="w-full"
           >
             수정하기
-          </button>
+          </Button>
         </div>
       </div>
     </div>

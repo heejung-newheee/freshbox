@@ -11,6 +11,7 @@ import {
 } from "@/hooks/useFoodItems";
 import { useAuthStore } from "@/stores/authStore";
 import { useFridgeSettings } from "@/hooks/useFridgeSettings";
+import { Button, fieldSizes, cx, fieldClass } from "@/components/ui";
 
 const COLS = "grid-cols-[80px_1fr_80px_60px_100px_100px_70px_80px]";
 
@@ -74,26 +75,26 @@ export function Inventory() {
       <div className="flex flex-col gap-3 md:gap-4">
         {/* Search + Location filter row */}
         <div className="flex flex-wrap items-center gap-2.5 bg-white border border-gray-200 rounded-xl p-3 md:px-4">
-          <div className="flex-1 flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+          <div className={cx(fieldClass, fieldSizes.md, "flex-1 w-auto flex items-center gap-2 focus-within:border-emerald-400 focus-within:bg-white")}>
             <span className="text-gray-400 text-sm">🔍</span>
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="식품 검색..."
-              className="flex-1 border-none bg-transparent text-[13px] text-gray-700 outline-none"
+              className="flex-1 min-w-0 border-none bg-transparent text-gray-700 outline-none"
             />
           </div>
 
           {/* 정렬 */}
           <div ref={sortRef} className="relative shrink-0">
-            <button
+            <Button
+              variant="secondary"
               onClick={() => setSortOpen((o) => !o)}
-              className={cn(
-                "flex items-center gap-1.5 px-3 py-2 rounded-lg border text-[13px] font-semibold cursor-pointer transition-colors whitespace-nowrap",
+              className={
                 sort !== "expiry"
-                  ? "border-emerald-500 bg-emerald-50 text-emerald-600"
-                  : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50",
-              )}
+                  ? "border-emerald-500 bg-emerald-50 text-emerald-600 hover:bg-emerald-50"
+                  : "bg-white text-gray-500 hover:bg-gray-50"
+              }
             >
               <svg
                 className="w-3.5 h-3.5 shrink-0"
@@ -108,7 +109,7 @@ export function Inventory() {
                 <line x1="6" y1="12" x2="10" y2="12" />
               </svg>
               {SORT_OPTIONS.find((o) => o.value === sort)?.label}
-            </button>
+            </Button>
             {sortOpen && (
               <div className="absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-20 overflow-hidden min-w-36">
                 {SORT_OPTIONS.map((o) => (
@@ -151,18 +152,18 @@ export function Inventory() {
                       ? "🥬 김치냉장고"
                       : "🏠 실온";
             return (
-              <button
+              <Button
                 key={loc}
+                variant="secondary"
                 onClick={() => setLocation(loc)}
-                className={cn(
-                  "px-3.5 py-2 rounded-lg border text-[13px] font-semibold cursor-pointer whitespace-nowrap transition-colors",
+                className={
                   location === loc
-                    ? "border-emerald-500 bg-emerald-50 text-emerald-600"
-                    : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50",
-                )}
+                    ? "border-emerald-500 bg-emerald-50 text-emerald-600 hover:bg-emerald-50"
+                    : "bg-white text-gray-500 hover:bg-gray-50"
+                }
               >
                 {label}
-              </button>
+              </Button>
             );
           })}
         </div>
@@ -330,12 +331,13 @@ export function Inventory() {
 
                     {/* 버튼 */}
                     {canEdit && (
-                      <button
+                      <Button
+                        variant="soft"
                         onClick={() => onConsume?.(item.id)}
-                        className="w-full px-3 py-2 rounded-lg border border-emerald-100 bg-emerald-50 text-emerald-500 text-[12px] font-bold cursor-pointer flex items-center justify-center gap-1 hover:bg-emerald-100 transition-colors"
+                        className="w-full"
                       >
                         ✓ 소비
-                      </button>
+                      </Button>
                     )}
                   </div>
 
@@ -404,12 +406,13 @@ export function Inventory() {
                     {/* 버튼 */}
                     <div className="hidden md:block">
                       {canEdit && (
-                        <button
+                        <Button
+                          variant="soft"
+                          size="sm"
                           onClick={() => onConsume?.(item.id)}
-                          className="px-3 py-1 rounded-lg border border-emerald-100 bg-emerald-50 text-emerald-500 text-[12px] font-bold cursor-pointer flex items-center gap-1 hover:bg-emerald-100 transition-colors"
                         >
                           ✓ 소비
-                        </button>
+                        </Button>
                       )}
                     </div>
                   </>

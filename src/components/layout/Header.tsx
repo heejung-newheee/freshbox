@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { BellIcon, PlusIcon } from "@/assets/icons";
 import { IconLeaf, IconSettings } from "@/components/ui/icons";
-import { Avatar } from "@/components/common";
+import { Avatar, Button } from "@/components/ui";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
 import { useAuthStore } from "@/stores/authStore";
 import { useMarkNotificationsRead, useNotifications } from "@/hooks/useNotifications";
@@ -137,13 +137,10 @@ export function Header({ title, onAddItem, onSettingsClick, onProfileClick }: He
 
           {/* 재료 추가 — 데스크톱 전용 (모바일은 FAB) */}
           {!isMobile && onAddItem && (
-            <button
-              onClick={onAddItem}
-              className="flex items-center gap-1.5 h-9 bg-emerald-500 text-white border-none px-4 rounded-md text-[13px] font-semibold cursor-pointer whitespace-nowrap hover:bg-emerald-600 transition-colors"
-            >
+            <Button onClick={onAddItem}>
               <PlusIcon s={16} c="#fff" />
               재료 추가
-            </button>
+            </Button>
           )}
 
           {/* User menu */}

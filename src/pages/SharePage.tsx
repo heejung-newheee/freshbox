@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/services/api";
 import { useAuthStore } from "@/stores/authStore";
+import { Button, Input, fieldSizes, cx, fieldClass } from "@/components/ui";
 
 const ROLES: { role: Extract<Role, "editor" | "viewer">; desc: string }[] = [
   { role: "editor", desc: "재고 추가/수정/삭제, 식단 편집" },
@@ -211,7 +212,7 @@ export function Share() {
             </p>
             <div className="flex flex-col gap-2.5">
               <div className="flex flex-col md:flex-row gap-2.5">
-                <input
+                <Input
                   type="email"
                   placeholder="이메일 주소 입력"
                   value={inviteEmail}
@@ -220,7 +221,7 @@ export function Share() {
                     setInviteError(null);
                   }}
                   onKeyDown={(e) => e.key === "Enter" && handleInvite()}
-                  className="flex-1 px-3.5 py-2.5 border border-gray-200 rounded-lg text-[13px] outline-none text-gray-700 focus:border-emerald-400 transition-colors"
+                  className="flex-1"
                 />
                 <div
                   ref={roleDropdownRef}
@@ -229,7 +230,7 @@ export function Share() {
                   <button
                     type="button"
                     onClick={() => setRoleDropdownOpen((o) => !o)}
-                    className="flex items-center justify-between w-full md:w-auto gap-2 h-full px-3.5 py-2.5 border border-gray-200 rounded-lg text-[13px] bg-white text-gray-700 cursor-pointer outline-none whitespace-nowrap"
+                    className={cx(fieldClass, fieldSizes.md, "flex items-center justify-between md:w-auto gap-2 cursor-pointer whitespace-nowrap")}
                   >
                     {selectedRole === "editor" ? "편집자" : "열람자"}
                     <svg
@@ -267,13 +268,13 @@ export function Share() {
                     </div>
                   )}
                 </div>
-                <button
+                <Button
                   onClick={handleInvite}
                   disabled={inviteMutation.isPending || !inviteEmail.trim()}
-                  className="w-full md:w-auto px-5 py-2.5 bg-emerald-500 text-white border border-emerald-500 rounded-lg text-[13px] font-bold cursor-pointer hover:bg-emerald-600 hover:border-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed transition-colors shrink-0 whitespace-nowrap"
+                  className="w-full md:w-auto px-5"
                 >
                   {inviteMutation.isPending ? "초대 중..." : "초대 보내기"}
-                </button>
+                </Button>
               </div>
               {inviteSuccess && (
                 <div className="flex items-center gap-2 px-3.5 py-2.5 bg-emerald-50 border border-emerald-100 rounded-lg text-[12px] text-emerald-700 font-semibold">

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "@/stores/authStore";
 import { IconLeaf } from "@/components/ui/icons";
+import { Button, Input } from "@/components/ui";
 
 export function SignUpPage() {
   const [name, setName] = useState("");
@@ -35,8 +36,6 @@ export function SignUpPage() {
     }
   };
 
-  const inputCls =
-    "w-full px-4 py-3 border border-gray-200 rounded-xl text-[14px] text-gray-800 bg-gray-50 outline-none focus:border-emerald-400 focus:bg-white transition-colors";
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -66,12 +65,12 @@ export function SignUpPage() {
                 {/* 이메일을 확인한 후 로그인하세요. */}
                 가입을 축하드립니다.
               </p>
-              <button
+              <Button
                 onClick={() => navigate("/login")}
-                className="w-full py-3 bg-emerald-500 text-white rounded-xl text-[14px] font-bold border-none cursor-pointer hover:bg-emerald-600 transition-colors"
+                className="w-full"
               >
                 로그인으로 이동
-              </button>
+              </Button>
             </div>
           ) : (
             <>
@@ -87,11 +86,10 @@ export function SignUpPage() {
                   <label className="block text-[12px] font-semibold text-gray-600 mb-1.5">
                     이름
                   </label>
-                  <input
+                  <Input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="이름"
-                    className={inputCls}
                     autoComplete="name"
                     required
                   />
@@ -100,12 +98,11 @@ export function SignUpPage() {
                   <label className="block text-[12px] font-semibold text-gray-600 mb-1.5">
                     이메일
                   </label>
-                  <input
+                  <Input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="이메일 주소"
-                    className={inputCls}
                     autoComplete="email"
                     required
                   />
@@ -114,12 +111,11 @@ export function SignUpPage() {
                   <label className="block text-[12px] font-semibold text-gray-600 mb-1.5">
                     비밀번호
                   </label>
-                  <input
+                  <Input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="비밀번호 (6자 이상)"
-                    className={inputCls}
                     autoComplete="new-password"
                     required
                   />
@@ -128,12 +124,11 @@ export function SignUpPage() {
                   <label className="block text-[12px] font-semibold text-gray-600 mb-1.5">
                     비밀번호 확인
                   </label>
-                  <input
+                  <Input
                     type="password"
                     value={confirm}
                     onChange={(e) => setConfirm(e.target.value)}
                     placeholder="비밀번호 재입력"
-                    className={inputCls}
                     autoComplete="new-password"
                     required
                   />
@@ -145,13 +140,13 @@ export function SignUpPage() {
                   </div>
                 )}
 
-                <button
+                <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 bg-emerald-500 text-white rounded-xl text-[14px] font-bold border-none cursor-pointer hover:bg-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed transition-colors mt-1"
+                  className="w-full mt-1"
                 >
                   {loading ? "가입 중..." : "회원가입"}
-                </button>
+                </Button>
               </form>
             </>
           )}

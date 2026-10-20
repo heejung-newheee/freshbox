@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Avatar } from "@/components/common";
+import { Avatar, Button, Input } from "@/components/ui";
 import * as api from "@/services/api";
 import { useAuthStore } from "@/stores/authStore";
 import { getDisplayName } from "@/utils/utils";
@@ -8,10 +8,6 @@ const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
 
 const sectionLabelCls =
   "text-[11px] font-bold text-gray-400 uppercase tracking-wider";
-const inputCls =
-  "w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[14px] text-gray-800 bg-gray-50 outline-none focus:border-emerald-400 focus:bg-white transition-colors";
-const primaryBtnCls =
-  "w-full py-2.5 bg-emerald-500 text-white rounded-lg text-[13px] font-bold hover:bg-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed transition-colors";
 
 export function ProfileModal({ onClose }: { onClose: () => void }) {
   const { user, setUser } = useAuthStore();
@@ -185,21 +181,23 @@ export function ProfileModal({ onClose }: { onClose: () => void }) {
                 {user?.email}
               </p>
               <div className="flex gap-2 mt-2">
-                <button
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => fileRef.current?.click()}
                   disabled={uploading}
-                  className="text-[12px] font-semibold text-emerald-600 px-2.5 py-1 rounded-md border border-emerald-200 hover:bg-emerald-50 disabled:opacity-60 transition-colors"
                 >
                   {uploading ? "처리 중..." : "사진 변경"}
-                </button>
+                </Button>
                 {meta.avatar_url && (
-                  <button
+                  <Button
+                    variant="secondary"
+                    size="sm"
                     onClick={handleRemovePhoto}
                     disabled={uploading}
-                    className="text-[12px] font-semibold text-gray-500 px-2.5 py-1 rounded-md border border-gray-200 hover:bg-gray-50 disabled:opacity-60 transition-colors"
                   >
                     삭제
-                  </button>
+                  </Button>
                 )}
               </div>
               <input
@@ -222,15 +220,14 @@ export function ProfileModal({ onClose }: { onClose: () => void }) {
                 이름
               </label>
               {nameLocked ? (
-                <p className="px-3 py-2.5 text-[14px] text-gray-500 bg-gray-50 rounded-lg border border-gray-100">
+                <p className="h-9.5 px-3.5 flex items-center text-[14px] text-gray-500 bg-gray-50 rounded-lg border border-gray-100">
                   {meta.name}
                 </p>
               ) : (
-                <input
+                <Input
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="이름 (저장 후 변경 불가)"
-                  className={inputCls}
                 />
               )}
             </div>
@@ -238,11 +235,10 @@ export function ProfileModal({ onClose }: { onClose: () => void }) {
               <label className="block text-[12px] font-semibold text-gray-600 mb-1.5">
                 닉네임
               </label>
-              <input
+              <Input
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
                 placeholder="닉네임"
-                className={inputCls}
               />
             </div>
             <div>
@@ -273,13 +269,9 @@ export function ProfileModal({ onClose }: { onClose: () => void }) {
                 {message.text}
               </p>
             )}
-            <button
-              onClick={handleSave}
-              disabled={saving}
-              className={primaryBtnCls}
-            >
+            <Button onClick={handleSave} disabled={saving} className="w-full">
               {saving ? "저장 중..." : "저장"}
-            </button>
+            </Button>
           </div>
 
           <div className="h-px bg-gray-100" />
@@ -287,21 +279,19 @@ export function ProfileModal({ onClose }: { onClose: () => void }) {
           {/* 비밀번호 */}
           <div className="flex flex-col gap-3">
             <p className={sectionLabelCls}>비밀번호 변경</p>
-            <input
+            <Input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="새 비밀번호 (6자 이상)"
               autoComplete="new-password"
-              className={inputCls}
             />
-            <input
+            <Input
               type="password"
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
               placeholder="새 비밀번호 확인"
               autoComplete="new-password"
-              className={inputCls}
             />
             {pwMessage && (
               <p
@@ -310,13 +300,9 @@ export function ProfileModal({ onClose }: { onClose: () => void }) {
                 {pwMessage.text}
               </p>
             )}
-            <button
-              onClick={handlePassword}
-              disabled={pwSaving}
-              className={primaryBtnCls}
-            >
+            <Button onClick={handlePassword} disabled={pwSaving} className="w-full">
               {pwSaving ? "변경 중..." : "비밀번호 변경"}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

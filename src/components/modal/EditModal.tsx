@@ -3,6 +3,7 @@ import { CATEGORIES } from "@/constants/constants";
 import { XIcon } from "@/assets/icons";
 import { useState, useRef, useEffect } from "react";
 import { useFridgeSettings } from "@/hooks/useFridgeSettings";
+import { Button, Input, fieldSizes, cx, fieldClass } from "@/components/ui";
 
 interface EditModalProps {
   item: FoodItem;
@@ -69,8 +70,6 @@ function DropdownField<T extends string>({
   }, [open]);
 
   const labelCls = "block text-[12px] font-semibold text-gray-600 mb-1.5";
-  const fieldCls =
-    "w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[13px] text-gray-800 bg-gray-50 outline-none";
 
   return (
     <div ref={ref} className="relative">
@@ -78,7 +77,7 @@ function DropdownField<T extends string>({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className={`${fieldCls} flex items-center justify-between cursor-pointer`}
+        className={cx(fieldClass, fieldSizes.md, "flex items-center justify-between cursor-pointer")}
       >
         <span>{display ? display(value) : value}</span>
         {chevron}
@@ -159,8 +158,6 @@ export function EditModal({ item, onClose, onSave }: EditModalProps) {
     실온: ["상단", "하단"],
   };
 
-  const inputCls =
-    "w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[13px] text-gray-800 bg-gray-50 outline-none font-[inherit] box-border";
   const labelCls = "block text-[12px] font-semibold text-gray-600 mb-1.5";
 
   return (
@@ -190,9 +187,7 @@ export function EditModal({ item, onClose, onSave }: EditModalProps) {
         <div className="flex flex-col gap-3.5">
           <div>
             <label className={labelCls}>식품명 *</label>
-            <input
-              type="text"
-              className={inputCls}
+            <Input
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
             />
@@ -231,11 +226,9 @@ export function EditModal({ item, onClose, onSave }: EditModalProps) {
           >
             <div>
               <label className={labelCls}>수량</label>
-              <input
-                type="text"
+              <Input
                 inputMode="numeric"
                 pattern="[0-9]*"
-                className={inputCls}
                 value={form.quantity === 0 ? "" : form.quantity}
                 onChange={(e) => {
                   const n = parseInt(e.target.value.replace(/\D/g, ""));
@@ -248,9 +241,7 @@ export function EditModal({ item, onClose, onSave }: EditModalProps) {
             </div>
             <div>
               <label className={labelCls}>단위</label>
-              <input
-                type="text"
-                className={inputCls}
+              <Input
                 value={form.unit}
                 onChange={(e) => set("unit", e.target.value)}
               />
@@ -260,18 +251,16 @@ export function EditModal({ item, onClose, onSave }: EditModalProps) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelCls}>구매일</label>
-              <input
+              <Input
                 type="date"
-                className={inputCls}
                 value={form.bought}
                 onChange={(e) => set("bought", e.target.value)}
               />
             </div>
             <div>
               <label className={labelCls}>유통기한 *</label>
-              <input
+              <Input
                 type="date"
-                className={inputCls}
                 value={form.expiry}
                 onChange={(e) => set("expiry", e.target.value)}
               />
@@ -280,18 +269,12 @@ export function EditModal({ item, onClose, onSave }: EditModalProps) {
         </div>
 
         <div className="flex gap-3 mt-7">
-          <button
-            onClick={onClose}
-            className="flex-1 py-2.5 rounded-md border border-gray-200 bg-gray-50 cursor-pointer text-[13px] font-semibold text-gray-500 hover:bg-gray-100 transition-colors"
-          >
+          <Button variant="secondary" onClick={onClose} className="flex-1">
             취소
-          </button>
-          <button
-            onClick={handleSave}
-            className="flex-[1.5] py-2.5 rounded-md border-none bg-emerald-500 cursor-pointer text-[13px] font-semibold text-white hover:bg-emerald-600 transition-colors"
-          >
+          </Button>
+          <Button onClick={handleSave} className="flex-[1.5]">
             수정 저장
-          </button>
+          </Button>
         </div>
       </div>
     </div>

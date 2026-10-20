@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import * as api from "@/services/api";
 import { useFridgeSettings } from "@/hooks/useFridgeSettings";
+import { Button, Input, fieldSizes, cx, fieldClass } from "@/components/ui";
 
 interface AddModalProps {
   onClose: () => void;
@@ -70,8 +71,6 @@ function DropdownField<T extends string>({
   }, [open]);
 
   const labelCls = "block text-[12px] font-semibold text-gray-600 mb-1.5";
-  const fieldCls =
-    "w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[13px] text-gray-800 bg-gray-50 outline-none";
 
   return (
     <div ref={ref} className="relative">
@@ -79,7 +78,7 @@ function DropdownField<T extends string>({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className={`${fieldCls} flex items-center justify-between cursor-pointer`}
+        className={cx(fieldClass, fieldSizes.md, "flex items-center justify-between cursor-pointer")}
       >
         <span>{display ? display(value) : value}</span>
         {chevron}
@@ -190,8 +189,6 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
     실온: ["상단", "하단"],
   };
 
-  const inputCls =
-    "w-full px-3 py-2.5 border border-gray-200 rounded-lg text-[13px] text-gray-800 bg-gray-50 outline-none font-[inherit] box-border";
   const labelCls = "block text-[12px] font-semibold text-gray-600 mb-1.5";
 
   return (
@@ -225,9 +222,7 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
           {/* 식품명 */}
           <div>
             <label className={labelCls}>식품명 *</label>
-            <input
-              type="text"
-              className={inputCls}
+            <Input
               placeholder="예: 브로콜리"
               value={form.name}
               onChange={(e) => set("name", e.target.value)}
@@ -293,11 +288,9 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
           >
             <div>
               <label className={labelCls}>수량</label>
-              <input
-                type="text"
+              <Input
                 inputMode="numeric"
                 pattern="[0-9]*"
-                className={inputCls}
                 value={form.quantity === 0 ? "" : form.quantity}
                 onChange={(e) => {
                   const n = parseInt(e.target.value.replace(/\D/g, ""));
@@ -310,9 +303,7 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
             </div>
             <div>
               <label className={labelCls}>단위</label>
-              <input
-                type="text"
-                className={inputCls}
+              <Input
                 placeholder="개"
                 value={form.unit}
                 onChange={(e) => set("unit", e.target.value)}
@@ -324,18 +315,16 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={labelCls}>구매일</label>
-              <input
+              <Input
                 type="date"
-                className={inputCls}
                 value={form.bought}
                 onChange={(e) => set("bought", e.target.value)}
               />
             </div>
             <div>
               <label className={labelCls}>유통기한 *</label>
-              <input
+              <Input
                 type="date"
-                className={inputCls}
                 value={form.expiry}
                 onChange={(e) => set("expiry", e.target.value)}
               />
@@ -345,18 +334,12 @@ export function AddModal({ onClose, onAdd }: AddModalProps) {
 
         {/* Actions */}
         <div className="flex gap-3 mt-7">
-          <button
-            onClick={onClose}
-            className="flex-1 py-2.5 rounded-md border border-gray-200 bg-gray-50 cursor-pointer text-[13px] font-semibold text-gray-500 hover:bg-gray-100 transition-colors"
-          >
+          <Button variant="secondary" onClick={onClose} className="flex-1">
             취소
-          </button>
-          <button
-            onClick={handleAdd}
-            className="flex-1 py-2.5 rounded-md border-none bg-emerald-500 cursor-pointer text-[13px] font-semibold text-white hover:bg-emerald-600 transition-colors"
-          >
+          </Button>
+          <Button onClick={handleAdd} className="flex-1">
             재료 추가하기
-          </button>
+          </Button>
         </div>
       </div>
     </div>
