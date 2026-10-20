@@ -8,7 +8,7 @@ const PAGE_TITLES: Record<string, string> = {
   dashboard: "대시보드",
   inventory: "재고 목록",
   fridge: "냉장고 맵",
-  meal: "주간 식단 플래너",
+  meal: "식단 플래너",
   share: "공유 관리",
 };
 

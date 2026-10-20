@@ -97,7 +97,7 @@ function RecipeModal({
   );
 }
 import { useFoodItems } from "@/hooks/useFoodItems";
-import { useMealPlan, useUpsertMeal, useDeleteMeal } from "@/hooks/useMealPlan";
+import { useMealPlan, useMonthMealPlans, useUpsertMeal, useDeleteMeal } from "@/hooks/useMealPlan";
 import { useAuthStore } from "@/stores/authStore";
 import { useMealNotes, useUpdateMealNotes } from "@/hooks/useMealNotes";
 import {
@@ -114,23 +114,26 @@ const DAYS = ["월", "화", "수", "목", "금", "토", "일"] as const;
 
 const MEAL_STYLE: Record<
   MealType,
-  { card: string; label: string; icon: string; labelText: string }
+  { card: string; label: string; chip: string; icon: string; labelText: string }
 > = {
   b: {
     card: "bg-amber-50 border-amber-200",
     label: "text-amber-700",
+    chip: "bg-amber-100 text-amber-800",
     icon: "🍳",
     labelText: "아침",
   },
   l: {
     card: "bg-green-50 border-green-200",
     label: "text-green-700",
+    chip: "bg-green-100 text-green-800",
     icon: "☀️",
     labelText: "점심",
   },
   d: {
     card: "bg-violet-50 border-violet-200",
     label: "text-violet-700",
+    chip: "bg-violet-100 text-violet-800",
     icon: "🌙",
     labelText: "저녁",
   },
@@ -143,7 +146,10 @@ function getWeekStart(offset = 0): string {
   const day = d.getDay();
   const diff = day === 0 ? -6 : 1 - day;
   d.setDate(d.getDate() + diff + offset * 7);
-  return d.toISOString().slice(0, 10);
+  // toISOString()은 UTC 기준이라 KST 오전 9시 전엔 하루 전 날짜가 됨 → 로컬 날짜로 포맷
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${mm}-${dd}`;
 }
 
 function formatWeekRange(weekStart: string): string {
@@ -155,7 +161,29 @@ function formatWeekRange(weekStart: string): string {
   return `${start.getMonth() + 1}/${start.getDate()} - ${end.getMonth() + 1}/${end.getDate()} [${weekLabel}주]`;
 }
 
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+// 해당 월을 덮는 주 목록 (월요일 시작). offset은 이번 주 기준 주 차이
+function getMonthWeeks(monthOffset: number) {
+  const now = new Date();
+  const first = new Date(now.getFullYear(), now.getMonth() + monthOffset, 1);
+  const last = new Date(first.getFullYear(), first.getMonth() + 1, 0);
+  const thisMonday = new Date(getWeekStart(0) + "T00:00:00");
+  const monday = new Date(first);
+  monday.setDate(first.getDate() - ((first.getDay() + 6) % 7));
+  const weeks: { offset: number; monday: Date }[] = [];
+  for (; monday <= last; monday.setDate(monday.getDate() + 7)) {
+    weeks.push({
+      offset: Math.round((monday.getTime() - thisMonday.getTime()) / WEEK_MS),
+      monday: new Date(monday),
+    });
+  }
+  return { year: first.getFullYear(), month: first.getMonth(), weeks };
+}
+
 export function MealPlanner() {
+  const [viewMode, setViewMode] = useState<"week" | "month">("week");
+  const [monthOffset, setMonthOffset] = useState(0);
   const [weekOffset, setWeekOffset] = useState(0);
   const [selectedDay, setSelectedDay] = useState(() => {
     const d = new Date().getDay();
@@ -213,6 +241,35 @@ export function MealPlanner() {
     return acc;
   }, {});
 
+  const monthView = getMonthWeeks(monthOffset);
+  const monthWeekStarts = monthView.weeks.map((w) => getWeekStart(w.offset));
+  const monthResults = useMonthMealPlans(
+    viewMode === "month" ? monthWeekStarts : [],
+  );
+  const monthMaps = monthResults.map((r) =>
+    (r.data ?? []).reduce<Record<number, Partial<Record<MealType, string>>>>(
+      (acc, row) => {
+        (acc[row.day] ??= {})[row.meal_type] = row.meal_name;
+        return acc;
+      },
+      {},
+    ),
+  );
+  const todayStr = new Date().toDateString();
+
+  function switchToMonth() {
+    // 현재 선택된 날짜가 포함된 달을 보여줌
+    const sel = new Date(getWeekStart(weekOffset) + "T00:00:00");
+    sel.setDate(sel.getDate() + selectedDay);
+    const now = new Date();
+    setMonthOffset(
+      (sel.getFullYear() - now.getFullYear()) * 12 +
+        sel.getMonth() -
+        now.getMonth(),
+    );
+    setViewMode("month");
+  }
+
   const urgentItems = items.filter(
     (i) => !i.consumed && getDday(i.expiry) <= 5 && getDday(i.expiry) >= 0,
   );
@@ -265,24 +322,121 @@ export function MealPlanner() {
     <>
       <div className="flex flex-col gap-5">
         {/* Week navigation + day tabs */}
-        <div className="bg-white border border-gray-200 rounded-xl px-5 py-4">
+        <div className="bg-white border border-gray-200 rounded-xl px-3 py-3 md:px-5 md:py-4">
+          <div className="flex justify-end mb-3">
+            <div className="inline-flex bg-gray-100 rounded-lg p-0.5">
+              {(["week", "month"] as const).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() =>
+                    mode === "month" ? switchToMonth() : setViewMode("week")
+                  }
+                  className={cn(
+                    "px-3 py-1 rounded-md text-[12px] font-bold transition-colors",
+                    viewMode === mode
+                      ? "bg-white text-stone-900 shadow-sm"
+                      : "text-gray-500 hover:text-gray-700",
+                  )}
+                >
+                  {mode === "week" ? "주간" : "월간"}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="flex items-center justify-between mb-3">
             <button
-              onClick={() => setWeekOffset((o) => o - 1)}
+              onClick={() =>
+                viewMode === "week"
+                  ? setWeekOffset((o) => o - 1)
+                  : setMonthOffset((o) => o - 1)
+              }
               className="px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-600 text-[13px] font-semibold transition-colors"
             >
-              ◀ 이전 주
+              {viewMode === "week" ? "◀ 이전 주" : "◀ 이전 달"}
             </button>
             <span className="text-[14px] font-bold text-stone-800">
-              {formatWeekRange(weekStart)}
+              {viewMode === "week"
+                ? formatWeekRange(weekStart)
+                : `${monthView.year}년 ${monthView.month + 1}월`}
             </span>
             <button
-              onClick={() => setWeekOffset((o) => o + 1)}
+              onClick={() =>
+                viewMode === "week"
+                  ? setWeekOffset((o) => o + 1)
+                  : setMonthOffset((o) => o + 1)
+              }
               className="px-3 py-1.5 rounded-xl bg-gray-50 hover:bg-gray-100 text-gray-600 text-[13px] font-semibold transition-colors"
             >
-              다음 주 ▶
+              {viewMode === "week" ? "다음 주 ▶" : "다음 달 ▶"}
             </button>
           </div>
+          {viewMode === "month" ? (
+            <div className="grid grid-cols-7 gap-0.5 md:gap-1">
+              {DAYS.map((day) => (
+                <div
+                  key={day}
+                  className="text-center text-[12px] font-bold text-gray-400 py-1"
+                >
+                  {day}
+                </div>
+              ))}
+              {monthView.weeks.flatMap((week, wi) =>
+                DAYS.map((day, di) => {
+                  const date = new Date(week.monday);
+                  date.setDate(date.getDate() + di);
+                  const inMonth = date.getMonth() === monthView.month;
+                  const active =
+                    week.offset === weekOffset && di === selectedDay;
+                  const meals = monthMaps[wi]?.[di] ?? {};
+                  return (
+                    <button
+                      key={`${wi}-${day}`}
+                      onClick={() => {
+                        setWeekOffset(week.offset);
+                        setSelectedDay(di);
+                      }}
+                      className={cn(
+                        "min-w-0 min-h-14 md:min-h-20 p-0.5 md:p-1.5 rounded-md text-left transition-all flex flex-col",
+                        active
+                          ? "bg-emerald-500 text-white"
+                          : "bg-gray-50 text-gray-700 hover:bg-gray-100",
+                        !inMonth && !active && "opacity-40",
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "text-[12px] font-extrabold",
+                          !active &&
+                            date.toDateString() === todayStr &&
+                            "text-emerald-600",
+                        )}
+                      >
+                        {date.getDate()}
+                      </span>
+                      <div className="w-full mt-0.5 flex flex-col gap-px">
+                        {MEAL_TYPES.map(
+                          (mt) =>
+                            meals[mt] && (
+                              <div
+                                key={mt}
+                                className={cn(
+                                  "text-[10px] md:text-[11px] leading-tight font-medium truncate rounded-sm px-0.5 md:px-1 py-px",
+                                  active
+                                    ? "bg-white/25 text-white"
+                                    : MEAL_STYLE[mt].chip,
+                                )}
+                              >
+                                {meals[mt]}
+                              </div>
+                            ),
+                        )}
+                      </div>
+                    </button>
+                  );
+                }),
+              )}
+            </div>
+          ) : (
           <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 md:grid md:grid-cols-7 md:overflow-x-visible md:pb-0 md:mx-0 md:px-0">
             {DAYS.map((day, i) => {
               const active = i === selectedDay;
@@ -313,6 +467,7 @@ export function MealPlanner() {
               );
             })}
           </div>
+          )}
         </div>
 
         {/* Meal cards */}

@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueries, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as api from "@/services/api";
 import type { MealType } from "@/services/api";
 
@@ -8,6 +8,15 @@ export function useMealPlan(weekStart: string) {
   return useQuery({
     queryKey: qk(weekStart),
     queryFn: () => api.getMealPlans(weekStart),
+  });
+}
+
+export function useMonthMealPlans(weekStarts: string[]) {
+  return useQueries({
+    queries: weekStarts.map((ws) => ({
+      queryKey: qk(ws),
+      queryFn: () => api.getMealPlans(ws),
+    })),
   });
 }
 
