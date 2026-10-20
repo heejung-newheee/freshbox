@@ -1,101 +1,6 @@
 import { cn, getDday } from "@/utils/utils";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import type { RecipeRecommendation } from "@/services/api";
-
-function RecipeModal({
-  recipe,
-  onClose,
-}: {
-  recipe: RecipeRecommendation;
-  onClose: () => void;
-}) {
-  return (
-    <div data-modal
-      onClick={onClose}
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[999] p-4"
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl"
-      >
-        {/* Sticky header */}
-        <div className="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-100 shrink-0">
-          <div className="min-w-0">
-            <h2 className="text-[16px] font-extrabold text-stone-900 truncate">
-              {recipe.koreanName}
-            </h2>
-            <p className="text-[12px] text-gray-400 mt-0.5 truncate">
-              {recipe.name}
-              {recipe.area && ` · ${recipe.area}`}
-            </p>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 text-[16px] shrink-0 transition-colors cursor-pointer"
-          >
-            ×
-          </button>
-        </div>
-
-        {/* Scrollable body */}
-        <div className="overflow-y-auto flex-1">
-          {recipe.thumbnail && (
-            <img
-              src={recipe.thumbnail}
-              alt={recipe.name}
-              className="w-full h-44 object-cover"
-            />
-          )}
-          <div className="p-6 flex flex-col gap-4">
-            {recipe.fullIngredients.length > 0 && (
-              <div>
-                <h3 className="text-[13px] font-bold text-stone-700 mb-2">
-                  재료
-                </h3>
-                <div className="grid grid-cols-2 gap-1">
-                  {recipe.fullIngredients.map((item, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-1.5 text-[12px] text-gray-600"
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" />
-                      <span className="font-medium">{item.ingredient}</span>
-                      {item.measure && (
-                        <span className="text-gray-400">{item.measure}</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {recipe.instructions && (
-              <div>
-                <h3 className="text-[13px] font-bold text-stone-700 mb-2">
-                  만드는 법
-                </h3>
-                <p className="text-[12px] text-gray-600 leading-relaxed whitespace-pre-line">
-                  {recipe.instructions}
-                </p>
-              </div>
-            )}
-
-            {recipe.youtube && (
-              <a
-                href={recipe.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 w-full h-9.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-[13px] font-bold transition-colors"
-              >
-                ▶ YouTube에서 보기
-              </a>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 import { useFoodItems } from "@/hooks/useFoodItems";
 import { useMealPlan, useMonthMealPlans, useUpsertMeal, useDeleteMeal } from "@/hooks/useMealPlan";
 import { useAuthStore } from "@/stores/authStore";
@@ -110,37 +15,7 @@ import {
 import type { MealType } from "@/services/api";
 import { useRecipeRecommendations } from "@/hooks/useRecipes";
 import { Button, Input } from "@/components/ui";
-
-const DAYS = ["월", "화", "수", "목", "금", "토", "일"] as const;
-
-const MEAL_STYLE: Record<
-  MealType,
-  { card: string; label: string; chip: string; icon: string; labelText: string }
-> = {
-  b: {
-    card: "bg-amber-50 border-amber-200",
-    label: "text-amber-700",
-    chip: "bg-amber-100 text-amber-800",
-    icon: "🍳",
-    labelText: "아침",
-  },
-  l: {
-    card: "bg-green-50 border-green-200",
-    label: "text-green-700",
-    chip: "bg-green-100 text-green-800",
-    icon: "☀️",
-    labelText: "점심",
-  },
-  d: {
-    card: "bg-violet-50 border-violet-200",
-    label: "text-violet-700",
-    chip: "bg-violet-100 text-violet-800",
-    icon: "🌙",
-    labelText: "저녁",
-  },
-};
-
-const MEAL_TYPES: MealType[] = ["b", "l", "d"];
+import { DAYS, MealCards, MonthCalendar, RecipeModal } from "@/components/features";
 
 function getWeekStart(offset = 0): string {
   const d = new Date();
@@ -190,11 +65,6 @@ export function MealPlanner() {
     const d = new Date().getDay();
     return d === 0 ? 6 : d - 1; // 0=월 ... 6=일
   });
-  const [editKey, setEditKey] = useState<string | null>(null); // "${dayIdx}-${mealType}"
-  const [editValue, setEditValue] = useState("");
-  const [editIngredients, setEditIngredients] = useState("");
-  const cancelledRef = useRef(false);
-  const ingredientsRef = useRef<HTMLInputElement>(null);
   const role = useAuthStore((s) => s.role);
   const canEdit = role === "owner" || role === "editor";
   const [newName, setNewName] = useState("");
@@ -256,7 +126,6 @@ export function MealPlanner() {
       {},
     ),
   );
-  const todayStr = new Date().toDateString();
 
   function switchToMonth() {
     // 현재 선택된 날짜가 포함된 달을 보여줌
@@ -283,40 +152,12 @@ export function MealPlanner() {
   const [selectedRecipe, setSelectedRecipe] =
     useState<RecipeRecommendation | null>(null);
 
-  function startEdit(dayIdx: number, mealType: MealType) {
-    cancelledRef.current = false;
-    setEditKey(`${dayIdx}-${mealType}`);
-    const meal = mealMap[dayIdx]?.[mealType];
-    setEditValue(meal?.name ?? "");
-    setEditIngredients(meal?.ingredients ?? "");
-  }
-
-  function cancelEdit() {
-    cancelledRef.current = true;
-    setEditKey(null);
-    setEditValue("");
-    setEditIngredients("");
-  }
-
-  function saveEdit(dayIdx: number, mealType: MealType) {
-    if (cancelledRef.current) {
-      cancelledRef.current = false;
-      return;
-    }
-    const trimmed = editValue.trim();
-    if (trimmed) {
-      upsert.mutate({
-        day: dayIdx,
-        mealType,
-        mealName: trimmed,
-        ingredients: editIngredients.trim(),
-      });
+  function saveMeal(mealType: MealType, name: string, ingredients: string) {
+    if (name) {
+      upsert.mutate({ day: selectedDay, mealType, mealName: name, ingredients });
     } else {
-      deleteMeal.mutate({ day: dayIdx, mealType });
+      deleteMeal.mutate({ day: selectedDay, mealType });
     }
-    setEditKey(null);
-    setEditValue("");
-    setEditIngredients("");
   }
 
   return (
@@ -372,71 +213,17 @@ export function MealPlanner() {
             </Button>
           </div>
           {viewMode === "month" ? (
-            <div className="grid grid-cols-7 gap-0.5 md:gap-1">
-              {DAYS.map((day) => (
-                <div
-                  key={day}
-                  className="text-center text-[12px] font-bold text-gray-400 py-1"
-                >
-                  {day}
-                </div>
-              ))}
-              {monthView.weeks.flatMap((week, wi) =>
-                DAYS.map((day, di) => {
-                  const date = new Date(week.monday);
-                  date.setDate(date.getDate() + di);
-                  const inMonth = date.getMonth() === monthView.month;
-                  const active =
-                    week.offset === weekOffset && di === selectedDay;
-                  const meals = monthMaps[wi]?.[di] ?? {};
-                  return (
-                    <button
-                      key={`${wi}-${day}`}
-                      onClick={() => {
-                        setWeekOffset(week.offset);
-                        setSelectedDay(di);
-                      }}
-                      className={cn(
-                        "min-w-0 min-h-14 md:min-h-20 p-0.5 md:p-1.5 rounded-md text-left transition-all flex flex-col",
-                        active
-                          ? "bg-emerald-500 text-white"
-                          : "bg-gray-50 text-gray-700 hover:bg-gray-100",
-                        !inMonth && !active && "opacity-40",
-                      )}
-                    >
-                      <span
-                        className={cn(
-                          "text-[12px] font-extrabold",
-                          !active &&
-                            date.toDateString() === todayStr &&
-                            "text-emerald-600",
-                        )}
-                      >
-                        {date.getDate()}
-                      </span>
-                      <div className="w-full mt-0.5 flex flex-col gap-px">
-                        {MEAL_TYPES.map(
-                          (mt) =>
-                            meals[mt] && (
-                              <div
-                                key={mt}
-                                className={cn(
-                                  "text-[10px] md:text-[11px] leading-tight font-medium truncate rounded-sm px-0.5 md:px-1 py-px",
-                                  active
-                                    ? "bg-white/25 text-white"
-                                    : MEAL_STYLE[mt].chip,
-                                )}
-                              >
-                                {meals[mt]}
-                              </div>
-                            ),
-                        )}
-                      </div>
-                    </button>
-                  );
-                }),
-              )}
-            </div>
+            <MonthCalendar
+              month={monthView.month}
+              weeks={monthView.weeks}
+              weekMeals={monthMaps}
+              weekOffset={weekOffset}
+              selectedDay={selectedDay}
+              onSelect={(offset, day) => {
+                setWeekOffset(offset);
+                setSelectedDay(day);
+              }}
+            />
           ) : (
           <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 md:grid md:grid-cols-7 md:overflow-x-visible md:pb-0 md:mx-0 md:px-0">
             {DAYS.map((day, i) => {
@@ -472,114 +259,15 @@ export function MealPlanner() {
         </div>
 
         {/* Meal cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
-          {MEAL_TYPES.map((mealType) => {
-            const s = MEAL_STYLE[mealType];
-            const value = mealMap[selectedDay]?.[mealType];
-            const key = `${selectedDay}-${mealType}`;
-            const isEditing = editKey === key;
-
-            return (
-              <div key={mealType} className={`${s.card} border rounded-xl p-3 md:p-4`}>
-                <div
-                  className={`text-[12px] font-bold ${s.label} mb-2 flex items-center justify-between`}
-                >
-                  <span className="flex items-center gap-1.5">
-                    <span className="text-base">{s.icon}</span>
-                    {s.labelText}
-                  </span>
-                  {canEdit && !isEditing && value?.name && (
-                    <button
-                      onClick={() =>
-                        deleteMeal.mutate({ day: selectedDay, mealType })
-                      }
-                      className="text-gray-300 hover:text-red-400 transition-colors text-[18px] leading-none cursor-pointer"
-                      title="삭제"
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
-
-                {isEditing ? (
-                  <div
-                    className="flex flex-col gap-1.5"
-                    onBlur={(e) => {
-                      if (!e.currentTarget.contains(e.relatedTarget as Node))
-                        saveEdit(selectedDay, mealType);
-                    }}
-                  >
-                    <Input
-                      autoFocus
-                      value={editValue}
-                      onChange={(e) => setEditValue(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && !e.nativeEvent.isComposing)
-                          ingredientsRef.current?.focus();
-                        if (e.key === "Escape") cancelEdit();
-                      }}
-                      placeholder={`${s.labelText} 입력...`}
-                      className="font-semibold bg-white"
-                    />
-                    <div className="flex items-center gap-1.5">
-                      <Input
-                        ref={ingredientsRef}
-                        value={editIngredients}
-                        onChange={(e) => setEditIngredients(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" && !e.nativeEvent.isComposing)
-                            saveEdit(selectedDay, mealType);
-                          if (e.key === "Escape") cancelEdit();
-                        }}
-                        placeholder="재료 또는 노트 (쉼표로 구분)"
-                        className="flex-1 min-w-0 bg-white text-gray-500"
-                      />
-                      <Button
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => saveEdit(selectedDay, mealType)}
-                        className="w-9.5 px-0 text-[14px]"
-                      >
-                        ✓
-                      </Button>
-                      <Button
-                        variant="secondary"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={cancelEdit}
-                        className="w-9.5 px-0 text-[14px]"
-                      >
-                        ✕
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    className={cn(
-                      "flex items-start justify-between group",
-                      canEdit && "cursor-pointer",
-                    )}
-                    onClick={() => canEdit && startEdit(selectedDay, mealType)}
-                  >
-                    <div>
-                      <div
-                        className={`text-base font-extrabold ${value?.name ? "text-stone-900" : "text-gray-300"}`}
-                      >
-                        {value?.name ?? "미정"}
-                      </div>
-                      {value?.ingredients && (
-                        <div className="text-[11px] text-gray-400 mt-1">
-                          {value.ingredients}
-                        </div>
-                      )}
-                    </div>
-                    <span className="text-[13px] ml-2 opacity-0 group-hover:opacity-60 transition-opacity shrink-0">
-                      ✏️
-                    </span>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <MealCards
+          key={`${weekStart}-${selectedDay}`}
+          meals={mealMap[selectedDay] ?? {}}
+          canEdit={canEdit}
+          onSave={saveMeal}
+          onDelete={(mealType) =>
+            deleteMeal.mutate({ day: selectedDay, mealType })
+          }
+        />
 
         {/* Bottom: shopping + notes */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">

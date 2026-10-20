@@ -38,10 +38,3 @@ export interface Member {
   role: Role;
   color: string;
 }
-
-export interface DdayMeta {
-  label: string;
-  textColor: string;
-  bgColor: string;
-  borderColor: string;
-}

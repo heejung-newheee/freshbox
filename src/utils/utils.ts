@@ -1,46 +1,8 @@
 import type { User } from "@supabase/supabase-js";
-import type { DdayMeta } from "../@types/types";
 import { TODAY } from "../constants/constants";
 
 export function getDday(expiry: string): number {
   return Math.ceil((new Date(expiry).getTime() - TODAY.getTime()) / 86400000);
-}
-
-export function getDdayMeta(d: number): DdayMeta {
-  if (d < 0)
-    return {
-      label: "만료",
-      textColor: "text-red-500",
-      bgColor: "bg-red-50",
-      borderColor: "border-red-200",
-    };
-  if (d === 0)
-    return {
-      label: "D-Day",
-      textColor: "text-red-500",
-      bgColor: "bg-red-50",
-      borderColor: "border-red-200",
-    };
-  if (d <= 2)
-    return {
-      label: `D-${d}`,
-      textColor: "text-red-500",
-      bgColor: "bg-red-50",
-      borderColor: "border-red-200",
-    };
-  if (d <= 7)
-    return {
-      label: `D-${d}`,
-      textColor: "text-amber-600",
-      bgColor: "bg-amber-50",
-      borderColor: "border-amber-200",
-    };
-  return {
-    label: `D-${d}`,
-    textColor: "text-emerald-600",
-    bgColor: "bg-emerald-50",
-    borderColor: "border-emerald-200",
-  };
 }
 
 export function cn(...classes: (string | undefined | false | null)[]): string {
