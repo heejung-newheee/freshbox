@@ -51,10 +51,10 @@ export function Dashboard() {
   ];
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-3 md:gap-4">
       {/* Alert Banner */}
       {urgentItems.length > 0 && (
-        <div className="px-4 py-3.5 bg-amber-50 rounded-xl border border-amber-200 flex items-center gap-2.5">
+        <div className="px-3 py-3 md:px-4 md:py-3.5 bg-amber-50 rounded-xl border border-amber-200 flex items-center gap-2.5">
           <span className="text-lg">⚠️</span>
           <span className="text-[13px] text-amber-800">
             <strong>유통기한 임박 알림</strong>{" "}
@@ -66,7 +66,7 @@ export function Dashboard() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-2.5 md:gap-3.5">
         {stats.map((s) => (
-          <div key={s.label} className="bg-white border border-gray-200 rounded-xl p-3.5 md:p-5 flex md:block items-center gap-3">
+          <div key={s.label} className="bg-white border border-gray-200 rounded-xl p-3 md:p-5 flex md:block items-center gap-3">
             <div className={`w-9 h-9 md:w-[38px] md:h-[38px] rounded-xl ${s.bg} flex items-center justify-center text-base md:text-lg md:mb-3 shrink-0`}>
               {s.icon}
             </div>
@@ -80,9 +80,9 @@ export function Dashboard() {
       </div>
 
       {/* Grid: urgent + expired */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
         {/* Urgent Foods */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-xl border border-gray-200 p-3 md:p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-[14px] font-bold">🔥 임박 식품</h3>
             {urgentItems.length > 0 && (
@@ -126,7 +126,7 @@ export function Dashboard() {
         </div>
 
         {/* Expired Foods */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5">
+        <div className="bg-white rounded-xl border border-gray-200 p-3 md:p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-[14px] font-bold">🗑️ 만료 식품</h3>
             {expiredItems.length > 0 && (
@@ -171,9 +171,9 @@ export function Dashboard() {
       </div>
 
       {/* Shopping + Notes */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
         {/* 장보기 목록 */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col">
+        <div className="bg-white rounded-xl border border-gray-200 p-3 md:p-5 flex flex-col">
           <div className="flex items-center justify-between mb-3.5">
             <h3 className="text-[14px] font-bold">🛒 장보기 목록</h3>
             {shopping.filter((s) => !s.checked).length > 0 && (
@@ -232,7 +232,7 @@ export function Dashboard() {
         </div>
 
         {/* 메모 */}
-        <div className="bg-white rounded-xl border border-gray-200 p-5 flex flex-col">
+        <div className="bg-white rounded-xl border border-gray-200 p-3 md:p-5 flex flex-col">
           <h3 className="text-[14px] font-bold mb-3.5">📝 메모</h3>
           <div className="relative flex-1">
             <textarea
@@ -253,7 +253,7 @@ export function Dashboard() {
       </div>
 
       {/* Category Breakdown */}
-      <div className="bg-white rounded-xl border border-gray-200 p-5">
+      <div className="bg-white rounded-xl border border-gray-200 p-3 md:p-5">
           <h3 className="text-[14px] font-bold mb-4">카테고리 현황</h3>
           {catCounts.length === 0 ? (
             <div className="text-center py-6 text-gray-400 text-[12px]">식품이 없습니다</div>

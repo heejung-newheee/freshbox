@@ -55,7 +55,7 @@ export function Header({ title, onAddItem, onSettingsClick }: HeaderProps) {
 
   return (
     <header className="sticky top-0 bg-white border-b border-gray-200 z-40">
-      <div className="px-4 md:px-6 py-3 flex items-center justify-between">
+      <div className="px-3 md:px-6 py-3 flex items-center justify-between">
         {/* Left: 모바일은 로고(홈 이동), 데스크톱은 페이지 타이틀 */}
         {isMobile ? (
           <button

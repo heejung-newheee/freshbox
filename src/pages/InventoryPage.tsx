@@ -71,9 +71,9 @@ export function Inventory() {
 
   return (
     <>
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-3 md:gap-4">
         {/* Search + Location filter row */}
-        <div className="flex flex-wrap items-center gap-2.5 bg-white border border-gray-200 rounded-xl px-4 py-3">
+        <div className="flex flex-wrap items-center gap-2.5 bg-white border border-gray-200 rounded-xl p-3 md:px-4">
           <div className="flex-1 flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
             <span className="text-gray-400 text-sm">🔍</span>
             <input

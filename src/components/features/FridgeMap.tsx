@@ -235,7 +235,7 @@ function FridgeSection({
   );
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5">
+    <div className="bg-white border border-gray-200 rounded-xl p-3 md:p-5">
       <div className="flex items-center gap-3 mb-5">
         <div
           className={`w-11 h-11 rounded-xl ${iconBg} flex items-center justify-center text-[22px]`}
@@ -367,7 +367,7 @@ export function FridgeMap({ items }: FridgeMapProps) {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className={`grid ${cols} gap-5`}>
+        <div className={`grid ${cols} gap-3 md:gap-4`}>
           <FridgeSection
             title="냉장칸"
             icon="❄️"

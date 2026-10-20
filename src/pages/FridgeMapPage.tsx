@@ -11,10 +11,10 @@ export function FridgeMapPage() {
   const { items } = useFoodItems();
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-3 md:gap-4">
       <FridgeMap items={items} />
 
-      <div className="bg-green-50 border border-green-200 rounded-xl p-5">
+      <div className="bg-green-50 border border-green-200 rounded-xl p-3 md:p-5">
         <div className="text-[14px] font-bold text-green-800 mb-3.5">💡 냉장고 보관 TIP</div>
         <div className="grid grid-cols-3 gap-3">
           {TIPS.map((tip) => (

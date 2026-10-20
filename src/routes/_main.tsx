@@ -66,7 +66,13 @@ export default function MainLayout() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar: tablet 이상만 표시 */}
-      {!isMobile && <Sidebar itemCount={active.length} compact={isTablet} onSettingsClick={() => setShowSettings(true)} />}
+      {!isMobile && (
+        <Sidebar
+          itemCount={active.length}
+          compact={isTablet}
+          onSettingsClick={() => setShowSettings(true)}
+        />
+      )}
 
       {/* Main Content */}
       <main
@@ -83,7 +89,7 @@ export default function MainLayout() {
 
         <div
           className={cn(
-            "flex-1 p-4 md:p-5 lg:p-6 overflow-y-auto",
+            "flex-1 p-3 md:p-4 lg:p-6 overflow-y-auto",
             isMobile && "pb-20",
           )}
         >

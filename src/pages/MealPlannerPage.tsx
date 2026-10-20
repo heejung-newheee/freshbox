@@ -320,7 +320,7 @@ export function MealPlanner() {
 
   return (
     <>
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-3 md:gap-4">
         {/* Week navigation + day tabs */}
         <div className="bg-white border border-gray-200 rounded-xl px-3 py-3 md:px-5 md:py-4">
           <div className="flex justify-end mb-3">
@@ -471,7 +471,7 @@ export function MealPlanner() {
         </div>
 
         {/* Meal cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
           {MEAL_TYPES.map((mealType) => {
             const s = MEAL_STYLE[mealType];
             const value = mealMap[selectedDay]?.[mealType];
@@ -479,7 +479,7 @@ export function MealPlanner() {
             const isEditing = editKey === key;
 
             return (
-              <div key={mealType} className={`${s.card} border rounded-xl p-4`}>
+              <div key={mealType} className={`${s.card} border rounded-xl p-3 md:p-4`}>
                 <div
                   className={`text-[12px] font-bold ${s.label} mb-2 flex items-center justify-between`}
                 >
@@ -580,8 +580,8 @@ export function MealPlanner() {
         </div>
 
         {/* Bottom: shopping + notes */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+          <div className="bg-white border border-gray-200 rounded-xl p-3 md:p-5 flex flex-col">
             <div className="flex items-center justify-between mb-1">
               <h3 className="text-[14px] font-bold">🛒 장보기 목록</h3>
               {canEdit && shopping.some((s) => s.checked) && (
@@ -658,7 +658,7 @@ export function MealPlanner() {
             )}
           </div>
           {/* 노트 */}
-          <div className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col">
+          <div className="bg-white border border-gray-200 rounded-xl p-3 md:p-5 flex flex-col">
             <h3 className="text-[14px] font-bold mb-1">📝 메모</h3>
             <p className="text-[12px] text-gray-400 mb-3.5">
               사야 할 것, 식단 관련 메모
@@ -684,7 +684,7 @@ export function MealPlanner() {
         </div>
 
         {/* Recipe recommendations - full width */}
-        <div className="bg-white border border-gray-200 rounded-xl p-5">
+        <div className="bg-white border border-gray-200 rounded-xl p-3 md:p-5">
           <div className="flex items-center gap-3 mb-3.5">
             <h3 className="text-[14px] font-bold">🔥 임박 재료 활용 추천</h3>
             <div className="flex gap-1.5 flex-wrap">

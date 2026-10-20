@@ -199,10 +199,10 @@ export function Share() {
 
   return (
     <>
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-3 md:gap-4">
         {/* Invite */}
         {canEdit && (
-          <div className="bg-white border border-gray-200 rounded-xl px-3 py-3.5 md:px-5 md:py-4">
+          <div className="bg-white border border-gray-200 rounded-xl p-3 md:px-5 md:py-4">
             <h3 className="text-[15px] font-extrabold text-stone-900 mb-1.5">
               멤버 초대
             </h3>
@@ -290,7 +290,7 @@ export function Share() {
 
         {/* Role guide */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-          <div className="bg-white border border-emerald-100 rounded-xl px-3 py-3.5 md:px-5 md:py-4">
+          <div className="bg-white border border-emerald-100 rounded-xl p-3 md:px-5 md:py-4">
             <span className="inline-block px-2.5 py-0.5 rounded-full text-[12px] font-bold mb-2.5 bg-emerald-100 text-emerald-700">
               소유자
             </span>
@@ -304,7 +304,7 @@ export function Share() {
             return (
               <div
                 key={role}
-                className={`bg-white border ${s.card} rounded-xl px-3 py-3.5 md:px-5 md:py-4`}
+                className={`bg-white border ${s.card} rounded-xl p-3 md:px-5 md:py-4`}
               >
                 <span
                   className={`inline-block px-2.5 py-0.5 rounded-full text-[12px] font-bold mb-2.5 ${s.badge}`}
@@ -320,7 +320,7 @@ export function Share() {
         </div>
 
         {/* Current Members */}
-        <div className="bg-white border border-gray-200 rounded-xl px-3 py-3.5 md:px-5 md:py-4">
+        <div className="bg-white border border-gray-200 rounded-xl p-3 md:px-5 md:py-4">
           <h3 className="text-[15px] font-extrabold text-stone-900 mb-4">
             현재 멤버 ({1 + members.length}명)
           </h3>
