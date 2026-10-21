@@ -112,7 +112,7 @@ export default function MainLayout() {
       {isMobile && canEdit && (
         <button
           onClick={() => setShowAddModal(true)}
-          className="fixed bottom-[calc(env(safe-area-inset-bottom)+68px)] right-4 z-50 w-13 h-13 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-200 hover:bg-emerald-600 active:scale-95 transition-all"
+          className="fixed bottom-[calc(env(safe-area-inset-bottom)+73px)] right-4 z-50 w-13 h-13 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md shadow-emerald-600/20 hover:bg-emerald-600 active:scale-95 transition-all"
         >
           <IconPlus size={22} className="text-white" />
         </button>

@@ -2,7 +2,12 @@ import { cn, getDday } from "@/utils/utils";
 import { useState } from "react";
 import type { RecipeRecommendation } from "@/services/api";
 import { useFoodItems } from "@/hooks/useFoodItems";
-import { useMealPlan, useMonthMealPlans, useUpsertMeal, useDeleteMeal } from "@/hooks/useMealPlan";
+import {
+  useMealPlan,
+  useMonthMealPlans,
+  useUpsertMeal,
+  useDeleteMeal,
+} from "@/hooks/useMealPlan";
 import { useAuthStore } from "@/stores/authStore";
 import { useMealNotes, useUpdateMealNotes } from "@/hooks/useMealNotes";
 import {
@@ -15,7 +20,13 @@ import {
 import type { MealType } from "@/services/api";
 import { useRecipeRecommendations } from "@/hooks/useRecipes";
 import { Button, Input } from "@/components/ui";
-import { DAYS, MealCards, MonthCalendar, RecipeModal } from "@/components/features";
+import { PlusIcon, XIcon } from "@/assets/icons";
+import {
+  DAYS,
+  MealCards,
+  MonthCalendar,
+  RecipeModal,
+} from "@/components/features";
 
 function getWeekStart(offset = 0): string {
   const d = new Date();
@@ -154,7 +165,12 @@ export function MealPlanner() {
 
   function saveMeal(mealType: MealType, name: string, ingredients: string) {
     if (name) {
-      upsert.mutate({ day: selectedDay, mealType, mealName: name, ingredients });
+      upsert.mutate({
+        day: selectedDay,
+        mealType,
+        mealName: name,
+        ingredients,
+      });
     } else {
       deleteMeal.mutate({ day: selectedDay, mealType });
     }
@@ -225,36 +241,38 @@ export function MealPlanner() {
               }}
             />
           ) : (
-          <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 md:grid md:grid-cols-7 md:overflow-x-visible md:pb-0 md:mx-0 md:px-0">
-            {DAYS.map((day, i) => {
-              const active = i === selectedDay;
-              const b = mealMap[i]?.b;
-              const l = mealMap[i]?.l;
-              const d = mealMap[i]?.d;
-              return (
-                <button
-                  key={day}
-                  onClick={() => setSelectedDay(i)}
-                  className={cn(
-                    "px-1 shrink-0 w-20 md:w-auto py-3 rounded-xl border-none cursor-pointer text-center transition-all",
-                    active
-                      ? "bg-emerald-500 text-white"
-                      : "bg-gray-50 text-gray-700 hover:bg-gray-100",
-                  )}
-                >
-                  <div className="text-[12px] font-extrabold mb-1.5">{day}</div>
-                  {[b, l, d].map((meal, mi) => (
-                    <div
-                      key={mi}
-                      className="text-[14px] opacity-75 overflow-hidden text-ellipsis whitespace-nowrap w-full px-1"
-                    >
-                      {meal?.name ?? "·"}
+            <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 md:grid md:grid-cols-7 md:overflow-x-visible md:pb-0 md:mx-0 md:px-0">
+              {DAYS.map((day, i) => {
+                const active = i === selectedDay;
+                const b = mealMap[i]?.b;
+                const l = mealMap[i]?.l;
+                const d = mealMap[i]?.d;
+                return (
+                  <button
+                    key={day}
+                    onClick={() => setSelectedDay(i)}
+                    className={cn(
+                      "px-1 shrink-0 w-20 md:w-auto py-3 rounded-xl border-none cursor-pointer text-center transition-all",
+                      active
+                        ? "bg-emerald-500 text-white"
+                        : "bg-gray-50 text-gray-700 hover:bg-gray-100",
+                    )}
+                  >
+                    <div className="text-[12px] font-extrabold mb-1.5">
+                      {day}
                     </div>
-                  ))}
-                </button>
-              );
-            })}
-          </div>
+                    {[b, l, d].map((meal, mi) => (
+                      <div
+                        key={mi}
+                        className="text-[14px] opacity-75 overflow-hidden text-ellipsis whitespace-nowrap w-full px-1"
+                      >
+                        {meal?.name ?? "·"}
+                      </div>
+                    ))}
+                  </button>
+                );
+              })}
+            </div>
           )}
         </div>
 
@@ -316,9 +334,10 @@ export function MealPlanner() {
                   {canEdit && (
                     <button
                       onClick={() => deleteItem.mutate(item.id)}
-                      className="text-gray-200 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100 text-[16px] leading-none ml-1"
+                      aria-label="삭제"
+                      className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100"
                     >
-                      ×
+                      <XIcon s={14} />
                     </button>
                   )}
                 </div>
@@ -336,9 +355,17 @@ export function MealPlanner() {
                       addShoppingItem();
                   }}
                   placeholder="재료명"
+                  size="sm"
                   className="flex-1"
                 />
-                <Button onClick={addShoppingItem}>+</Button>
+                <Button
+                  aria-label="항목 추가"
+                  size="sm"
+                  className="w-8 px-0"
+                  onClick={addShoppingItem}
+                >
+                  <PlusIcon s={16} />
+                </Button>
               </div>
             )}
           </div>

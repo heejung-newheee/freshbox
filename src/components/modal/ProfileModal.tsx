@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Avatar, Button, Input } from "@/components/ui";
+import { Avatar, Button, Input, SegmentedControl } from "@/components/ui";
 import * as api from "@/services/api";
 import { useAuthStore } from "@/stores/authStore";
 import { getDisplayName } from "@/utils/utils";
@@ -143,13 +143,14 @@ export function ProfileModal({ onClose }: { onClose: () => void }) {
   );
 
   return (
-    <div data-modal
+    <div
+      data-modal
       onClick={onClose}
       className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[999] p-4"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-xl w-full max-w-sm shadow-2xl max-h-[90vh] flex flex-col"
+        className="bg-white rounded-xl w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
@@ -245,22 +246,14 @@ export function ProfileModal({ onClose }: { onClose: () => void }) {
               <label className="block text-[12px] font-semibold text-gray-600 mb-1.5">
                 화면에 표시할 이름
               </label>
-              <div className="inline-flex bg-gray-100 rounded-lg p-0.5">
-                {(["name", "nickname"] as const).map((v) => (
-                  <button
-                    key={v}
-                    type="button"
-                    onClick={() => setDisplayPref(v)}
-                    className={`px-4 py-1.5 rounded-md text-[13px] font-bold transition-colors ${
-                      displayPref === v
-                        ? "bg-white text-stone-900 shadow-sm"
-                        : "text-gray-500 hover:text-gray-700"
-                    }`}
-                  >
-                    {v === "name" ? "이름" : "닉네임"}
-                  </button>
-                ))}
-              </div>
+              <SegmentedControl
+                options={[
+                  { label: "이름", value: "name" },
+                  { label: "닉네임", value: "nickname" },
+                ]}
+                value={displayPref}
+                onChange={setDisplayPref}
+              />
             </div>
             {message && (
               <p
@@ -300,7 +293,11 @@ export function ProfileModal({ onClose }: { onClose: () => void }) {
                 {pwMessage.text}
               </p>
             )}
-            <Button onClick={handlePassword} disabled={pwSaving} className="w-full">
+            <Button
+              onClick={handlePassword}
+              disabled={pwSaving}
+              className="w-full"
+            >
               {pwSaving ? "변경 중..." : "비밀번호 변경"}
             </Button>
           </div>

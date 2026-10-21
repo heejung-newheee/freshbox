@@ -4,44 +4,9 @@ import {
   useFridgeSettings,
   useUpdateFridgeSettings,
 } from "@/hooks/useFridgeSettings";
-import { Button, Toggle } from "@/components/ui";
+import { Button, SegmentedControl, Toggle } from "@/components/ui";
 import { usePushSetting } from "@/hooks/useNotifications";
 import { useAuthStore } from "@/stores/authStore";
-
-function LayoutPicker({
-  value,
-  onChange,
-  disabled,
-}: {
-  value: boolean;
-  onChange: (v: boolean) => void;
-  disabled?: boolean;
-}) {
-  const opts = [
-    { label: "상·중·하단", v: false },
-    { label: "좌·우", v: true },
-  ];
-  return (
-    <div
-      className={`flex gap-2 ${disabled ? "opacity-50 pointer-events-none" : ""}`}
-    >
-      {opts.map((o) => (
-        <button
-          key={String(o.v)}
-          type="button"
-          onClick={() => onChange(o.v)}
-          className={`px-4 py-1.5 rounded-full text-[13px] font-semibold border transition-all cursor-pointer ${
-            value === o.v
-              ? "bg-emerald-500 text-white border-emerald-500"
-              : "bg-white text-gray-500 border-gray-200 hover:border-emerald-300 hover:text-emerald-600"
-          }`}
-        >
-          {o.label}
-        </button>
-      ))}
-    </div>
-  );
-}
 
 export function SettingsModal({ onClose }: { onClose: () => void }) {
   const { data: settings, isLoading } = useFridgeSettings();
@@ -96,19 +61,18 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div data-modal
+    <div
+      data-modal
       onClick={onClose}
       className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[999] p-4"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-xl w-full max-w-sm shadow-2xl max-h-[90vh] flex flex-col"
+        className="bg-white rounded-xl w-full max-w-lg shadow-2xl max-h-[90vh] flex flex-col"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
-          <h2 className="text-[15px] font-extrabold text-stone-900">
-            설정
-          </h2>
+          <h2 className="text-[15px] font-extrabold text-stone-900">설정</h2>
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-xl bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 text-[16px] transition-colors cursor-pointer"
@@ -164,93 +128,100 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
             </div>
           </div>
 
-          {role === "owner" && (isLoading ? (
-            <div className="py-4 text-center text-[13px] text-gray-400">
-              불러오는 중...
-            </div>
-          ) : (
-            <>
-              <div className="h-px bg-gray-100" />
-
-              <div className="flex flex-col gap-4">
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                  보관 위치
-                </p>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-[14px] font-semibold text-stone-800">
-                      김치냉장고 사용
-                    </p>
-                    <p className="text-[12px] text-gray-400 mt-0.5">
-                      재료 추가 시 김치냉장고 선택 가능
-                    </p>
-                  </div>
-                  <Toggle
-                    checked={current.has_kimchi_fridge}
-                    onChange={(v) => handleToggle("has_kimchi_fridge", v)}
-                    disabled={update.isPending}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-[14px] font-semibold text-stone-800">
-                      실온 보관 사용
-                    </p>
-                    <p className="text-[12px] text-gray-400 mt-0.5">
-                      상온 보관 식품 위치 선택 가능
-                    </p>
-                  </div>
-                  <Toggle
-                    checked={current.has_room_temp}
-                    onChange={(v) => handleToggle("has_room_temp", v)}
-                    disabled={update.isPending}
-                  />
-                </div>
+          {role === "owner" &&
+            (isLoading ? (
+              <div className="py-4 text-center text-[13px] text-gray-400">
+                불러오는 중...
               </div>
+            ) : (
+              <>
+                <div className="h-px bg-gray-100" />
 
-              <div className="h-px bg-gray-100" />
-
-              <div className="flex flex-col gap-4">
-                <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                  구역 설정
-                </p>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-[14px] font-semibold text-stone-800">
-                      구역(칸) 세분화
-                    </p>
-                    <p className="text-[12px] text-gray-400 mt-0.5">
-                      {current.use_zones
-                        ? "구역 선택 가능"
-                        : "구역 구분 없이 위치만 선택"}
-                    </p>
-                  </div>
-                  <Toggle
-                    checked={current.use_zones}
-                    onChange={(v) => handleToggle("use_zones", v)}
-                    disabled={update.isPending}
-                  />
-                </div>
-
-                {current.use_zones && (
+                <div className="flex flex-col gap-4">
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                    보관 위치
+                  </p>
                   <div className="flex items-center justify-between">
-                    <p className="text-[14px] font-semibold text-stone-800">
-                      냉동칸 구역 방향
-                    </p>
-                    <LayoutPicker
-                      value={current.freezer_horizontal}
-                      onChange={(v) => handleToggle("freezer_horizontal", v)}
+                    <div>
+                      <p className="text-[14px] font-semibold text-stone-800">
+                        김치냉장고 사용
+                      </p>
+                      <p className="text-[12px] text-gray-400 mt-0.5">
+                        재료 추가 시 김치냉장고 선택 가능
+                      </p>
+                    </div>
+                    <Toggle
+                      checked={current.has_kimchi_fridge}
+                      onChange={(v) => handleToggle("has_kimchi_fridge", v)}
                       disabled={update.isPending}
                     />
                   </div>
-                )}
-              </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[14px] font-semibold text-stone-800">
+                        실온 보관 사용
+                      </p>
+                      <p className="text-[12px] text-gray-400 mt-0.5">
+                        상온 보관 식품 위치 선택 가능
+                      </p>
+                    </div>
+                    <Toggle
+                      checked={current.has_room_temp}
+                      onChange={(v) => handleToggle("has_room_temp", v)}
+                      disabled={update.isPending}
+                    />
+                  </div>
+                </div>
 
-              {error && (
-                <p className="text-[12px] text-red-500 text-center">{error}</p>
-              )}
-            </>
-          ))}
+                <div className="h-px bg-gray-100" />
+
+                <div className="flex flex-col gap-4">
+                  <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                    구역 설정
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[14px] font-semibold text-stone-800">
+                        구역(칸) 세분화
+                      </p>
+                      <p className="text-[12px] text-gray-400 mt-0.5">
+                        {current.use_zones
+                          ? "구역 선택 가능"
+                          : "구역 구분 없이 위치만 선택"}
+                      </p>
+                    </div>
+                    <Toggle
+                      checked={current.use_zones}
+                      onChange={(v) => handleToggle("use_zones", v)}
+                      disabled={update.isPending}
+                    />
+                  </div>
+
+                  {current.use_zones && (
+                    <div className="flex items-center justify-between">
+                      <p className="text-[14px] font-semibold text-stone-800">
+                        냉동칸 구역 방향
+                      </p>
+                      <SegmentedControl
+                        options={[
+                          { label: "상·중·하단", value: false },
+                          { label: "좌·우", value: true },
+                        ]}
+                        value={current.freezer_horizontal}
+                        onChange={(v) => handleToggle("freezer_horizontal", v)}
+                        disabled={update.isPending}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {error && (
+                  <p className="text-[12px] text-red-500 text-center">
+                    {error}
+                  </p>
+                )}
+              </>
+            ))}
         </div>
       </div>
     </div>
