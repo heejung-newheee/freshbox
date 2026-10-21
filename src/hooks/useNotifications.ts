@@ -89,6 +89,12 @@ export function usePushSetting() {
         }));
       await api.savePushSubscription(sub.toJSON());
       setEnabled(true);
+      // 기기에서 알림이 표시되는지 바로 확인할 수 있도록 테스트 알림
+      await reg.showNotification("FreshBox", {
+        body: "유통기한 알림이 설정되었어요",
+        icon: "/icon-192.png",
+        badge: "/icon-192.png",
+      });
     } catch {
       alert("알림 설정에 실패했습니다. 다시 시도해주세요.");
     } finally {
