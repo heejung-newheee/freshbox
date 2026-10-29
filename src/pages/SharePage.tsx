@@ -221,7 +221,7 @@ export function Share() {
                     setInviteError(null);
                   }}
                   onKeyDown={(e) => e.key === "Enter" && handleInvite()}
-                  className="flex-1"
+                  className="md:flex-1"
                 />
                 <div
                   ref={roleDropdownRef}

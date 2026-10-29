@@ -214,6 +214,7 @@ export function MealPlanner() {
           <div className="flex items-center justify-between mb-3">
             <Button
               variant="secondary"
+              size="sm"
               onClick={() =>
                 viewMode === "week"
                   ? setWeekOffset((o) => o - 1)
@@ -229,6 +230,7 @@ export function MealPlanner() {
             </span>
             <Button
               variant="secondary"
+              size="sm"
               onClick={() =>
                 viewMode === "week"
                   ? setWeekOffset((o) => o + 1)
