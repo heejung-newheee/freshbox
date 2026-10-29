@@ -29,7 +29,16 @@ export function useUpdateShoppingItemName() {
   return useMutation({
     mutationFn: ({ id, name }: { id: string; name: string }) =>
       api.updateShoppingItemName(id, name),
-    onSuccess: () => qc.invalidateQueries({ queryKey: QK }),
+    onMutate: async ({ id, name }) => {
+      await qc.cancelQueries({ queryKey: QK });
+      const prev = qc.getQueryData<api.ShoppingItem[]>(QK);
+      qc.setQueryData<api.ShoppingItem[]>(QK, (old) =>
+        old?.map((item) => (item.id === id ? { ...item, name } : item)),
+      );
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => qc.setQueryData(QK, ctx?.prev),
+    onSettled: () => qc.invalidateQueries({ queryKey: QK }),
   });
 }
 
