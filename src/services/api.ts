@@ -327,6 +327,11 @@ export const toggleShoppingItem = async (id: string, checked: boolean): Promise<
   if (error) throw error;
 };
 
+export const updateShoppingItemName = async (id: string, name: string): Promise<void> => {
+  const { error } = await supabase.from("shopping_items").update({ name }).eq("id", id);
+  if (error) throw error;
+};
+
 export const deleteShoppingItem = async (id: string): Promise<void> => {
   const { error } = await supabase.from("shopping_items").delete().eq("id", id);
   if (error) throw error;

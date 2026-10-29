@@ -15,6 +15,7 @@ import {
   useAddShoppingItem,
   useToggleShoppingItem,
   useDeleteShoppingItem,
+  useUpdateShoppingItemName,
   useClearCheckedItems,
 } from "@/hooks/useShoppingItems";
 import type { MealType } from "@/services/api";
@@ -96,6 +97,15 @@ export function MealPlanner() {
   const toggleItem = useToggleShoppingItem();
   const deleteItem = useDeleteShoppingItem();
   const clearChecked = useClearCheckedItems();
+  const updateItemName = useUpdateShoppingItemName();
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState("");
+
+  function commitEdit(id: string, prevName: string) {
+    const name = editDraft.trim();
+    setEditingId(null);
+    if (name && name !== prevName) updateItemName.mutate({ id, name });
+  }
 
   function addShoppingItem() {
     if (!newName.trim()) return;
@@ -321,16 +331,37 @@ export function MealPlanner() {
                     disabled={!canEdit}
                     className="w-4 h-4 accent-emerald-500 shrink-0 disabled:cursor-not-allowed"
                   />
-                  <span
-                    className={cn(
-                      "text-[13px] flex-1",
-                      item.checked
-                        ? "line-through text-gray-300"
-                        : "text-gray-700",
-                    )}
-                  >
-                    {item.name}
-                  </span>
+                  {editingId === item.id ? (
+                    <input
+                      autoFocus
+                      value={editDraft}
+                      onChange={(e) => setEditDraft(e.target.value)}
+                      onBlur={() => commitEdit(item.id, item.name)}
+                      onKeyDown={(e) => {
+                        if (e.nativeEvent.isComposing) return;
+                        if (e.key === "Enter") commitEdit(item.id, item.name);
+                        if (e.key === "Escape") setEditingId(null);
+                      }}
+                      className="text-[13px] flex-1 min-w-0 bg-transparent text-gray-700 outline-none border-b border-emerald-400"
+                    />
+                  ) : (
+                    <span
+                      onClick={() => {
+                        if (!canEdit) return;
+                        setEditingId(item.id);
+                        setEditDraft(item.name);
+                      }}
+                      className={cn(
+                        "text-[13px] flex-1",
+                        canEdit && "cursor-text",
+                        item.checked
+                          ? "line-through text-gray-300"
+                          : "text-gray-700",
+                      )}
+                    >
+                      {item.name}
+                    </span>
+                  )}
                   {canEdit && (
                     <button
                       onClick={() => deleteItem.mutate(item.id)}

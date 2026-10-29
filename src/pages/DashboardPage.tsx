@@ -8,6 +8,7 @@ import {
   useAddShoppingItem,
   useToggleShoppingItem,
   useDeleteShoppingItem,
+  useUpdateShoppingItemName,
 } from "@/hooks/useShoppingItems";
 import { useState } from "react";
 import { Button, Input } from "@/components/ui";
@@ -34,6 +35,14 @@ export function Dashboard() {
   const toggleShoppingItem = useToggleShoppingItem();
   const deleteShoppingItem = useDeleteShoppingItem();
   const [newShoppingName, setNewShoppingName] = useState("");
+  const updateShoppingItemName = useUpdateShoppingItemName();
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState("");
+  const commitEdit = (id: string, prevName: string) => {
+    const name = editDraft.trim();
+    setEditingId(null);
+    if (name && name !== prevName) updateShoppingItemName.mutate({ id, name });
+  };
   const active = items.filter((i) => !i.consumed);
   const urgentItems = active
     .filter((i) => getDday(i.expiry) >= 0 && getDday(i.expiry) <= 3)
@@ -276,11 +285,30 @@ export function Dashboard() {
                     }
                     className="w-4 h-4 accent-emerald-500 shrink-0 cursor-pointer"
                   />
-                  <span
-                    className={`text-[13px] flex-1 ${item.checked ? "line-through text-gray-300" : "text-gray-700"}`}
-                  >
-                    {item.name}
-                  </span>
+                  {editingId === item.id ? (
+                    <input
+                      autoFocus
+                      value={editDraft}
+                      onChange={(e) => setEditDraft(e.target.value)}
+                      onBlur={() => commitEdit(item.id, item.name)}
+                      onKeyDown={(e) => {
+                        if (e.nativeEvent.isComposing) return;
+                        if (e.key === "Enter") commitEdit(item.id, item.name);
+                        if (e.key === "Escape") setEditingId(null);
+                      }}
+                      className="text-[13px] flex-1 min-w-0 bg-transparent text-gray-700 outline-none border-b border-emerald-400"
+                    />
+                  ) : (
+                    <span
+                      onClick={() => {
+                        setEditingId(item.id);
+                        setEditDraft(item.name);
+                      }}
+                      className={`text-[13px] flex-1 cursor-text ${item.checked ? "line-through text-gray-300" : "text-gray-700"}`}
+                    >
+                      {item.name}
+                    </span>
+                  )}
                   <button
                     onClick={() => deleteShoppingItem.mutate(item.id)}
                     aria-label="삭제"

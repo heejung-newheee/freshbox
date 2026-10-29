@@ -24,6 +24,15 @@ export function useToggleShoppingItem() {
   });
 }
 
+export function useUpdateShoppingItemName() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, name }: { id: string; name: string }) =>
+      api.updateShoppingItemName(id, name),
+    onSuccess: () => qc.invalidateQueries({ queryKey: QK }),
+  });
+}
+
 export function useDeleteShoppingItem() {
   const qc = useQueryClient();
   return useMutation({
