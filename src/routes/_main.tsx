@@ -92,7 +92,7 @@ export default function MainLayout() {
         <div
           className={cn(
             "flex-1 p-3 md:p-4 lg:p-6 overflow-y-auto",
-            isMobile && "pb-20",
+            isMobile && "pb-[calc(env(safe-area-inset-bottom)+80px)]",
           )}
         >
           <Outlet
